@@ -20,10 +20,11 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       </div>
       <div className="p-3 sm:p-4">
         <h2 className="text-base sm:text-lg font-bold mb-2 line-clamp-2">
-          <Link href={`/article/${article.slug}`}>
-            <a className="text-gray-900 hover:text-[#FF4D4D] transition-colors">
-              {article.title}
-            </a>
+          <Link 
+            href={`/article/${article.slug}`}
+            className="text-gray-900 hover:text-[#FF4D4D] transition-colors"
+          >
+            {article.title}
           </Link>
         </h2>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
