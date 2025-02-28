@@ -100,7 +100,7 @@ export const insertCategoriaSchema = createInsertSchema(categorias).omit({
 
 export const insertNoticiaSchema = createInsertSchema(noticia).omit({
   id: true,
-  criadoEm: true,
+  publicadoEm: true,
   atualizadoEm: true,
 });
 
