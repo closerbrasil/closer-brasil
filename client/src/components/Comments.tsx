@@ -68,7 +68,7 @@ export function Comments({ noticiaId }: CommentsProps) {
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Deixe seu comentário</h3>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => submitComment(data))} className="space-y-4">
+          <form onSubmit={form.handleSubmit((data) => submitComment({ ...data, noticiaId }))} className="space-y-4">
             <FormField
               control={form.control}
               name="autorNome"
