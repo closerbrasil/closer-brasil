@@ -24,7 +24,6 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           articleId={article.id} 
           articleTitle={article.titulo}
           size="sm"
-          className="bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm"
         />
       </div>
 

@@ -53,14 +53,17 @@ export function BookmarkButton({
             size="icon"
             onClick={handleToggleBookmark}
             className={cn(
-              "relative transition-all hover:bg-muted",
-              isAnimating && "scale-125",
-              saved ? "text-primary opacity-100" : "opacity-70", 
+              "relative transition-all bg-black/60 hover:bg-black/80 text-white",
+              isAnimating && "scale-110",
               className
             )}
             aria-label={saved ? "Remover dos favoritos" : "Adicionar aos favoritos"}
           >
-            <Bookmark size={iconSize} className="transition-transform" />
+            <Bookmark 
+              size={iconSize} 
+              className="transition-transform"
+              fill={saved ? "white" : "transparent"} 
+            />
           </Button>
         </TooltipTrigger>
         <TooltipContent>
