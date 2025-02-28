@@ -1,13 +1,13 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import type { Category } from "@shared/schema";
+import type { Categoria } from "@shared/schema";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: categories } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+  const { data: categorias } = useQuery<Categoria[]>({
+    queryKey: ["/api/categorias"],
   });
 
   return (
@@ -28,13 +28,13 @@ export default function Navigation() {
 
           {/* Desktop menu */}
           <div className="hidden md:flex space-x-8">
-            {categories?.map((category) => (
+            {categorias?.map((categoria) => (
               <Link 
-                key={category.id} 
-                href={`/category/${category.slug}`}
+                key={categoria.id} 
+                href={`/categoria/${categoria.slug}`}
                 className="text-gray-600 hover:text-black transition-colors"
               >
-                {category.name}
+                {categoria.nome}
               </Link>
             ))}
           </div>
@@ -43,13 +43,13 @@ export default function Navigation() {
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
-            {categories?.map((category) => (
+            {categorias?.map((categoria) => (
               <Link 
-                key={category.id} 
-                href={`/category/${category.slug}`}
+                key={categoria.id} 
+                href={`/categoria/${categoria.slug}`}
                 className="block py-2 text-gray-600 hover:text-black transition-colors"
               >
-                {category.name}
+                {categoria.nome}
               </Link>
             ))}
           </div>
