@@ -104,7 +104,7 @@ export function Comments({ noticiaId }: CommentsProps) {
             <Button 
               type="submit" 
               disabled={isPending}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-2 text-base font-medium"
+              className="w-full sm:w-auto bg-black hover:bg-black/90 text-white px-8 py-2 text-base font-medium"
             >
               {isPending ? "Enviando..." : "Publicar comentário"}
             </Button>

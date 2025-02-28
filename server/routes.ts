@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema } from "@shared/schema";
+import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express) {
@@ -18,8 +18,7 @@ export async function registerRoutes(app: Express) {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-          },
-          timeout: 5000
+          }
         }
       );
 
@@ -108,6 +107,26 @@ export async function registerRoutes(app: Express) {
       return;
     }
     res.json(noticia);
+  });
+
+  // Comentários
+  app.get("/api/noticias/:id/comentarios", async (req, res) => {
+    const comentarios = await storage.getComentariosAprovados(req.params.id);
+    res.json(comentarios);
+  });
+
+  app.post("/api/comentarios", async (req, res) => {
+    try {
+      const comentario = insertComentarioSchema.parse(req.body);
+      const created = await storage.criarComentario(comentario);
+      res.status(201).json(created);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Dados do comentário inválidos", errors: error.errors });
+        return;
+      }
+      throw error;
+    }
   });
 
   app.get("/api/categorias/:slug/noticias", async (req, res) => {
