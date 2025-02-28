@@ -6,7 +6,7 @@ export interface IStorage {
   getArticleBySlug(slug: string): Promise<Article | undefined>;
   getArticlesByCategory(categorySlug: string, page: number, limit: number): Promise<{ articles: Article[]; total: number }>;
   createArticle(article: InsertArticle): Promise<Article>;
-  
+
   // Categories
   getCategories(): Promise<Category[]>;
   getCategoryBySlug(slug: string): Promise<Category | undefined>;
@@ -27,20 +27,41 @@ export class MemStorage implements IStorage {
 
     // Add some default categories
     const defaultCategories: InsertCategory[] = [
-      { name: "Technology", slug: "technology" },
-      { name: "Culture", slug: "culture" },
-      { name: "Business", slug: "business" }
+      { name: "Tecnologia", slug: "tecnologia" },
+      { name: "Cultura", slug: "cultura" },
+      { name: "Negócios", slug: "negocios" }
     ];
     defaultCategories.forEach(cat => this.createCategory(cat));
+
+    // Add some default articles
+    const defaultArticles: InsertArticle[] = [
+      {
+        title: "O Futuro da Tecnologia no Brasil",
+        slug: "futuro-tecnologia-brasil",
+        excerpt: "Como a inovação está transformando o cenário tecnológico brasileiro",
+        content: "<p>O Brasil está se tornando um hub de inovação tecnológica na América Latina...</p>",
+        imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
+        categoryId: 1
+      },
+      {
+        title: "A Cultura do Carnaval",
+        slug: "cultura-carnaval",
+        excerpt: "Uma exploração das tradições e evolução do carnaval brasileiro",
+        content: "<p>O carnaval brasileiro é uma das festas mais famosas do mundo...</p>",
+        imageUrl: "https://images.unsplash.com/photo-1518499845966-9a86ddb68051",
+        categoryId: 2
+      }
+    ];
+    defaultArticles.forEach(article => this.createArticle(article));
   }
 
   async getArticles(page: number, limit: number): Promise<{ articles: Article[]; total: number }> {
     const allArticles = Array.from(this.articles.values())
       .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
-    
+
     const start = (page - 1) * limit;
     const end = start + limit;
-    
+
     return {
       articles: allArticles.slice(start, end),
       total: allArticles.length
