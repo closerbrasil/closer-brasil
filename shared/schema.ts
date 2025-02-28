@@ -161,11 +161,15 @@ export const insertNoticiaSchema = createInsertSchema(noticia).omit({
   atualizadoEm: true,
 });
 
+// Ajustando o schema de comentários
 export const insertComentarioSchema = createInsertSchema(comentarios).omit({
   id: true,
   criadoEm: true,
   atualizadoEm: true,
   aprovado: true,
+}).extend({
+  autorNome: z.string().optional(),
+  conteudo: z.string().min(1, "O comentário não pode estar vazio"),
 });
 
 
