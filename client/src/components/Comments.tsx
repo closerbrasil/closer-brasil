@@ -20,7 +20,7 @@ export function Comments({ noticiaId }: CommentsProps) {
   const { toast } = useToast();
 
   const { data: comentarios, isLoading } = useQuery<Comentario[]>({
-    queryKey: ["/api/noticias", noticiaId, "comentarios"],
+    queryKey: [`/api/noticias/${noticiaId}/comentarios`],
     enabled: !!noticiaId
   });
 
@@ -44,7 +44,7 @@ export function Comments({ noticiaId }: CommentsProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/noticias", noticiaId, "comentarios"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/noticias/${noticiaId}/comentarios`] });
       form.reset();
       toast({
         title: "Comentário enviado",
