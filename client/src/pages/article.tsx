@@ -28,6 +28,8 @@ export default function ArticlePage() {
     return <div>Article not found</div>;
   }
 
+  const publishedDate = new Date(article.publishedAt);
+
   return (
     <>
       <SEOHead
@@ -35,12 +37,14 @@ export default function ArticlePage() {
         description={article.excerpt}
         type="article"
         image={article.imageUrl}
-        publishedTime={new Date(article.publishedAt).toISOString()}
+        publishedTime={publishedDate.toISOString()}
       />
 
-      <script type="application/ld+json">
-        {JSON.stringify(generateArticleLD(article))}
-      </script>
+      <div 
+        dangerouslySetInnerHTML={{ 
+          __html: `<script type="application/ld+json">${JSON.stringify(generateArticleLD(article))}</script>`
+        }} 
+      />
 
       <article className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-merriweather font-bold mb-4">
