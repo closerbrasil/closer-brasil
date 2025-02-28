@@ -10,23 +10,25 @@ interface ArticleCardProps {
 export default function ArticleCard({ article }: ArticleCardProps) {
   return (
     <article className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-      <div className="aspect-video w-full relative">
+      <div className="aspect-[16/9] w-full relative">
         <img
           src={article.imageUrl}
           alt={article.title}
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="p-6">
-        <h2 className="text-xl font-merriweather font-bold mb-2">
+      <div className="p-4">
+        <h2 className="text-lg sm:text-xl font-merriweather font-bold mb-2">
           <Link href={`/article/${article.slug}`}>
             <a className="text-gray-900 hover:text-[#FF4D4D] transition-colors">
               {article.title}
             </a>
           </Link>
         </h2>
-        <p className="text-gray-600 mb-4 line-clamp-2">{article.excerpt}</p>
-        <div className="text-sm text-gray-500">
+        <p className="text-sm sm:text-base text-gray-600 mb-3 line-clamp-2">
+          {article.excerpt}
+        </p>
+        <div className="text-xs sm:text-sm text-gray-500">
           {formatDistanceToNow(new Date(article.publishedAt), { 
             addSuffix: true,
             locale: ptBR 

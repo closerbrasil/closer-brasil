@@ -11,7 +11,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="space-y-4">
             <Skeleton className="h-48 w-full" />
@@ -30,7 +30,7 @@ export default function Home() {
         description="Stay updated with the latest news and stories from Brazil and around the world."
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {data?.articles.map((article) => (
           <ArticleCard key={article.id} article={article} />
         ))}

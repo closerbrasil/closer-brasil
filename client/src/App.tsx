@@ -24,7 +24,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-[#F8F8F8]">
         <Navigation />
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-3 py-4 sm:px-4 sm:py-8">
           <Router />
         </main>
       </div>
