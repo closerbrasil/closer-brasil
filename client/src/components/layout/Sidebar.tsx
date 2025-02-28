@@ -8,14 +8,10 @@ import { WeatherWidget } from "@/components/WeatherWidget";
 import type { Noticia } from "@shared/schema";
 
 export const Sidebar = () => {
-  console.log('Sidebar: Component mounting'); // Debug log
-
   const { data: trending } = useQuery<{ noticias: Noticia[] }>({
     queryKey: ["/api/noticias/trending"],
-    select: (data) => ({ noticias: data.slice(0, 5) }),
+    select: (data) => ({ noticias: data?.slice(0, 5) ?? [] }),
   });
-
-  console.log('Sidebar: Rendering with trending data:', trending); // Debug log
 
   return (
     <aside className="space-y-6">
