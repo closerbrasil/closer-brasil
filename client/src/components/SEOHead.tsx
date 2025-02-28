@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet";
+import { Helmet } from 'react-helmet-async';
 
 type SeoType = "website" | "article" | "profile";
 
@@ -41,7 +41,7 @@ export default function SEOHead({
   const safeKeywords = Array.isArray(keywords) ? keywords.join(", ") : "";
   const safeDescription = description || defaultDescription;
   const safeImage = image || defaultImage;
-  const safeType = String(type);
+  const safeType = type || "website";
 
   return (
     <Helmet>

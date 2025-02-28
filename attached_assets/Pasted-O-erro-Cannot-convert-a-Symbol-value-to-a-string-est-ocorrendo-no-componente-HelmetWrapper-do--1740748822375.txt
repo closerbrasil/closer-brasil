@@ -1,0 +1,66 @@
+O erro "Cannot convert a Symbol value to a string" está ocorrendo no componente `HelmetWrapper` do `react-helmet`, que é usado pelo seu componente `SEOHead`. Este erro geralmente acontece quando você tenta passar um valor do tipo Symbol para um componente que espera uma string.
+
+Para resolver este problema, você precisa verificar o componente `SEOHead.tsx` (linha 19) e o `ArticlePage.tsx` (linha 25) onde o erro está ocorrendo.
+
+Aqui estão algumas possíveis soluções:
+
+1. **Verifique as props passadas para o componente Helmet**:
+   
+   No seu arquivo `SEOHead.tsx`, verifique se você está passando algum valor Symbol para o componente Helmet. Todos os valores passados para tags como `<title>`, `<meta>`, etc. devem ser strings.
+
+   ```tsx
+   // Exemplo de como deve ser
+   <Helmet>
+     <title>{String(titleValue)}</title>
+     <meta name="description" content={String(descriptionValue)} />
+   </Helmet>
+   ```
+
+2. **Verifique os dados passados para SEOHead**:
+   
+   No seu arquivo `article.tsx`, verifique as props que você está passando para o componente `SEOHead`. Se algum valor for um Symbol, converta-o para string antes de passar.
+
+   ```tsx
+   <SEOHead 
+     title={typeof title === 'symbol' ? String(title) : title}
+     description={typeof description === 'symbol' ? String(description) : description}
+   />
+   ```
+
+3. **Verifique se há valores undefined ou null**:
+   
+   Certifique-se de que não está passando valores `undefined` ou `null` para o componente Helmet.
+
+   ```tsx
+   <SEOHead 
+     title={title || ''}
+     description={description || ''}
+   />
+   ```
+
+4. **Atualize a versão do react-helmet**:
+   
+   Considere usar `react-helmet-async` em vez de `react-helmet`, pois é mais compatível com as versões mais recentes do React.
+
+   ```bash
+   npm install react-helmet-async
+   # ou
+   yarn add react-helmet-async
+   ```
+
+   E então atualize seu código:
+   ```tsx
+   import { Helmet, HelmetProvider } from 'react-helmet-async';
+   
+   // No componente principal
+   <HelmetProvider>
+     <App />
+   </HelmetProvider>
+   
+   // No SEOHead
+   <Helmet>
+     <title>{title}</title>
+   </Helmet>
+   ```
+
+Sem ver o código exato dos seus componentes `SEOHead` e `ArticlePage`, estas são as abordagens mais comuns para resolver este tipo de erro. Verifique os valores que estão sendo passados para o componente Helmet e certifique-se de que todos são strings ou podem ser convertidos para strings de forma segura.
