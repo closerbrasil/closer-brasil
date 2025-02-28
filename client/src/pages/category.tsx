@@ -11,11 +11,17 @@ export default function CategoryPage() {
 
   const { data: category } = useQuery<Category>({
     queryKey: ["/api/categories", slug],
+    enabled: !!slug
   });
 
-  const { data, isLoading } = useQuery<{ articles: Article[]; total: number }>({
-    queryKey: ["/api/categories", slug, "articles", { page: 1, limit: 12 }],
+  const { data: articlesData, isLoading } = useQuery<{ articles: Article[]; total: number }>({
+    queryKey: ["/api/categories", slug, "articles"],
+    enabled: !!slug
   });
+
+  if (!slug) {
+    return <div>Category not found</div>;
+  }
 
   if (isLoading) {
     return (
@@ -43,9 +49,11 @@ export default function CategoryPage() {
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {data?.articles.map((article) => (
+        {articlesData?.articles?.map((article) => (
           <ArticleCard key={article.id} article={article} />
-        ))}
+        )) || (
+          <p className="text-gray-600">No articles found in this category.</p>
+        )}
       </div>
     </>
   );
