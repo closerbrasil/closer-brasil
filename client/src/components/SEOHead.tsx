@@ -14,6 +14,7 @@ interface SEOHeadProps {
   };
   keywords?: string[];
   canonicalUrl?: string;
+  jsonLd?: Record<string, any>;
 }
 
 export default function SEOHead({
@@ -27,6 +28,7 @@ export default function SEOHead({
   author,
   keywords = [],
   canonicalUrl,
+  jsonLd,
 }: SEOHeadProps) {
   const siteTitle = "Closer Brasil";
   const defaultDescription = "Notícias e análises sobre tecnologia, cultura e negócios no Brasil";
@@ -50,7 +52,7 @@ export default function SEOHead({
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={safeDescription} />
-      <meta property="og:type" content={type} />
+      <meta property="og:type" content={String(type)} />
       <meta property="og:locale" content="pt_BR" />
       {url && <meta property="og:url" content={url} />}
       <meta property="og:image" content={safeImage} />
@@ -78,6 +80,13 @@ export default function SEOHead({
             </>
           )}
         </>
+      )}
+
+      {/* JSON-LD */}
+      {jsonLd && (
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
       )}
 
       {/* Additional Meta Tags */}

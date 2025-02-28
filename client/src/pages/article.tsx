@@ -38,12 +38,7 @@ export default function ArticlePage() {
         type="article"
         image={article.imageUrl}
         publishedTime={publishedDate.toISOString()}
-      />
-
-      <div 
-        dangerouslySetInnerHTML={{ 
-          __html: `<script type="application/ld+json">${JSON.stringify(generateArticleLD(article))}</script>`
-        }} 
+        jsonLd={generateArticleLD(article)}
       />
 
       <article className="max-w-3xl mx-auto">
