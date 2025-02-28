@@ -10,12 +10,23 @@ export async function registerRoutes(app: Express) {
   // Weather API endpoint
   app.get("/api/weather", async (_req, res) => {
     try {
+      const city = encodeURIComponent('São Paulo');
+      const country = 'BR';
       const response = await fetch(
-        `http://api.openweathermap.org/data/2.5/weather?q=São Paulo,BR&units=metric&appid=${process.env.OPENWEATHERMAP_API_KEY}&lang=pt_br`
+        `https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&units=metric&appid=${process.env.OPENWEATHERMAP_API_KEY}&lang=pt_br`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          timeout: 5000
+        }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch weather data');
+        const errorData = await response.json();
+        console.error('Weather API error response:', errorData);
+        throw new Error(`Weather API failed with status ${response.status}`);
       }
 
       const data = await response.json();
