@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import ArticleCard from "@/components/ArticleCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,16 +24,24 @@ export default function BookmarksPage() {
       // Em um ambiente real, seria ideal ter um endpoint para buscar vários artigos de uma vez
       // Para este exemplo, buscamos um por um
       const promises = bookmarks.map(id => 
-        fetch(`/api/noticias/by-id/${id}`)
-          .then(res => res.json())
+        fetch(`/api/noticias/${id}`)
+          .then(res => {
+            if (!res.ok) {
+              console.error(`Erro ao buscar artigo ${id}: Status ${res.status}`);
+              return null;
+            }
+            return res.json();
+          })
           .catch(err => {
             console.error(`Erro ao buscar artigo ${id}:`, err);
             return null;
           })
       );
-      
+
       const results = await Promise.all(promises);
-      setSavedArticles(results.filter(Boolean));
+      const validArticles = results.filter(article => article !== null);
+      console.log('Artigos recuperados:', validArticles.length);
+      setSavedArticles(validArticles);
     } catch (error) {
       console.error("Erro ao buscar artigos salvos:", error);
     } finally {
@@ -74,6 +81,13 @@ export default function BookmarksPage() {
             <h2 className="text-xl font-medium mb-2">Você ainda não tem artigos salvos</h2>
             <p className="text-muted-foreground">
               Clique no ícone de marcador em qualquer artigo para adicioná-lo aos seus favoritos.
+            </p>
+          </div>
+        ) : savedArticles.length === 0 ? (
+          <div className="text-center py-12">
+            <h2 className="text-xl font-medium mb-2">Não foi possível recuperar seus artigos salvos</h2>
+            <p className="text-muted-foreground">
+              Houve um problema ao buscar os artigos. Tente novamente mais tarde.
             </p>
           </div>
         ) : (

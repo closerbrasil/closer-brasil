@@ -100,8 +100,21 @@ export async function registerRoutes(app: Express) {
     res.json(noticias);
   });
 
-  app.get("/api/noticias/:slug", async (req, res) => {
-    const noticia = await storage.getNoticiaPorSlug(req.params.slug);
+  app.get("/api/noticias/:identificador", async (req, res) => {
+    const identificador = req.params.identificador;
+
+    // Verifica se o identificador é um UUID (formato de ID)
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identificador);
+
+    let noticia;
+    if (isUUID) {
+      // Se for UUID, busca por ID
+      noticia = await storage.getNoticiaPorId(identificador);
+    } else {
+      // Senão, busca por slug
+      noticia = await storage.getNoticiaPorSlug(identificador);
+    }
+
     if (!noticia) {
       res.status(404).json({ message: "Notícia não encontrada" });
       return;

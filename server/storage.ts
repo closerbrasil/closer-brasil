@@ -6,6 +6,7 @@ export interface IStorage {
   // Notícias
   getNoticias(page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
   getNoticiaPorSlug(slug: string): Promise<Noticia | undefined>;
+  getNoticiaPorId(id: string): Promise<Noticia | undefined>;
   getNoticiasPorCategoria(categoriaSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
   getNoticiasPorAutor(autorSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
   criarNoticia(noticia: InsertNoticia): Promise<Noticia>;
@@ -63,6 +64,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(noticia)
       .where(eq(noticia.slug, slug));
+    return result;
+  }
+
+  async getNoticiaPorId(id: string): Promise<Noticia | undefined> {
+    const [result] = await db
+      .select()
+      .from(noticia)
+      .where(eq(noticia.id, id));
     return result;
   }
 
