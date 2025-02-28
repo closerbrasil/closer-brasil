@@ -1,6 +1,10 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { db } from "./db";
+import { storage } from "./storage";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { sql } from "drizzle-orm";
 
 const app = express();
 app.use(express.json());
@@ -39,6 +43,27 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Configurar banco de dados
+  try {
+    // Executar push do schema para o banco
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS _journal (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    // Criar categorias iniciais se não existirem
+    const categories = await storage.getCategories();
+    if (categories.length === 0) {
+      await storage.createCategory({ name: "Tecnologia", slug: "tecnologia" });
+      await storage.createCategory({ name: "Cultura", slug: "cultura" });
+      await storage.createCategory({ name: "Negócios", slug: "negocios" });
+    }
+  } catch (error) {
+    console.error("Erro ao configurar banco de dados:", error);
+    throw error;
+  }
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -47,17 +72,12 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client
   const port = 5000;
   server.listen({
     port,

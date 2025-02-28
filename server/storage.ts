@@ -1,4 +1,6 @@
-import { Article, Category, InsertArticle, InsertCategory } from "@shared/schema";
+import { Article, Category, InsertArticle, InsertCategory, articles, categories } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Articles
@@ -13,110 +15,88 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
 }
 
-export class MemStorage implements IStorage {
-  private articles: Map<number, Article>;
-  private categories: Map<number, Category>;
-  private currentArticleId: number;
-  private currentCategoryId: number;
-
-  constructor() {
-    this.articles = new Map();
-    this.categories = new Map();
-    this.currentArticleId = 1;
-    this.currentCategoryId = 1;
-
-    // Add some default categories
-    const defaultCategories: InsertCategory[] = [
-      { name: "Tecnologia", slug: "tecnologia" },
-      { name: "Cultura", slug: "cultura" },
-      { name: "Negócios", slug: "negocios" }
-    ];
-    defaultCategories.forEach(cat => this.createCategory(cat));
-
-    // Add some default articles
-    const defaultArticles: InsertArticle[] = [
-      {
-        title: "O Futuro da Tecnologia no Brasil",
-        slug: "futuro-tecnologia-brasil",
-        excerpt: "Como a inovação está transformando o cenário tecnológico brasileiro",
-        content: "<p>O Brasil está se tornando um hub de inovação tecnológica na América Latina...</p>",
-        imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
-        categoryId: 1
-      },
-      {
-        title: "A Cultura do Carnaval",
-        slug: "cultura-carnaval",
-        excerpt: "Uma exploração das tradições e evolução do carnaval brasileiro",
-        content: "<p>O carnaval brasileiro é uma das festas mais famosas do mundo...</p>",
-        imageUrl: "https://images.unsplash.com/photo-1518499845966-9a86ddb68051",
-        categoryId: 2
-      }
-    ];
-    defaultArticles.forEach(article => this.createArticle(article));
-  }
-
+export class DatabaseStorage implements IStorage {
   async getArticles(page: number, limit: number): Promise<{ articles: Article[]; total: number }> {
-    const allArticles = Array.from(this.articles.values())
-      .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+    const offset = (page - 1) * limit;
+    const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(articles);
+    const total = Number(countResult?.count || 0);
 
-    const start = (page - 1) * limit;
-    const end = start + limit;
+    const articlesResult = await db
+      .select()
+      .from(articles)
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(articles.publishedAt));
 
     return {
-      articles: allArticles.slice(start, end),
-      total: allArticles.length
+      articles: articlesResult,
+      total
     };
   }
 
   async getArticleBySlug(slug: string): Promise<Article | undefined> {
-    return Array.from(this.articles.values()).find(article => article.slug === slug);
+    const [article] = await db
+      .select()
+      .from(articles)
+      .where(eq(articles.slug, slug));
+    return article;
   }
 
   async getArticlesByCategory(categorySlug: string, page: number, limit: number): Promise<{ articles: Article[]; total: number }> {
-    const category = Array.from(this.categories.values()).find(c => c.slug === categorySlug);
+    const offset = (page - 1) * limit;
+    const category = await this.getCategoryBySlug(categorySlug);
     if (!category) return { articles: [], total: 0 };
 
-    const categoryArticles = Array.from(this.articles.values())
-      .filter(article => article.categoryId === category.id)
-      .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(articles)
+      .where(eq(articles.categoryId, category.id));
+    const total = Number(countResult?.count || 0);
 
-    const start = (page - 1) * limit;
-    const end = start + limit;
+    const articlesResult = await db
+      .select()
+      .from(articles)
+      .where(eq(articles.categoryId, category.id))
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(articles.publishedAt));
 
     return {
-      articles: categoryArticles.slice(start, end),
-      total: categoryArticles.length
+      articles: articlesResult,
+      total
     };
   }
 
   async createArticle(article: InsertArticle): Promise<Article> {
-    const id = this.currentArticleId++;
-    const newArticle: Article = {
-      ...article,
-      id,
-      publishedAt: new Date()
-    };
-    this.articles.set(id, newArticle);
+    const [newArticle] = await db
+      .insert(articles)
+      .values(article)
+      .returning();
     return newArticle;
   }
 
   async getCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+    return await db.select().from(categories);
   }
 
   async getCategoryBySlug(slug: string): Promise<Category | undefined> {
-    return Array.from(this.categories.values()).find(category => category.slug === slug);
+    const [category] = await db
+      .select()
+      .from(categories)
+      .where(eq(categories.slug, slug));
+    return category;
   }
 
   async createCategory(category: InsertCategory): Promise<Category> {
-    const id = this.currentCategoryId++;
-    const newCategory: Category = {
-      ...category,
-      id
-    };
-    this.categories.set(id, newCategory);
+    const [newCategory] = await db
+      .insert(categories)
+      .values(category)
+      .returning();
     return newCategory;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
+
+//To run migrations, add this line somewhere appropriate in your application's startup process:
+// await migrate(db, { migrationsFolder: './migrations' }); //Remember to replace './migrations' with your actual migrations folder path.
