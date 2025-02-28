@@ -10,7 +10,8 @@ export default function ArticlePage() {
   const slug = params?.slug;
 
   const { data: article, isLoading } = useQuery<Article>({
-    queryKey: ["/api/articles", slug],
+    queryKey: [`/api/articles/${slug}`],
+    enabled: !!slug
   });
 
   if (isLoading) {
@@ -34,9 +35,9 @@ export default function ArticlePage() {
         description={article.excerpt}
         type="article"
         image={article.imageUrl}
-        publishedTime={article.publishedAt.toString()}
+        publishedTime={new Date(article.publishedAt).toISOString()}
       />
-      
+
       <script type="application/ld+json">
         {JSON.stringify(generateArticleLD(article))}
       </script>
@@ -45,7 +46,7 @@ export default function ArticlePage() {
         <h1 className="text-4xl font-merriweather font-bold mb-4">
           {article.title}
         </h1>
-        
+
         <img
           src={article.imageUrl}
           alt={article.title}
