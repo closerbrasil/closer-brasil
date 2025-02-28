@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, varchar, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, varchar, uuid, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -81,6 +81,18 @@ export const noticia = pgTable("noticia", {
   visibilidade: varchar("visibilidade", { length: 20 }).default("publico").notNull(),
 });
 
+// Nova tabela de comentários
+export const comentarios = pgTable("comentarios", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  conteudo: text("conteudo").notNull(),
+  autorNome: varchar("autor_nome", { length: 100 }).notNull(),
+  autorEmail: varchar("autor_email", { length: 255 }).notNull(),
+  noticiaId: uuid("noticia_id").references(() => noticia.id).notNull(),
+  aprovado: boolean("aprovado").default(false).notNull(),
+  criadoEm: timestamp("criado_em").defaultNow().notNull(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow().notNull(),
+});
+
 // Relações
 export const noticiaRelations = relations(noticia, ({ one, many }) => ({
   autor: one(autores, {
@@ -92,6 +104,7 @@ export const noticiaRelations = relations(noticia, ({ one, many }) => ({
     references: [categorias.id],
   }),
   tags: many(noticiasTags),
+  comentarios: many(comentarios),
 }));
 
 export const tagsRelations = relations(tags, ({ many }) => ({
@@ -115,6 +128,13 @@ export const autoresRelations = relations(autores, ({ many }) => ({
 
 export const categoriasRelations = relations(categorias, ({ many }) => ({
   noticias: many(noticia),
+}));
+
+export const comentariosRelations = relations(comentarios, ({ one }) => ({
+  noticia: one(noticia, {
+    fields: [comentarios.noticiaId],
+    references: [noticia.id],
+  }),
 }));
 
 // Schemas de inserção
@@ -142,6 +162,13 @@ export const insertNoticiaSchema = createInsertSchema(noticia).omit({
   atualizadoEm: true,
 });
 
+export const insertComentarioSchema = createInsertSchema(comentarios).omit({
+  id: true,
+  criadoEm: true,
+  atualizadoEm: true,
+});
+
+
 // Tipos
 export type Autor = typeof autores.$inferSelect;
 export type InsertAutor = z.infer<typeof insertAutorSchema>;
@@ -154,3 +181,6 @@ export type InsertTag = z.infer<typeof insertTagSchema>;
 
 export type Noticia = typeof noticia.$inferSelect;
 export type InsertNoticia = z.infer<typeof insertNoticiaSchema>;
+
+export type Comentario = typeof comentarios.$inferSelect;
+export type InsertComentario = z.infer<typeof insertComentarioSchema>;

@@ -1,4 +1,4 @@
-import { Noticia, Categoria, Autor, Tag, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, noticia, categorias, autores, tags, noticiasTags } from "@shared/schema";
+import { Noticia, Categoria, Autor, Tag, Comentario, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, InsertComentario, noticia, categorias, autores, tags, noticiasTags, comentarios } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
 
@@ -29,6 +29,13 @@ export interface IStorage {
   getTagsDaNoticia(noticiaId: string): Promise<Tag[]>;
   adicionarTagNaNoticia(noticiaId: string, tagId: string): Promise<void>;
   removerTagDaNoticia(noticiaId: string, tagId: string): Promise<void>;
+
+  // Comentários
+  getComentarios(noticiaId: string): Promise<Comentario[]>;
+  getComentariosAprovados(noticiaId: string): Promise<Comentario[]>;
+  criarComentario(comentario: InsertComentario): Promise<Comentario>;
+  aprovarComentario(id: string): Promise<Comentario>;
+  removerComentario(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -221,6 +228,46 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(noticiasTags)
       .where(sql`${noticiasTags.noticiaId} = ${noticiaId} AND ${noticiasTags.tagId} = ${tagId}`);
+  }
+
+  // Comentários
+  async getComentarios(noticiaId: string): Promise<Comentario[]> {
+    return await db
+      .select()
+      .from(comentarios)
+      .where(eq(comentarios.noticiaId, noticiaId))
+      .orderBy(desc(comentarios.criadoEm));
+  }
+
+  async getComentariosAprovados(noticiaId: string): Promise<Comentario[]> {
+    return await db
+      .select()
+      .from(comentarios)
+      .where(sql`${comentarios.noticiaId} = ${noticiaId} AND ${comentarios.aprovado} = true`)
+      .orderBy(desc(comentarios.criadoEm));
+  }
+
+  async criarComentario(comentario: InsertComentario): Promise<Comentario> {
+    const [result] = await db
+      .insert(comentarios)
+      .values(comentario)
+      .returning();
+    return result;
+  }
+
+  async aprovarComentario(id: string): Promise<Comentario> {
+    const [result] = await db
+      .update(comentarios)
+      .set({ aprovado: true, atualizadoEm: new Date() })
+      .where(eq(comentarios.id, id))
+      .returning();
+    return result;
+  }
+
+  async removerComentario(id: string): Promise<void> {
+    await db
+      .delete(comentarios)
+      .where(eq(comentarios.id, id));
   }
 }
 

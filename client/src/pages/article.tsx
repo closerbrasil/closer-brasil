@@ -5,6 +5,7 @@ import { generateArticleLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TagList } from "@/components/TagList";
+import { Comments } from "@/components/Comments";
 
 export default function ArticlePage() {
   const [, params] = useRoute("/noticia/:slug");
@@ -61,9 +62,14 @@ export default function ArticlePage() {
         />
 
         <div
-          className="prose prose-lg max-w-none"
+          className="prose prose-lg max-w-none mb-12"
           dangerouslySetInnerHTML={{ __html: noticia.conteudo }}
         />
+
+        {/* Seção de comentários */}
+        <div className="mt-12 pt-8 border-t">
+          <Comments noticiaId={noticia.id} />
+        </div>
       </article>
     </>
   );
