@@ -1,4 +1,4 @@
-import { Bookmark, BookmarkMinus } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,25 +25,25 @@ export function BookmarkButton({
 }: BookmarkButtonProps) {
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const [isAnimating, setIsAnimating] = useState(false);
-  
+
   const saved = isBookmarked(articleId);
-  
+
   const handleToggleBookmark = () => {
     // Iniciar animação
     setIsAnimating(true);
-    
+
     // Parar animação após completar
     setTimeout(() => {
       setIsAnimating(false);
     }, 500);
-    
+
     // Alternar estado do bookmark
     toggleBookmark(articleId, articleTitle);
   };
-  
+
   // Determinar tamanho do ícone com base no prop size
   const iconSize = size === "sm" ? 16 : size === "lg" ? 24 : 20;
-  
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -55,16 +55,12 @@ export function BookmarkButton({
             className={cn(
               "relative transition-all hover:bg-muted",
               isAnimating && "scale-125",
-              saved && "text-primary",
+              saved ? "text-primary opacity-100" : "opacity-70", 
               className
             )}
             aria-label={saved ? "Remover dos favoritos" : "Adicionar aos favoritos"}
           >
-            {saved ? (
-              <BookmarkMinus size={iconSize} className="transition-transform" />
-            ) : (
-              <Bookmark size={iconSize} className="transition-transform" />
-            )}
+            <Bookmark size={iconSize} className="transition-transform" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>
