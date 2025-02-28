@@ -20,35 +20,35 @@ export default function Home() {
       />
 
       <div className="min-h-screen">
-        <div className="container py-8">
-          <Hero />
+        <Hero />
 
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-[1fr_384px] gap-8">
-            {/* Main Content */}
-            <main>
-              <h2 className="text-2xl font-bold mb-6">Últimas Notícias</h2>
-              {isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="space-y-3">
-                      <Skeleton className="h-48 w-full rounded-lg" />
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-full" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  {data?.noticias?.map((noticia) => (
-                    <ArticleCard key={noticia.id} article={noticia} />
-                  ))}
-                </div>
-              )}
-            </main>
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+          {/* Main Content */}
+          <main>
+            <h2 className="text-2xl font-bold mb-6">Últimas Notícias</h2>
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="h-48 w-full rounded-lg" />
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                {data?.noticias?.map((noticia) => (
+                  <ArticleCard key={noticia.id} article={noticia} />
+                ))}
+              </div>
+            )}
+          </main>
 
-            {/* Sidebar */}
+          {/* Sidebar */}
+          <aside className="space-y-8">
             <Sidebar />
-          </div>
+          </aside>
         </div>
       </div>
     </>
