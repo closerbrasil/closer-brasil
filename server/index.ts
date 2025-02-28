@@ -53,11 +53,11 @@ app.use((req, res, next) => {
     )`);
 
     // Criar categorias iniciais se não existirem
-    const categories = await storage.getCategories();
-    if (categories.length === 0) {
-      await storage.createCategory({ name: "Tecnologia", slug: "tecnologia" });
-      await storage.createCategory({ name: "Cultura", slug: "cultura" });
-      await storage.createCategory({ name: "Negócios", slug: "negocios" });
+    const categorias = await storage.getCategorias();
+    if (categorias.length === 0) {
+      await storage.criarCategoria({ nome: "Tecnologia", slug: "tecnologia" });
+      await storage.criarCategoria({ nome: "Cultura", slug: "cultura" });
+      await storage.criarCategoria({ nome: "Negócios", slug: "negocios" });
     }
   } catch (error) {
     console.error("Erro ao configurar banco de dados:", error);

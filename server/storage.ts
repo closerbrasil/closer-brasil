@@ -1,102 +1,173 @@
-import { Article, Category, InsertArticle, InsertCategory, articles, categories } from "@shared/schema";
+import { Noticia, Categoria, Autor, InsertNoticia, InsertCategoria, InsertAutor, noticia, categorias, autores } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
-  // Articles
-  getArticles(page: number, limit: number): Promise<{ articles: Article[]; total: number }>;
-  getArticleBySlug(slug: string): Promise<Article | undefined>;
-  getArticlesByCategory(categorySlug: string, page: number, limit: number): Promise<{ articles: Article[]; total: number }>;
-  createArticle(article: InsertArticle): Promise<Article>;
+  // Notícias
+  getNoticias(page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
+  getNoticiaPorSlug(slug: string): Promise<Noticia | undefined>;
+  getNoticiasPorCategoria(categoriaSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
+  getNoticiasPorAutor(autorSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
+  criarNoticia(noticia: InsertNoticia): Promise<Noticia>;
+  atualizarNoticia(id: string, noticia: Partial<InsertNoticia>): Promise<Noticia>;
 
-  // Categories
-  getCategories(): Promise<Category[]>;
-  getCategoryBySlug(slug: string): Promise<Category | undefined>;
-  createCategory(category: InsertCategory): Promise<Category>;
+  // Categorias
+  getCategorias(): Promise<Categoria[]>;
+  getCategoriaPorSlug(slug: string): Promise<Categoria | undefined>;
+  criarCategoria(categoria: InsertCategoria): Promise<Categoria>;
+
+  // Autores
+  getAutores(): Promise<Autor[]>;
+  getAutorPorSlug(slug: string): Promise<Autor | undefined>;
+  criarAutor(autor: InsertAutor): Promise<Autor>;
+  atualizarAutor(id: string, autor: Partial<InsertAutor>): Promise<Autor>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getArticles(page: number, limit: number): Promise<{ articles: Article[]; total: number }> {
+  // Notícias
+  async getNoticias(page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }> {
     const offset = (page - 1) * limit;
-    const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(articles);
+    const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(noticia);
     const total = Number(countResult?.count || 0);
 
-    const articlesResult = await db
+    const noticiasResult = await db
       .select()
-      .from(articles)
+      .from(noticia)
       .limit(limit)
       .offset(offset)
-      .orderBy(desc(articles.publishedAt));
+      .orderBy(desc(noticia.publicadoEm));
 
     return {
-      articles: articlesResult,
+      noticias: noticiasResult,
       total
     };
   }
 
-  async getArticleBySlug(slug: string): Promise<Article | undefined> {
-    const [article] = await db
+  async getNoticiaPorSlug(slug: string): Promise<Noticia | undefined> {
+    const [result] = await db
       .select()
-      .from(articles)
-      .where(eq(articles.slug, slug));
-    return article;
+      .from(noticia)
+      .where(eq(noticia.slug, slug));
+    return result;
   }
 
-  async getArticlesByCategory(categorySlug: string, page: number, limit: number): Promise<{ articles: Article[]; total: number }> {
+  async getNoticiasPorCategoria(categoriaSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }> {
     const offset = (page - 1) * limit;
-    const category = await this.getCategoryBySlug(categorySlug);
-    if (!category) return { articles: [], total: 0 };
+    const categoria = await this.getCategoriaPorSlug(categoriaSlug);
+    if (!categoria) return { noticias: [], total: 0 };
 
     const [countResult] = await db
       .select({ count: sql<number>`count(*)` })
-      .from(articles)
-      .where(eq(articles.categoryId, category.id));
+      .from(noticia)
+      .where(eq(noticia.categoriaId, categoria.id));
     const total = Number(countResult?.count || 0);
 
-    const articlesResult = await db
+    const noticiasResult = await db
       .select()
-      .from(articles)
-      .where(eq(articles.categoryId, category.id))
+      .from(noticia)
+      .where(eq(noticia.categoriaId, categoria.id))
       .limit(limit)
       .offset(offset)
-      .orderBy(desc(articles.publishedAt));
+      .orderBy(desc(noticia.publicadoEm));
 
     return {
-      articles: articlesResult,
+      noticias: noticiasResult,
       total
     };
   }
 
-  async createArticle(article: InsertArticle): Promise<Article> {
-    const [newArticle] = await db
-      .insert(articles)
-      .values(article)
-      .returning();
-    return newArticle;
-  }
+  async getNoticiasPorAutor(autorSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }> {
+    const offset = (page - 1) * limit;
+    const autor = await this.getAutorPorSlug(autorSlug);
+    if (!autor) return { noticias: [], total: 0 };
 
-  async getCategories(): Promise<Category[]> {
-    return await db.select().from(categories);
-  }
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(noticia)
+      .where(eq(noticia.autorId, autor.id));
+    const total = Number(countResult?.count || 0);
 
-  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
-    const [category] = await db
+    const noticiasResult = await db
       .select()
-      .from(categories)
-      .where(eq(categories.slug, slug));
-    return category;
+      .from(noticia)
+      .where(eq(noticia.autorId, autor.id))
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(noticia.publicadoEm));
+
+    return {
+      noticias: noticiasResult,
+      total
+    };
   }
 
-  async createCategory(category: InsertCategory): Promise<Category> {
-    const [newCategory] = await db
-      .insert(categories)
-      .values(category)
+  async criarNoticia(novaNoticia: InsertNoticia): Promise<Noticia> {
+    const [result] = await db
+      .insert(noticia)
+      .values(novaNoticia)
       .returning();
-    return newCategory;
+    return result;
+  }
+
+  async atualizarNoticia(id: string, atualizacao: Partial<InsertNoticia>): Promise<Noticia> {
+    const [result] = await db
+      .update(noticia)
+      .set(atualizacao)
+      .where(eq(noticia.id, id))
+      .returning();
+    return result;
+  }
+
+  // Categorias
+  async getCategorias(): Promise<Categoria[]> {
+    return await db.select().from(categorias);
+  }
+
+  async getCategoriaPorSlug(slug: string): Promise<Categoria | undefined> {
+    const [categoria] = await db
+      .select()
+      .from(categorias)
+      .where(eq(categorias.slug, slug));
+    return categoria;
+  }
+
+  async criarCategoria(categoria: InsertCategoria): Promise<Categoria> {
+    const [result] = await db
+      .insert(categorias)
+      .values(categoria)
+      .returning();
+    return result;
+  }
+
+  // Autores
+  async getAutores(): Promise<Autor[]> {
+    return await db.select().from(autores);
+  }
+
+  async getAutorPorSlug(slug: string): Promise<Autor | undefined> {
+    const [autor] = await db
+      .select()
+      .from(autores)
+      .where(eq(autores.slug, slug));
+    return autor;
+  }
+
+  async criarAutor(autor: InsertAutor): Promise<Autor> {
+    const [result] = await db
+      .insert(autores)
+      .values(autor)
+      .returning();
+    return result;
+  }
+
+  async atualizarAutor(id: string, autor: Partial<InsertAutor>): Promise<Autor> {
+    const [result] = await db
+      .update(autores)
+      .set(autor)
+      .where(eq(autores.id, id))
+      .returning();
+    return result;
   }
 }
 
 export const storage = new DatabaseStorage();
-
-//To run migrations, add this line somewhere appropriate in your application's startup process:
-// await migrate(db, { migrationsFolder: './migrations' }); //Remember to replace './migrations' with your actual migrations folder path.
