@@ -7,6 +7,25 @@ import { z } from "zod";
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
 
+  // Weather API endpoint
+  app.get("/api/weather", async (_req, res) => {
+    try {
+      const response = await fetch(
+        `http://api.openweathermap.org/data/2.5/weather?q=São Paulo,BR&units=metric&appid=${process.env.OPENWEATHERMAP_API_KEY}&lang=pt_br`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch weather data');
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error('Weather API error:', error);
+      res.status(500).json({ message: "Erro ao buscar dados meteorológicos" });
+    }
+  });
+
   // Autores
   app.get("/api/autores", async (_req, res) => {
     const autores = await storage.getAutores();

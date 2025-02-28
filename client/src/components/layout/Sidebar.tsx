@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { WeatherWidget } from "@/components/WeatherWidget";
 import type { Noticia } from "@shared/schema";
 
 export const Sidebar = () => {
@@ -14,6 +15,9 @@ export const Sidebar = () => {
 
   return (
     <aside className="space-y-6">
+      {/* Weather Widget */}
+      <WeatherWidget />
+
       {/* Seção Mais Lidas */}
       <Card className="p-4">
         <h2 className="text-lg font-bold mb-4">Mais Lidas</h2>
