@@ -1,0 +1,50 @@
+# Prompt for a Responsive News Portal Homepage Layout
+
+Create a modern, user-friendly homepage layout for a news portal that adapts seamlessly across all devices (desktop, tablet, and mobile). The design should prioritize responsive behavior while maintaining content hierarchy and readability regardless of screen size. All text content, headlines, titles, section names, and navigation elements must be in Brazilian Portuguese.
+
+## Key Layout Requirements:
+
+1. **Header Section**:
+   - Implement a collapsible navigation menu that transforms into a hamburger menu on smaller screens
+   - Include a prominent, responsive logo that scales appropriately
+   - Feature a search bar that remains accessible on all devices (with placeholder text in Brazilian Portuguese)
+   - Add user account/login options that adapt to screen size (using appropriate Brazilian Portuguese terms like "Entrar" and "Cadastre-se")
+
+2. **Hero Section**:
+   - Display the main headline story with a responsive image that maintains proper aspect ratio
+   - Ensure headline text is readable on all devices with appropriate font scaling
+   - Include a brief summary that adjusts length based on available space
+   - All headlines and article text must be in Brazilian Portuguese
+
+3. **News Categories Grid**:
+   - Design a flexible grid system that reflows from multiple columns on desktop to fewer columns or single column on mobile
+   - Implement category tabs that transform into a horizontal scrollable menu on smaller screens
+   - Use Brazilian Portuguese category names (e.g., "Política", "Economia", "Esportes", "Entretenimento", "Tecnologia")
+   - Ensure consistent spacing between news items regardless of screen size
+
+4. **Content Cards**:
+   - Create modular news cards with responsive images and text
+   - Implement a card layout that gracefully transitions from grid to list view on smaller screens
+   - Ensure touch-friendly tap targets on mobile devices (minimum 44x44px)
+   - All article titles, summaries, and metadata (like publication date and author) must be in Brazilian Portuguese
+
+5. **Sidebar Elements**:
+   - Design sidebar components that relocate below main content on mobile devices
+   - Include popular/trending news sections that adapt to available width (with headings like "Mais Lidas" or "Em Alta")
+   - Feature newsletter signup that remains prominent across all breakpoints (with Brazilian Portuguese call-to-action text)
+
+6. **Footer**:
+   - Create a responsive footer with properly aligned columns that stack on mobile
+   - Include social media links, site navigation, and legal information that remain accessible
+   - Ensure contact information and subscription options are easily accessible regardless of device
+   - All footer text including copyright notices, terms of service, and privacy policy links must be in Brazilian Portuguese
+
+7. **Technical Specifications**:
+   - Implement fluid typography using relative units (rem/em) rather than fixed pixel sizes
+   - Use CSS Grid and/or Flexbox for responsive layouts
+   - Ensure proper breakpoints for common device sizes (mobile, tablet, desktop)
+   - Implement lazy loading for images to optimize performance on mobile devices
+   - Ensure touch-friendly navigation with appropriate spacing between interactive elements
+   - Support proper display of Brazilian Portuguese special characters and accents (á, â, ã, ç, é, ê, í, ó, ô, õ, ú)
+
+The final design should load quickly, prioritize content visibility, and provide an intuitive user experience regardless of the device being used to access the news portal, while maintaining consistent and correct Brazilian Portuguese language throughout the interface.
