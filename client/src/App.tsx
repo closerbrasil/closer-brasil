@@ -11,6 +11,7 @@ import Category from "@/pages/category";
 import Tag from "@/pages/tag";
 import Author from "@/pages/author";
 import About from "@/pages/about";
+import Bookmarks from "@/pages/bookmarks";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/tag/:slug" component={Tag} />
       <Route path="/author" component={Author} />
       <Route path="/about" component={About} />
+      <Route path="/favoritos" component={Bookmarks} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -4,6 +4,7 @@ import { ptBR } from "date-fns/locale";
 import type { Noticia } from "@shared/schema";
 import { TagList } from "./TagList";
 import { useQuery } from "@tanstack/react-query";
+import { BookmarkButton } from "./BookmarkButton";
 
 interface ArticleCardProps {
   article: Noticia;
@@ -16,7 +17,17 @@ export default function ArticleCard({ article }: ArticleCardProps) {
   });
 
   return (
-    <article className="group cursor-pointer">
+    <article className="group relative">
+      {/* Botão de bookmark posicionado no canto superior direito */}
+      <div className="absolute right-2 top-2 z-10">
+        <BookmarkButton 
+          articleId={article.id} 
+          articleTitle={article.titulo}
+          size="sm"
+          className="bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm"
+        />
+      </div>
+
       <Link href={`/noticia/${article.slug}`}>
         <div className="relative aspect-video w-full overflow-hidden rounded-lg">
           <img

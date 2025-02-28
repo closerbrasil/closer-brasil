@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Categoria } from "@shared/schema";
-import { Menu } from "lucide-react";
+import { Menu, Bookmark } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -18,16 +18,8 @@ export default function Navigation() {
             Closer Brasil
           </Link>
 
-          {/* Mobile menu button */}
-          <button 
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-
           {/* Desktop menu */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {categorias?.map((categoria) => (
               <Link 
                 key={categoria.id} 
@@ -37,7 +29,24 @@ export default function Navigation() {
                 {categoria.nome}
               </Link>
             ))}
+
+            {/* Favoritos link */}
+            <Link 
+              href="/favoritos"
+              className="text-gray-600 hover:text-black transition-colors flex items-center"
+            >
+              <Bookmark className="h-4 w-4 mr-1" />
+              Favoritos
+            </Link>
           </div>
+
+          {/* Mobile menu button */}
+          <button 
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
         </div>
 
         {/* Mobile menu */}
@@ -52,6 +61,15 @@ export default function Navigation() {
                 {categoria.nome}
               </Link>
             ))}
+
+            {/* Favoritos link (mobile) */}
+            <Link 
+              href="/favoritos"
+              className="flex items-center py-2 text-gray-600 hover:text-black transition-colors"
+            >
+              <Bookmark className="h-4 w-4 mr-1" />
+              Favoritos
+            </Link>
           </div>
         )}
       </div>
