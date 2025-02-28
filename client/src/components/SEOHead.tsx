@@ -31,33 +31,36 @@ export default function SEOHead({
   const siteTitle = "Closer Brasil";
   const defaultDescription = "Notícias e análises sobre tecnologia, cultura e negócios no Brasil";
   const fullTitle = `${title} | ${siteTitle}`;
-  const defaultImage = "https://closer-brasil.com/og-image.jpg"; // Imagem padrão do site
+  const defaultImage = "https://closer-brasil.com/og-image.jpg";
+
+  // Garantir que os valores são strings válidas
+  const safeKeywords = Array.isArray(keywords) ? keywords.join(", ") : "";
+  const safeDescription = description || defaultDescription;
+  const safeImage = image || defaultImage;
 
   return (
     <Helmet>
       {/* Basic Meta Tags */}
       <title>{fullTitle}</title>
-      <meta name="description" content={description || defaultDescription} />
-      <meta name="keywords" content={keywords.join(", ")} />
+      <meta name="description" content={safeDescription} />
+      {safeKeywords && <meta name="keywords" content={safeKeywords} />}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
       {/* Open Graph */}
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description || defaultDescription} />
+      <meta property="og:description" content={safeDescription} />
       <meta property="og:type" content={type} />
       <meta property="og:locale" content="pt_BR" />
       {url && <meta property="og:url" content={url} />}
-      {image && <meta property="og:image" content={image} />}
-      {!image && <meta property="og:image" content={defaultImage} />}
+      <meta property="og:image" content={safeImage} />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@closerbrasil" />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description || defaultDescription} />
-      {image && <meta name="twitter:image" content={image} />}
-      {!image && <meta name="twitter:image" content={defaultImage} />}
+      <meta name="twitter:description" content={safeDescription} />
+      <meta name="twitter:image" content={safeImage} />
 
       {/* Article Specific */}
       {type === "article" && (
