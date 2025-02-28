@@ -9,36 +9,25 @@ interface ArticleCardProps {
 
 export default function ArticleCard({ article }: ArticleCardProps) {
   return (
-    <article className="group relative bg-card rounded-lg shadow-sm overflow-hidden transition-all hover:shadow-md">
-      <Link href={`/noticia/${article.slug}`} className="block">
-        <div className="aspect-[16/9] w-full relative overflow-hidden">
+    <article className="group cursor-pointer">
+      <Link href={`/noticia/${article.slug}`}>
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg">
           <img
             src={article.imageUrl}
             alt={article.titulo}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
         </div>
-        <div className="p-4">
-          <h2 className="text-lg font-bold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+        <div className="mt-4">
+          <h2 className="text-xl font-medium group-hover:text-primary transition-colors">
             {article.titulo}
           </h2>
-          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
             {article.resumo}
           </p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <time dateTime={article.publicadoEm}>
-              {formatDistanceToNow(new Date(article.publicadoEm), { 
-                addSuffix: true,
-                locale: ptBR 
-              })}
-            </time>
-            {article.tempoLeitura && (
-              <>
-                <span>•</span>
-                <span>{article.tempoLeitura}</span>
-              </>
-            )}
+          <div className="mt-2 text-sm text-muted-foreground">
+            há {formatDistanceToNow(new Date(article.publicadoEm), { locale: ptBR })}
           </div>
         </div>
       </Link>
