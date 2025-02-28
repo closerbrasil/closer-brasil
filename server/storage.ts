@@ -48,6 +48,8 @@ export class DatabaseStorage implements IStorage {
     const noticiasResult = await db
       .select()
       .from(noticia)
+      .where(eq(noticia.status, "publicado"))
+      .where(eq(noticia.visibilidade, "publico"))
       .limit(limit)
       .offset(offset)
       .orderBy(desc(noticia.publicadoEm));
