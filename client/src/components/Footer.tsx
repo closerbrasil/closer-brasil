@@ -34,17 +34,17 @@ export default function Footer() {
             <h3 className="font-bold text-lg mb-4">Categorias</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/category/tecnologia" className="text-gray-600 hover:text-black">
+                <Link href="/categoria/tecnologia" className="text-gray-600 hover:text-black">
                   Tecnologia
                 </Link>
               </li>
               <li>
-                <Link href="/category/cultura" className="text-gray-600 hover:text-black">
+                <Link href="/categoria/cultura" className="text-gray-600 hover:text-black">
                   Cultura
                 </Link>
               </li>
               <li>
-                <Link href="/category/negocios" className="text-gray-600 hover:text-black">
+                <Link href="/categoria/negocios" className="text-gray-600 hover:text-black">
                   Negócios
                 </Link>
               </li>

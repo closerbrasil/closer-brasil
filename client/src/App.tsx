@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import Home from "@/pages/home";
 import Article from "@/pages/article";
 import Category from "@/pages/category";
+import Tag from "@/pages/tag";
 import Author from "@/pages/author";
 import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
@@ -17,7 +18,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/noticia/:slug" component={Article} />
-      <Route path="/category/:slug" component={Category} />
+      <Route path="/categoria/:slug" component={Category} />
+      <Route path="/tag/:slug" component={Tag} />
       <Route path="/author" component={Author} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />
