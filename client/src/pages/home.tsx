@@ -4,7 +4,6 @@ import ArticleCard from "@/components/ArticleCard";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Hero } from "@/components/layout/Hero";
-import { NewsCategories } from "@/components/layout/NewsCategories";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 export default function Home() {
@@ -20,34 +19,36 @@ export default function Home() {
         description="Fique por dentro das últimas notícias e histórias do Brasil e do mundo."
       />
 
-      <div className="container py-6">
-        <Hero />
-        <NewsCategories />
+      <div className="min-h-screen">
+        <div className="container py-8">
+          <Hero />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-          {/* Main Content */}
-          <main>
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="space-y-3">
-                    <Skeleton className="h-40 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {data?.noticias?.map((noticia) => (
-                  <ArticleCard key={noticia.id} article={noticia} />
-                ))}
-              </div>
-            )}
-          </main>
+          <div className="mt-12 grid grid-cols-1 lg:grid-cols-[1fr_384px] gap-8">
+            {/* Main Content */}
+            <main>
+              <h2 className="text-2xl font-bold mb-6">Últimas Notícias</h2>
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="space-y-3">
+                      <Skeleton className="h-48 w-full rounded-lg" />
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  {data?.noticias?.map((noticia) => (
+                    <ArticleCard key={noticia.id} article={noticia} />
+                  ))}
+                </div>
+              )}
+            </main>
 
-          {/* Sidebar */}
-          <Sidebar />
+            {/* Sidebar */}
+            <Sidebar />
+          </div>
         </div>
       </div>
     </>

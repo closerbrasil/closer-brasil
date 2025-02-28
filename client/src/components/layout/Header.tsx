@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MenuIcon, XIcon } from "lucide-react";
+import { MenuIcon } from "lucide-react";
 import { useState } from "react";
 
 export const Header = () => {
@@ -9,25 +8,39 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between">
-        <div className="flex items-center">
-          <Link href="/" className="text-xl font-bold">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-2xl font-bold">
             Closer Brasil
           </Link>
-        </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex">
-          <ul className="flex items-center gap-6">
-            <li><Link href="/categoria/tecnologia">Tecnologia</Link></li>
-            <li><Link href="/categoria/cultura">Cultura</Link></li>
-          </ul>
-        </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex">
+            <ul className="flex items-center gap-8">
+              <li>
+                <Link href="/categoria/tecnologia" className="text-foreground/70 hover:text-foreground transition-colors">
+                  Tecnologia
+                </Link>
+              </li>
+              <li>
+                <Link href="/categoria/cultura" className="text-foreground/70 hover:text-foreground transition-colors">
+                  Cultura
+                </Link>
+              </li>
+              <li>
+                <Link href="/categoria/negocios" className="text-foreground/70 hover:text-foreground transition-colors">
+                  Negócios
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
 
         {/* Mobile Menu Button */}
         <Button
           variant="ghost"
-          className="px-0 text-base hover:bg-transparent focus:ring-0 md:hidden"
+          size="icon"
+          className="md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <MenuIcon className="h-6 w-6" />
@@ -36,11 +49,24 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="absolute left-0 top-14 z-50 w-full bg-background border-b md:hidden">
+          <div className="absolute left-0 top-16 z-50 w-full bg-background border-b md:hidden">
             <nav className="container py-4">
               <ul className="space-y-4">
-                <li><Link href="/categoria/tecnologia">Tecnologia</Link></li>
-                <li><Link href="/categoria/cultura">Cultura</Link></li>
+                <li>
+                  <Link href="/categoria/tecnologia" className="block text-foreground/70 hover:text-foreground transition-colors">
+                    Tecnologia
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/categoria/cultura" className="block text-foreground/70 hover:text-foreground transition-colors">
+                    Cultura
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/categoria/negocios" className="block text-foreground/70 hover:text-foreground transition-colors">
+                    Negócios
+                  </Link>
+                </li>
               </ul>
             </nav>
           </div>
