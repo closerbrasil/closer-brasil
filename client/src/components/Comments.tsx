@@ -64,6 +64,54 @@ export function Comments({ noticiaId }: CommentsProps) {
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Comentários</h2>
 
+      {/* Formulário de comentário */}
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Deixe seu comentário</h3>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit((data) => submitComment(data))} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="autorNome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome (opcional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Seu nome (ou deixe em branco para comentar anonimamente)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="conteudo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Comentário</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Escreva seu comentário aqui..." 
+                      className="min-h-[100px] resize-y"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button 
+              type="submit" 
+              disabled={isPending}
+              className="w-full sm:w-auto"
+            >
+              {isPending ? "Enviando..." : "Publicar comentário"}
+            </Button>
+          </form>
+        </Form>
+      </div>
+
       {/* Lista de comentários */}
       <div className="space-y-4">
         {isLoading ? (
@@ -86,47 +134,6 @@ export function Comments({ noticiaId }: CommentsProps) {
           <p className="text-muted-foreground">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
         )}
       </div>
-
-      {/* Formulário de comentário */}
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit((data) => submitComment(data))} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="autorNome"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome (opcional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Seu nome (ou deixe em branco para comentar anonimamente)" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="conteudo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Comentário</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Escreva seu comentário aqui..." 
-                    className="min-h-[100px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" disabled={isPending}>
-            {isPending ? "Enviando..." : "Enviar comentário"}
-          </Button>
-        </form>
-      </Form>
     </div>
   );
 }
