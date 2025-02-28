@@ -4,6 +4,7 @@ import type { Noticia } from "@shared/schema";
 import { generateArticleLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TagList } from "@/components/TagList";
 
 export default function ArticlePage() {
   const [, params] = useRoute("/noticia/:slug");
@@ -12,6 +13,11 @@ export default function ArticlePage() {
   const { data: noticia, isLoading } = useQuery<Noticia>({
     queryKey: [`/api/noticias/${slug}`],
     enabled: !!slug
+  });
+
+  const { data: tags } = useQuery({
+    queryKey: ["/api/noticias", noticia?.id, "tags"],
+    enabled: !!noticia?.id
   });
 
   if (isLoading) {
@@ -45,6 +51,8 @@ export default function ArticlePage() {
         <h1 className="text-4xl font-merriweather font-bold mb-4">
           {noticia.titulo}
         </h1>
+
+        {tags && <TagList tags={tags} className="mb-6" />}
 
         <img
           src={noticia.imageUrl}

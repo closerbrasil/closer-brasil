@@ -1,4 +1,4 @@
-import { Noticia, Categoria, Autor, InsertNoticia, InsertCategoria, InsertAutor, noticia, categorias, autores } from "@shared/schema";
+import { Noticia, Categoria, Autor, Tag, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, noticia, categorias, autores, tags, noticiasTags } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
 
@@ -21,6 +21,14 @@ export interface IStorage {
   getAutorPorSlug(slug: string): Promise<Autor | undefined>;
   criarAutor(autor: InsertAutor): Promise<Autor>;
   atualizarAutor(id: string, autor: Partial<InsertAutor>): Promise<Autor>;
+
+  // Tags
+  getTags(): Promise<Tag[]>;
+  getTagPorSlug(slug: string): Promise<Tag | undefined>;
+  criarTag(tag: InsertTag): Promise<Tag>;
+  getTagsDaNoticia(noticiaId: string): Promise<Tag[]>;
+  adicionarTagNaNoticia(noticiaId: string, tagId: string): Promise<void>;
+  removerTagDaNoticia(noticiaId: string, tagId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -167,6 +175,52 @@ export class DatabaseStorage implements IStorage {
       .where(eq(autores.id, id))
       .returning();
     return result;
+  }
+
+  // Tags
+  async getTags(): Promise<Tag[]> {
+    return await db.select().from(tags);
+  }
+
+  async getTagPorSlug(slug: string): Promise<Tag | undefined> {
+    const [tag] = await db
+      .select()
+      .from(tags)
+      .where(eq(tags.slug, slug));
+    return tag;
+  }
+
+  async criarTag(tag: InsertTag): Promise<Tag> {
+    const [result] = await db
+      .insert(tags)
+      .values(tag)
+      .returning();
+    return result;
+  }
+
+  async getTagsDaNoticia(noticiaId: string): Promise<Tag[]> {
+    const result = await db
+      .select({
+        tag: tags,
+      })
+      .from(noticiasTags)
+      .innerJoin(tags, eq(noticiasTags.tagId, tags.id))
+      .where(eq(noticiasTags.noticiaId, noticiaId));
+
+    return result.map(r => r.tag);
+  }
+
+  async adicionarTagNaNoticia(noticiaId: string, tagId: string): Promise<void> {
+    await db
+      .insert(noticiasTags)
+      .values({ noticiaId, tagId })
+      .onConflictDoNothing();
+  }
+
+  async removerTagDaNoticia(noticiaId: string, tagId: string): Promise<void> {
+    await db
+      .delete(noticiasTags)
+      .where(sql`${noticiasTags.noticiaId} = ${noticiaId} AND ${noticiasTags.tagId} = ${tagId}`);
   }
 }
 

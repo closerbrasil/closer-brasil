@@ -2,12 +2,19 @@ import { Link } from "wouter";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { Noticia } from "@shared/schema";
+import { TagList } from "./TagList";
+import { useQuery } from "@tanstack/react-query";
 
 interface ArticleCardProps {
   article: Noticia;
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
+  const { data: tags } = useQuery({
+    queryKey: ["/api/noticias", article.id, "tags"],
+    enabled: !!article.id
+  });
+
   return (
     <article className="group cursor-pointer">
       <Link href={`/noticia/${article.slug}`}>
@@ -29,6 +36,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           <div className="mt-2 text-sm text-muted-foreground">
             há {formatDistanceToNow(new Date(article.publicadoEm), { locale: ptBR })}
           </div>
+          {tags && <TagList tags={tags} className="mt-3" />}
         </div>
       </Link>
     </article>

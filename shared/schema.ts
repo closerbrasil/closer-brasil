@@ -31,6 +31,22 @@ export const categorias = pgTable("categorias", {
   atualizadoEm: timestamp("atualizado_em").defaultNow().notNull(),
 });
 
+// Nova tabela de tags
+export const tags = pgTable("tags", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  nome: varchar("nome", { length: 50 }).notNull().unique(),
+  slug: varchar("slug", { length: 50 }).notNull().unique(),
+  descricao: text("descricao"),
+  criadoEm: timestamp("criado_em").defaultNow().notNull(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow().notNull(),
+});
+
+// Tabela de junção para relacionamento many-to-many entre notícias e tags
+export const noticiasTags = pgTable("noticias_tags", {
+  noticiaId: uuid("noticia_id").references(() => noticia.id).notNull(),
+  tagId: uuid("tag_id").references(() => tags.id).notNull(),
+});
+
 // Tabela de notícias com campos SEO
 export const noticia = pgTable("noticia", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -66,7 +82,7 @@ export const noticia = pgTable("noticia", {
 });
 
 // Relações
-export const noticiaRelations = relations(noticia, ({ one }) => ({
+export const noticiaRelations = relations(noticia, ({ one, many }) => ({
   autor: one(autores, {
     fields: [noticia.autorId],
     references: [autores.id],
@@ -74,6 +90,22 @@ export const noticiaRelations = relations(noticia, ({ one }) => ({
   categoria: one(categorias, {
     fields: [noticia.categoriaId],
     references: [categorias.id],
+  }),
+  tags: many(noticiasTags),
+}));
+
+export const tagsRelations = relations(tags, ({ many }) => ({
+  noticias: many(noticiasTags),
+}));
+
+export const noticiasTagsRelations = relations(noticiasTags, ({ one }) => ({
+  noticia: one(noticia, {
+    fields: [noticiasTags.noticiaId],
+    references: [noticia.id],
+  }),
+  tag: one(tags, {
+    fields: [noticiasTags.tagId],
+    references: [tags.id],
   }),
 }));
 
@@ -98,6 +130,12 @@ export const insertCategoriaSchema = createInsertSchema(categorias).omit({
   atualizadoEm: true,
 });
 
+export const insertTagSchema = createInsertSchema(tags).omit({
+  id: true,
+  criadoEm: true,
+  atualizadoEm: true,
+});
+
 export const insertNoticiaSchema = createInsertSchema(noticia).omit({
   id: true,
   publicadoEm: true,
@@ -110,6 +148,9 @@ export type InsertAutor = z.infer<typeof insertAutorSchema>;
 
 export type Categoria = typeof categorias.$inferSelect;
 export type InsertCategoria = z.infer<typeof insertCategoriaSchema>;
+
+export type Tag = typeof tags.$inferSelect;
+export type InsertTag = z.infer<typeof insertTagSchema>;
 
 export type Noticia = typeof noticia.$inferSelect;
 export type InsertNoticia = z.infer<typeof insertNoticiaSchema>;
