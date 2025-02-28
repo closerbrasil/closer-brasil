@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from '@/hooks/use-toast';
 
 // Chave para armazenar bookmarks no localStorage
 const BOOKMARK_STORAGE_KEY = 'closer-brasil:bookmarks';
@@ -51,28 +50,19 @@ export function useBookmarks() {
     (articleId: string, articleTitle?: string) => {
       const updatedBookmarks = [...bookmarks];
       const index = updatedBookmarks.indexOf(articleId);
-      
+
       if (index > -1) {
         // Remover dos bookmarks
         updatedBookmarks.splice(index, 1);
-        toast({
-          description: "Artigo removido dos favoritos",
-          variant: "default",
-        });
       } else {
         // Adicionar aos bookmarks
         updatedBookmarks.push(articleId);
-        toast({
-          title: "Artigo salvo!",
-          description: articleTitle ? `"${articleTitle}" foi adicionado aos seus favoritos` : "Artigo adicionado aos seus favoritos",
-          variant: "default",
-        });
       }
-      
+
       // Atualizar localStorage e invalidar query
       storeBookmarks(updatedBookmarks);
       queryClient.setQueryData(bookmarksQueryKey, updatedBookmarks);
-      
+
       return updatedBookmarks;
     },
     [bookmarks, queryClient]
