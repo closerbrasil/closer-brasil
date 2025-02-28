@@ -18,7 +18,7 @@ interface CommentsProps {
 
 export function Comments({ noticiaId }: CommentsProps) {
   const { toast } = useToast();
-  
+
   const { data: comentarios, isLoading } = useQuery<Comentario[]>({
     queryKey: ["/api/noticias", noticiaId, "comentarios"],
     enabled: !!noticiaId
@@ -30,7 +30,6 @@ export function Comments({ noticiaId }: CommentsProps) {
       noticiaId,
       conteudo: "",
       autorNome: "",
-      autorEmail: "",
     },
   });
 
@@ -49,7 +48,7 @@ export function Comments({ noticiaId }: CommentsProps) {
       form.reset();
       toast({
         title: "Comentário enviado",
-        description: "Seu comentário foi enviado para aprovação.",
+        description: "Seu comentário foi publicado com sucesso.",
       });
     },
     onError: () => {
@@ -64,7 +63,7 @@ export function Comments({ noticiaId }: CommentsProps) {
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Comentários</h2>
-      
+
       {/* Lista de comentários */}
       <div className="space-y-4">
         {isLoading ? (
@@ -73,7 +72,9 @@ export function Comments({ noticiaId }: CommentsProps) {
           comentarios.map((comentario) => (
             <div key={comentario.id} className="bg-white p-4 rounded-lg shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">{comentario.autorNome}</span>
+                <span className="font-medium">
+                  {comentario.autorNome || "Anônimo"}
+                </span>
                 <span className="text-sm text-muted-foreground">
                   há {formatDistanceToNow(new Date(comentario.criadoEm), { locale: ptBR })}
                 </span>
@@ -94,29 +95,15 @@ export function Comments({ noticiaId }: CommentsProps) {
             name="autorNome"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome</FormLabel>
+                <FormLabel>Nome (opcional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Seu nome" {...field} />
+                  <Input placeholder="Seu nome (ou deixe em branco para comentar anonimamente)" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
-          <FormField
-            control={form.control}
-            name="autorEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>E-mail</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="seu@email.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
+
           <FormField
             control={form.control}
             name="conteudo"

@@ -85,10 +85,9 @@ export const noticia = pgTable("noticia", {
 export const comentarios = pgTable("comentarios", {
   id: uuid("id").defaultRandom().primaryKey(),
   conteudo: text("conteudo").notNull(),
-  autorNome: varchar("autor_nome", { length: 100 }).notNull(),
-  autorEmail: varchar("autor_email", { length: 255 }).notNull(),
+  autorNome: varchar("autor_nome", { length: 100 }),
   noticiaId: uuid("noticia_id").references(() => noticia.id).notNull(),
-  aprovado: boolean("aprovado").default(false).notNull(),
+  aprovado: boolean("aprovado").default(true).notNull(),
   criadoEm: timestamp("criado_em").defaultNow().notNull(),
   atualizadoEm: timestamp("atualizado_em").defaultNow().notNull(),
 });
@@ -166,6 +165,7 @@ export const insertComentarioSchema = createInsertSchema(comentarios).omit({
   id: true,
   criadoEm: true,
   atualizadoEm: true,
+  aprovado: true,
 });
 
 
