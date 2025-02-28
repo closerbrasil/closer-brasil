@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
-import type { Article } from "@shared/schema";
+import type { Noticia } from "@shared/schema";
 import { generateArticleLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ArticlePage() {
-  const [, params] = useRoute("/article/:slug");
+  const [, params] = useRoute("/noticia/:slug");
   const slug = params?.slug;
 
-  const { data: article, isLoading } = useQuery<Article>({
-    queryKey: [`/api/articles/${slug}`],
+  const { data: noticia, isLoading } = useQuery<Noticia>({
+    queryKey: [`/api/noticias/${slug}`],
     enabled: !!slug
   });
 
@@ -24,37 +24,37 @@ export default function ArticlePage() {
     );
   }
 
-  if (!article) {
-    return <div>Article not found</div>;
+  if (!noticia) {
+    return <div>Artigo não encontrado</div>;
   }
 
-  const publishedDate = new Date(article.publishedAt);
+  const publishedDate = new Date(noticia.publicadoEm);
 
   return (
     <>
       <SEOHead
-        title={article.title}
-        description={article.excerpt}
+        title={noticia.titulo}
+        description={noticia.resumo}
         type="article"
-        image={article.imageUrl}
+        image={noticia.imageUrl}
         publishedTime={publishedDate.toISOString()}
-        jsonLd={generateArticleLD(article)}
+        jsonLd={generateArticleLD(noticia)}
       />
 
       <article className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-merriweather font-bold mb-4">
-          {article.title}
+          {noticia.titulo}
         </h1>
 
         <img
-          src={article.imageUrl}
-          alt={article.title}
+          src={noticia.imageUrl}
+          alt={noticia.titulo}
           className="w-full h-[400px] object-cover rounded-lg mb-8"
         />
 
         <div
           className="prose prose-lg max-w-none"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: noticia.conteudo }}
         />
       </article>
     </>
