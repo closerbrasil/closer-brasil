@@ -1,9 +1,11 @@
 import { Helmet } from "react-helmet";
 
+type SeoType = "website" | "article" | "profile";
+
 interface SEOHeadProps {
   title: string;
   description: string;
-  type?: "website" | "article" | "profile";
+  type?: SeoType;
   image?: string;
   url?: string;
   publishedTime?: string;
@@ -39,6 +41,7 @@ export default function SEOHead({
   const safeKeywords = Array.isArray(keywords) ? keywords.join(", ") : "";
   const safeDescription = description || defaultDescription;
   const safeImage = image || defaultImage;
+  const safeType = String(type);
 
   return (
     <Helmet>
@@ -52,7 +55,7 @@ export default function SEOHead({
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={safeDescription} />
-      <meta property="og:type" content={String(type)} />
+      <meta property="og:type" content={safeType} />
       <meta property="og:locale" content="pt_BR" />
       {url && <meta property="og:url" content={url} />}
       <meta property="og:image" content={safeImage} />
