@@ -30,12 +30,21 @@ const getWeatherIcon = (condition: string) => {
 };
 
 export const WeatherWidget = () => {
+  console.log('WeatherWidget: Component mounting'); // Debug log
+
   const { data: weather, isLoading, error } = useQuery<WeatherData>({
     queryKey: ['/api/weather'],
-    refetchInterval: 1800000, // Atualiza a cada 30 minutos
+    retry: 1,
+    onError: (error) => {
+      console.error('WeatherWidget: Error fetching data:', error);
+    },
+    onSuccess: (data) => {
+      console.log('WeatherWidget: Data received:', data);
+    },
   });
 
   if (isLoading) {
+    console.log('WeatherWidget: Loading state');
     return (
       <Card className="p-4">
         <div className="flex items-center justify-between">
@@ -48,12 +57,21 @@ export const WeatherWidget = () => {
   }
 
   if (error || !weather) {
-    return null;
+    console.error('WeatherWidget: Rendering error state:', error);
+    return (
+      <Card className="p-4">
+        <p className="text-sm text-muted-foreground">
+          Não foi possível carregar a previsão do tempo
+        </p>
+      </Card>
+    );
   }
 
   const temp = Math.round(weather.main.temp);
   const condition = weather.weather[0].main;
   const description = weather.weather[0].description;
+
+  console.log('WeatherWidget: Rendering with data:', { temp, condition, description });
 
   return (
     <Card className="p-4">

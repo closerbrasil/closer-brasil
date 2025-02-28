@@ -8,10 +8,14 @@ import { WeatherWidget } from "@/components/WeatherWidget";
 import type { Noticia } from "@shared/schema";
 
 export const Sidebar = () => {
+  console.log('Sidebar: Component mounting'); // Debug log
+
   const { data: trending } = useQuery<{ noticias: Noticia[] }>({
     queryKey: ["/api/noticias/trending"],
-    select: (data) => data.noticias?.slice(0, 5),
+    select: (data) => ({ noticias: data.slice(0, 5) }),
   });
+
+  console.log('Sidebar: Rendering with trending data:', trending); // Debug log
 
   return (
     <aside className="space-y-6">
@@ -22,7 +26,7 @@ export const Sidebar = () => {
       <Card className="p-4">
         <h2 className="text-lg font-bold mb-4">Mais Lidas</h2>
         <div className="space-y-4">
-          {trending?.map((article, index) => (
+          {trending?.noticias?.map((article, index) => (
             <div key={article.id} className="group">
               <Link href={`/noticia/${article.slug}`}>
                 <div className="flex gap-3 items-start">
@@ -39,7 +43,7 @@ export const Sidebar = () => {
                   </div>
                 </div>
               </Link>
-              {index < trending.length - 1 && (
+              {index < trending.noticias.length - 1 && (
                 <Separator className="my-4" />
               )}
             </div>
