@@ -11,6 +11,33 @@ const fileMetadata: Record<string, { contentType: string }> = {};
 // Em produção, você não faria isso, pois consumiria muita memória
 const bufferCache: Record<string, Buffer> = {};
 
+/**
+ * Função auxiliar que gera a URL base para os arquivos
+ * Usa o novo formato de URL do Replit com fallback para formatos antigos
+ */
+function getBaseUrl(): string {
+  let baseUrl: string;
+  
+  // No ambiente Replit, usar o domínio do Replit no formato correto
+  if (process.env.REPL_ID) {
+    // Formato novo do Replit: ID-versão.ambiente.replit.dev
+    baseUrl = `https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev`;
+    console.log("Usando URL do novo domínio Replit:", baseUrl);
+  } 
+  // Fallback para o formato antigo ou desenvolvimento local
+  else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+    baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+    console.log("Usando URL do formato Replit antigo:", baseUrl);
+  }
+  // Em desenvolvimento local, usar localhost
+  else {
+    baseUrl = 'http://localhost:5000';
+    console.log("Usando URL local:", baseUrl);
+  }
+  
+  return baseUrl;
+}
+
 // Interface para o resultado do upload
 export interface UploadResult {
   key: string;
@@ -67,21 +94,8 @@ export async function uploadFile(
       console.log("Upload para Object Storage bem-sucedido:", key);
     }
 
-    // Gerar a URL pública do arquivo
-    // Usar a URL atual do Replit, que é acessível externamente
-    let baseUrl;
-    
-    // No ambiente Replit, usar o domínio do Replit
-    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-      console.log("Usando URL do Replit:", baseUrl);
-    } 
-    // Em desenvolvimento local, usar localhost
-    else {
-      baseUrl = 'http://localhost:5000';
-      console.log("Usando URL local:", baseUrl);
-    }
-    
+    // Gerar a URL pública do arquivo usando a função auxiliar
+    const baseUrl = getBaseUrl();    
     const url = `${baseUrl}/api/object-storage/${key}`;
 
     return { key, url };
@@ -243,19 +257,8 @@ export function getPublicUrl(key: string): string {
   // Usar a URL atual da aplicação em vez de uma URL codificada
   // Isso garantirá que a URL funcione independentemente de onde a aplicação estiver rodando
   
-  // Usar a URL atual do Replit, que é acessível externamente
-  let baseUrl;
-  
-  // No ambiente Replit, usar o domínio do Replit
-  if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-    baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-    console.log("Usando URL do Replit para getPublicUrl:", baseUrl);
-  } 
-  // Em desenvolvimento local, usar localhost
-  else {
-    baseUrl = 'http://localhost:5000';
-    console.log("Usando URL local para getPublicUrl:", baseUrl);
-  }
+  // Usar a função auxiliar para obter a URL base
+  const baseUrl = getBaseUrl();
   
   return `${baseUrl}/api/object-storage/${key}`;
 }
