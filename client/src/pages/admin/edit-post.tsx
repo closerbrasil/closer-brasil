@@ -62,10 +62,19 @@ export default function EditPostPage() {
     queryKey: [`/api/noticias/${postId}`],
     enabled: !!postId,
     retry: false,
-    gcTime: 0,
-    staleTime: 0,
-    onSuccess: () => {},
-    select: (data) => data as Noticia
+    queryFn: async () => {
+      const res = await fetch(`/api/noticias/${postId}`);
+      if (!res.ok) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar a notícia",
+          variant: "destructive",
+        });
+        navigate("/admin/manage-posts");
+        throw new Error("Falha ao carregar notícia");
+      }
+      return res.json();
+    }
   });
 
   // Buscar categorias para o select
@@ -104,23 +113,37 @@ export default function EditPostPage() {
 
   // Atualizar valores do formulário quando a notícia é carregada
   useEffect(() => {
-    if (noticia) {
+    if (noticia && "titulo" in noticia) {
+      const noticiaData = noticia as unknown as {
+        titulo: string;
+        slug: string;
+        resumo?: string;
+        conteudo: string;
+        imageUrl?: string;
+        autorId: string;
+        categoriaId: string;
+        status: string; 
+        visibilidade: string;
+        schemaType: string;
+        tempoLeitura?: string;
+      };
+      
       form.reset({
-        titulo: noticia.titulo,
-        slug: noticia.slug,
-        resumo: noticia.resumo || "",
-        conteudo: noticia.conteudo,
-        imageUrl: noticia.imageUrl || "",
-        autorId: noticia.autorId,
-        categoriaId: noticia.categoriaId,
-        status: noticia.status as "rascunho" | "publicado" | "agendado", 
-        visibilidade: noticia.visibilidade as "publico" | "assinantes" | "privado",
-        schemaType: noticia.schemaType as "Article" | "NewsArticle" | "BlogPosting",
-        tempoLeitura: noticia.tempoLeitura || "5 min",
+        titulo: noticiaData.titulo,
+        slug: noticiaData.slug,
+        resumo: noticiaData.resumo || "",
+        conteudo: noticiaData.conteudo,
+        imageUrl: noticiaData.imageUrl || "",
+        autorId: noticiaData.autorId,
+        categoriaId: noticiaData.categoriaId,
+        status: noticiaData.status as "rascunho" | "publicado" | "agendado", 
+        visibilidade: noticiaData.visibilidade as "publico" | "assinantes" | "privado",
+        schemaType: noticiaData.schemaType as "Article" | "NewsArticle" | "BlogPosting",
+        tempoLeitura: noticiaData.tempoLeitura || "5 min",
       });
       
-      if (noticia.imageUrl) {
-        setUploadedImage(noticia.imageUrl);
+      if (noticiaData.imageUrl) {
+        setUploadedImage(noticiaData.imageUrl);
       }
     }
   }, [noticia, form]);

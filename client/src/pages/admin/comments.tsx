@@ -149,7 +149,7 @@ export default function CommentsPage() {
   };
   
   // Mapear Comentario para ComentarioVisao
-  const mapToComentarioVisao = (comentario: any): ComentarioVisao => {
+  const mapToComentarioVisao = (comentario: Comentario): ComentarioVisao => {
     return {
       ...comentario,
       autor: comentario.autorNome || "Anônimo",
@@ -198,7 +198,7 @@ export default function CommentsPage() {
                 </TableHeader>
                 <TableBody>
                   {data?.comentarios && data.comentarios.length > 0 ? (
-                    data.comentarios.map((comentario) => (
+                    data.comentarios.map((comentario: Comentario) => (
                       <TableRow key={comentario.id}>
                         <TableCell className="font-medium">
                           {comentario.autor}
