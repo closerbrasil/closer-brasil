@@ -29,23 +29,59 @@ export async function registerRoutes(app: Express) {
   // Rota de teste para o Object Storage
   app.get("/api/test-object-storage", async (_req, res) => {
     try {
-      // Criar um arquivo SVG de teste simples
-      const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-        <rect width="100" height="100" fill="blue" />
-        <text x="10" y="50" fill="white">Test</text>
+      // Criar um arquivo SVG de teste simples - cores mais chamativas para testar
+      const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="#FF5733" />
+        <circle cx="100" cy="100" r="50" fill="#33FF57" />
+        <text x="50" y="100" fill="white" font-family="Arial" font-size="20">Teste SVG</text>
       </svg>`;
       
+      // Converter para buffer com encoding UTF-8
       const buffer = Buffer.from(svgContent, 'utf-8');
+      
+      // Fazer upload
       const result = await uploadFile(buffer, 'test.svg', 'image/svg+xml');
       
-      // Gerar resposta em texto para facilitar visualização na linha de comando
-      res.setHeader('Content-Type', 'text/plain');
-      res.send(
-        `Arquivo de teste criado com sucesso!\n` +
-        `URL: ${result.url}\n` +
-        `Chave: ${result.key}\n\n` +
-        `Você pode testar abrindo esta URL no navegador: ${result.url}`
-      );
+      // Gerar HTML com preview embutido para visualização direta
+      res.setHeader('Content-Type', 'text/html');
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Teste de Object Storage</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .container { max-width: 800px; margin: 0 auto; }
+            .success { color: green; font-weight: bold; }
+            .preview { margin-top: 20px; border: 1px solid #ddd; padding: 10px; }
+            img { max-width: 100%; }
+            pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>Teste de Object Storage</h2>
+            <p class="success">✅ Arquivo criado com sucesso!</p>
+            
+            <h3>Informações:</h3>
+            <pre>
+URL: ${result.url}
+Chave: ${result.key}
+            </pre>
+            
+            <h3>Preview do SVG:</h3>
+            <div class="preview">
+              <img src="${result.url}" alt="SVG Test" />
+            </div>
+            
+            <h3>Código SVG:</h3>
+            <pre>${svgContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            
+            <p><a href="${result.url}" target="_blank">Abrir em nova janela</a></p>
+          </div>
+        </body>
+        </html>
+      `);
     } catch (error) {
       console.error("Erro no teste de Object Storage:", error);
       res.status(500).json({

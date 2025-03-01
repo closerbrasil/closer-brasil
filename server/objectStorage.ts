@@ -34,8 +34,9 @@ export async function uploadFile(
     fileMetadata[key] = { contentType: mimeType };
 
     // Fazer upload do arquivo para o bucket
+    // Nota: Desativamos a compressão, que pode estar causando problemas com alguns tipos de arquivo
     const { ok, error } = await client.uploadFromBytes(key, buffer, {
-      compress: true // Opção suportada pela API
+      compress: false // Desativar compressão para garantir integridade dos dados
     });
 
     if (!ok) {
@@ -153,6 +154,16 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
 export function getPublicUrl(key: string): string {
   // Usar a URL atual da aplicação em vez de uma URL codificada
   // Isso garantirá que a URL funcione independentemente de onde a aplicação estiver rodando
-  const baseUrl = process.env.BASE_URL || `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+  // Tentar usar a URL do ambiente, ou cair para localhost no ambiente de desenvolvimento
+  let baseUrl = process.env.BASE_URL;
+  
+  if (!baseUrl) {
+    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+    } else {
+      baseUrl = 'http://localhost:5000';
+    }
+  }
+  
   return `${baseUrl}/api/object-storage/${key}`;
 }
