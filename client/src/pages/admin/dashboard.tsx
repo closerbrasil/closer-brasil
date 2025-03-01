@@ -1,8 +1,8 @@
 import { FileText, Tag, Folder, Users, MessageSquare } from "lucide-react";
-import AdminLayout from "@/components/layout/AdminLayout";
 import { useQuery } from "@tanstack/react-query";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
+import AdminLayout from "@/layouts/AdminLayout";
 
 interface StatsCardProps {
   title: string;
@@ -14,7 +14,7 @@ interface StatsCardProps {
 
 function StatsCard({ title, value, icon, description, loading = false }: StatsCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 flex items-center">
+    <div className="bg-gray-50 rounded-lg p-6 flex items-center">
       <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
         {icon}
       </div>
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="border rounded-lg p-4">
+          <div className="border rounded-lg p-4 bg-gray-50">
             <h3 className="text-lg font-medium mb-4">Artigos Recentes</h3>
             {noticiasLoading ? (
               <div className="space-y-2">
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
                 {(noticias?.noticias ?? []).slice(0, 5).map((noticia) => (
                   <div 
                     key={noticia.id} 
-                    className="p-3 bg-gray-50 rounded-md flex justify-between items-center"
+                    className="p-3 bg-white border border-gray-100 rounded-md flex justify-between items-center"
                   >
                     <span className="font-medium truncate max-w-[70%]">{noticia.titulo}</span>
                     <span className="text-sm text-gray-500">
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          <div className="border rounded-lg p-4">
+          <div className="border rounded-lg p-4 bg-gray-50">
             <h3 className="text-lg font-medium mb-4">Estatísticas</h3>
             <p className="text-gray-500">As estatísticas detalhadas estarão disponíveis em breve.</p>
           </div>

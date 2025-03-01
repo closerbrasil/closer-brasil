@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,9 +26,8 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import type { Categoria, Autor } from "@shared/schema";
-import { Loader2, Upload, Image } from "lucide-react";
-import { useAdminAuth } from "@/hooks/use-admin-auth";
-import { useLocation } from "wouter";
+import { Loader2, Upload } from "lucide-react";
+import AdminLayout from "@/layouts/AdminLayout";
 
 // Estender o schema para adicionar validações específicas
 const createPostSchema = insertNoticiaSchema
@@ -48,18 +47,6 @@ export default function CreatePostPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isAuthenticated, requireAuth } = useAdminAuth();
-  const [, navigate] = useLocation();
-
-  // Verificar autenticação
-  useEffect(() => {
-    const checkAuth = async () => {
-      if (isAuthenticated === false) {
-        navigate("/admin/login");
-      }
-    };
-    checkAuth();
-  }, [isAuthenticated, navigate]);
 
   // Buscar categorias para o select
   const { data: categorias, isLoading: loadingCategorias } = useQuery<Categoria[]>({
@@ -195,15 +182,6 @@ export default function CreatePostPage() {
     }
   };
 
-  // Mostrar carregamento enquanto verifica autenticação
-  if (isAuthenticated === null) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   const isLoading = loadingCategorias || loadingAutores;
 
   return (
@@ -213,9 +191,7 @@ export default function CreatePostPage() {
         description="Painel administrativo para criação de notícias"
       />
 
-      <div className="mx-auto max-w-3xl py-8">
-        <h1 className="text-3xl font-bold mb-8">Criar Nova Notícia</h1>
-
+      <AdminLayout title="Criar Nova Notícia">
         {isLoading ? (
           <div className="flex items-center justify-center p-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -223,232 +199,243 @@ export default function CreatePostPage() {
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Título */}
-              <FormField
-                control={form.control}
-                name="titulo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Título</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Título da notícia" 
-                        {...field} 
-                        onChange={(e) => {
-                          field.onChange(e);
-                          onTitleChange(e);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Slug */}
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input placeholder="url-amigavel-da-noticia" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Resumo */}
-              <FormField
-                control={form.control}
-                name="resumo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Resumo</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Breve resumo da notícia" 
-                        className="h-20" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Conteúdo */}
-              <FormField
-                control={form.control}
-                name="conteudo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Conteúdo</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Conteúdo completo da notícia em formato HTML" 
-                        className="h-64 font-mono text-sm" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Upload de imagem */}
-              <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imagem</FormLabel>
-                    <div className="space-y-4">
-                      {/* Campo escondido para mostrar o valor atual */}
-                      <Input 
-                        type="hidden" 
-                        {...field} 
-                        value={field.value || ""}
-                      />
-
-                      {/* Preview da imagem */}
-                      {uploadedImage && (
-                        <div className="relative w-full h-48 rounded-md overflow-hidden border border-gray-200">
-                          <img 
-                            src={uploadedImage.startsWith('http') ? uploadedImage : `${window.location.origin}${uploadedImage}`} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-
-                      {/* Componente de upload */}
-                      <div className="flex items-center gap-4">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={triggerFileInput}
-                          disabled={isUploading}
-                          className="flex items-center gap-2"
-                        >
-                          {isUploading ? (
-                            <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Enviando...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="h-4 w-4" />
-                              Fazer upload
-                            </>
-                          )}
-                        </Button>
-
-                        <div className="flex-1">
-                          <Input
-                            type="text"
-                            placeholder="Ou insira a URL da imagem diretamente"
-                            value={field.value || ""}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Coluna esquerda */}
+                <div className="space-y-6">
+                  {/* Título */}
+                  <FormField
+                    control={form.control}
+                    name="titulo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Título</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Título da notícia" 
+                            {...field} 
                             onChange={(e) => {
-                              field.onChange(e.target.value);
-                              setUploadedImage(e.target.value);
+                              field.onChange(e);
+                              onTitleChange(e);
                             }}
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Slug */}
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Slug</FormLabel>
+                        <FormControl>
+                          <Input placeholder="url-amigavel-da-noticia" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Resumo */}
+                  <FormField
+                    control={form.control}
+                    name="resumo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Resumo</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Breve resumo da notícia" 
+                            className="h-20" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Upload de imagem */}
+                  <FormField
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Imagem</FormLabel>
+                        <div className="space-y-4">
+                          {/* Campo escondido para mostrar o valor atual */}
+                          <Input 
+                            type="hidden" 
+                            {...field} 
+                            value={field.value || ""}
+                          />
+
+                          {/* Preview da imagem */}
+                          {uploadedImage && (
+                            <div className="relative w-full h-48 rounded-md overflow-hidden border border-gray-200">
+                              <img 
+                                src={uploadedImage.startsWith('http') ? uploadedImage : `${window.location.origin}${uploadedImage}`} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+
+                          {/* Componente de upload */}
+                          <div className="flex items-center gap-4">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={triggerFileInput}
+                              disabled={isUploading}
+                              className="flex items-center gap-2"
+                            >
+                              {isUploading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Enviando...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="h-4 w-4" />
+                                  Fazer upload
+                                </>
+                              )}
+                            </Button>
+
+                            <div className="flex-1">
+                              <Input
+                                type="text"
+                                placeholder="Ou insira a URL da imagem diretamente"
+                                value={field.value || ""}
+                                onChange={(e) => {
+                                  field.onChange(e.target.value);
+                                  setUploadedImage(e.target.value);
+                                }}
+                              />
+                            </div>
+
+                            {/* Input file escondido */}
+                            <input 
+                              ref={fileInputRef}
+                              type="file" 
+                              accept="image/*" 
+                              onChange={handleImageUpload} 
+                              className="hidden" 
+                            />
+                          </div>
                         </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                        {/* Input file escondido */}
-                        <input 
-                          ref={fileInputRef}
-                          type="file" 
-                          accept="image/*" 
-                          onChange={handleImageUpload} 
-                          className="hidden" 
-                        />
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                {/* Coluna direita */}
+                <div className="space-y-6">
+                  {/* Conteúdo */}
+                  <FormField
+                    control={form.control}
+                    name="conteudo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Conteúdo</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Conteúdo completo da notícia em formato HTML" 
+                            className="h-[370px] font-mono text-sm" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {/* Categoria */}
-              <FormField
-                control={form.control}
-                name="categoriaId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoria</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione uma categoria" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categorias?.map((categoria) => (
-                          <SelectItem key={categoria.id} value={categoria.id}>
-                            {categoria.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  {/* Metadados */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Categoria */}
+                    <FormField
+                      control={form.control}
+                      name="categoriaId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Categoria</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione uma categoria" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categorias?.map((categoria) => (
+                                <SelectItem key={categoria.id} value={categoria.id}>
+                                  {categoria.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              {/* Autor */}
-              <FormField
-                control={form.control}
-                name="autorId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Autor</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um autor" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {autores?.map((autor) => (
-                          <SelectItem key={autor.id} value={autor.id}>
-                            {autor.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    {/* Autor */}
+                    <FormField
+                      control={form.control}
+                      name="autorId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Autor</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione um autor" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {autores?.map((autor) => (
+                                <SelectItem key={autor.id} value={autor.id}>
+                                  {autor.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              {/* Tempo de leitura */}
-              <FormField
-                control={form.control}
-                name="tempoLeitura"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tempo de leitura</FormLabel>
-                    <FormControl>
-                      <Input placeholder="5 min" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    {/* Tempo de leitura */}
+                    <FormField
+                      control={form.control}
+                      name="tempoLeitura"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tempo de leitura</FormLabel>
+                          <FormControl>
+                            <Input placeholder="5 min" {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
 
               <Button 
                 type="submit" 
-                className="w-full"
+                className="w-full mt-6"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -463,7 +450,7 @@ export default function CreatePostPage() {
             </form>
           </Form>
         )}
-      </div>
+      </AdminLayout>
     </>
   );
 }

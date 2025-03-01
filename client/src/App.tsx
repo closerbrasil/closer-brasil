@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -22,7 +22,13 @@ import AdminTags from "@/pages/admin/tags";
 import AdminAuthors from "@/pages/admin/authors";
 import AdminComments from "@/pages/admin/comments";
 
-function Router() {
+// Função que verifica se a rota atual é uma rota administrativa
+function isAdminRoute(pathname: string): boolean {
+  return pathname.startsWith('/admin');
+}
+
+// Componente para rotas do site principal
+function SiteRouter() {
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -31,7 +37,15 @@ function Router() {
       <Route path="/tag/:slug" component={Tag} />
       <Route path="/author" component={Author} />
       <Route path="/about" component={About} />
-      {/* Rotas administrativas (não visíveis na navegação) */}
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+// Componente para rotas administrativas
+function AdminRouter() {
+  return (
+    <Switch>
       <Route path="/admin">
         {() => {
           // Redirecionar /admin para /admin/dashboard
@@ -53,16 +67,25 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
+  const isAdmin = isAdminRoute(location);
+
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen flex flex-col bg-[#F8F8F8]">
-          <Navigation />
-          <main className="container mx-auto px-3 flex-grow">
-            <Router />
-          </main>
-          <Footer />
-        </div>
+        {isAdmin ? (
+          // Área administrativa não tem navegação global ou footer
+          <AdminRouter />
+        ) : (
+          // Layout do site principal
+          <div className="min-h-screen flex flex-col bg-[#F8F8F8]">
+            <Navigation />
+            <main className="container mx-auto px-3 flex-grow">
+              <SiteRouter />
+            </main>
+            <Footer />
+          </div>
+        )}
         <Toaster />
       </QueryClientProvider>
     </HelmetProvider>
