@@ -60,8 +60,12 @@ export async function uploadFile(
  */
 export async function getFile(key: string): Promise<{data: Buffer, contentType: string}> {
   try {
+    console.log("Obtendo arquivo com chave:", key);
     // Obter o arquivo do bucket
     const result = await client.downloadAsBytes(key);
+    
+    // Adicionar logs para debug
+    console.log("Resultado do download:", result.ok ? "Sucesso" : "Falha");
 
     if (!result.ok) {
       throw new Error(`Falha ao obter arquivo: ${result.error}`);
@@ -99,33 +103,32 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
     // Obter o valor e garantir que ele seja um Buffer
     let buffer: Buffer;
     
+    // Adicionado para debug
     console.log("Tipo do valor do resultado:", typeof result.value);
     
-    if (Buffer.isBuffer(result.value)) {
-      // Se já for um Buffer
-      buffer = result.value;
-      console.log("É um Buffer, tamanho:", buffer.length);
-    } else if (ArrayBuffer.isView(result.value)) {
-      // Se for um TypedArray como Uint8Array
-      buffer = Buffer.from(result.value.buffer, result.value.byteOffset, result.value.byteLength);
-      console.log("É um TypedArray, tamanho:", buffer.length);
-    } else if (Array.isArray(result.value)) {
-      // Se for um array, converter para Buffer
-      buffer = Buffer.from(Uint8Array.from(result.value));
-      console.log("É um Array, tamanho:", buffer.length);
-    } else if (typeof result.value === 'string') {
-      // Se for uma string
-      buffer = Buffer.from(result.value, 'utf-8');
-      console.log("É uma String, tamanho:", buffer.length);
-    } else {
-      // Caso seja outro tipo, tentar converter para Buffer
-      try {
+    // Simplificar o tratamento para garantir que o buffer esteja correto
+    try {
+      // Abordagem mais simples para lidar com os buffers
+      if (Buffer.isBuffer(result.value)) {
+        // Já é um Buffer
+        buffer = result.value;
+        console.log("É um Buffer, tamanho:", buffer.length);
+      } else if (result.value instanceof Uint8Array) {
+        // É um Uint8Array
         buffer = Buffer.from(result.value);
-        console.log("Tipo desconhecido convertido para Buffer, tamanho:", buffer.length);
-      } catch (e) {
-        console.error("Erro ao converter para Buffer:", e);
-        throw new Error("Não foi possível converter o valor para Buffer");
+        console.log("É um Uint8Array, tamanho:", buffer.length);
+      } else if (Array.isArray(result.value)) {
+        // É um array, provavelmente de bytes
+        buffer = Buffer.from(result.value as unknown as number[]);
+        console.log("É um Array, tamanho:", buffer.length);
+      } else {
+        // Tentar direto - dependendo da implementação da API do Replit
+        buffer = Buffer.from(result.value as any);
+        console.log("Convertido para Buffer, tamanho:", buffer.length);
       }
+    } catch (e) {
+      console.error("Erro ao processar o buffer:", e);
+      throw new Error("Não foi possível processar o buffer de dados");
     }
     
     // Verificar se o buffer é válido
@@ -148,6 +151,8 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
  * @param key Chave do arquivo no bucket
  */
 export function getPublicUrl(key: string): string {
-  const baseUrl = process.env.BASE_URL || 'https://workspace.contatovoicefy.repl.co';
+  // Usar a URL atual da aplicação em vez de uma URL codificada
+  // Isso garantirá que a URL funcione independentemente de onde a aplicação estiver rodando
+  const baseUrl = process.env.BASE_URL || `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
   return `${baseUrl}/api/object-storage/${key}`;
 }
