@@ -14,12 +14,18 @@ const bufferCache: Record<string, Buffer> = {};
 /**
  * Função auxiliar que gera a URL base para os arquivos
  * Usa o novo formato de URL do Replit com fallback para formatos antigos
+ * Ou uma variável de ambiente personalizada para produção
  */
 function getBaseUrl(): string {
   let baseUrl: string;
   
+  // Verificar primeiro se existe uma variável de ambiente configurada para o domínio
+  if (process.env.SITE_DOMAIN) {
+    baseUrl = process.env.SITE_DOMAIN;
+    console.log("Usando domínio personalizado da variável de ambiente:", baseUrl);
+  }
   // No ambiente Replit, usar o domínio do Replit no formato correto
-  if (process.env.REPL_ID) {
+  else if (process.env.REPL_ID) {
     // Formato novo do Replit: ID-versão.ambiente.replit.dev
     baseUrl = `https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev`;
     console.log("Usando URL do novo domínio Replit:", baseUrl);
