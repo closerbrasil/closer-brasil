@@ -302,6 +302,42 @@ Chave: ${result.key}
   });
 
   // Notícias
+  // Notícia em destaque (para o Hero)
+  app.get("/api/noticias/destaque", async (req, res) => {
+    try {
+      const { noticias } = await storage.getNoticias(1, 1);
+      if (noticias.length === 0) {
+        return res.status(404).json({ message: "Notícia não encontrada" });
+      }
+      
+      // Retorna a notícia mais recente como destaque
+      res.json({ noticias: [noticias[0]] });
+    } catch (error) {
+      console.error("Erro ao obter notícia em destaque:", error);
+      res.status(500).json({ message: "Erro ao obter notícia em destaque" });
+    }
+  });
+  
+  // Notícias mais lidas/trending
+  app.get("/api/noticias/trending", async (req, res) => {
+    try {
+      // Por enquanto, usamos as notícias mais recentes como trending
+      // Em uma implementação completa, isso seria baseado em visualizações
+      const limit = Number(req.query.limit) || 5;
+      const { noticias } = await storage.getNoticias(1, limit);
+      
+      if (noticias.length === 0) {
+        return res.status(404).json({ message: "Notícia não encontrada" });
+      }
+      
+      res.json(noticias);
+    } catch (error) {
+      console.error("Erro ao obter notícias trending:", error);
+      res.status(500).json({ message: "Erro ao obter notícias trending" });
+    }
+  });
+
+  // Notícias principais
   app.get("/api/noticias", async (req, res) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
