@@ -26,6 +26,34 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express) {
+  // Rota de teste para o Object Storage
+  app.get("/api/test-object-storage", async (_req, res) => {
+    try {
+      // Criar um arquivo SVG de teste simples
+      const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+        <rect width="100" height="100" fill="blue" />
+        <text x="10" y="50" fill="white">Test</text>
+      </svg>`;
+      
+      const buffer = Buffer.from(svgContent, 'utf-8');
+      const result = await uploadFile(buffer, 'test.svg', 'image/svg+xml');
+      
+      // Gerar resposta em texto para facilitar visualização na linha de comando
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(
+        `Arquivo de teste criado com sucesso!\n` +
+        `URL: ${result.url}\n` +
+        `Chave: ${result.key}\n\n` +
+        `Você pode testar abrindo esta URL no navegador: ${result.url}`
+      );
+    } catch (error) {
+      console.error("Erro no teste de Object Storage:", error);
+      res.status(500).json({
+        message: "Erro ao testar Object Storage",
+        error: String(error)
+      });
+    }
+  });
   const httpServer = createServer(app);
 
   // Endpoint para upload de imagem usando Object Storage

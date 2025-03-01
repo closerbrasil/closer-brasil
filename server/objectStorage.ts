@@ -100,29 +100,36 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
     let buffer: Buffer;
     
     console.log("Tipo do valor do resultado:", typeof result.value);
-    console.log("É um Buffer?", Buffer.isBuffer(result.value));
-    console.log("É um array?", Array.isArray(result.value));
-    console.log("Valor do resultado:", result.value ? (result.value.length > 100 ? 'dados muito longos' : result.value) : 'não definido');
     
-    if (Array.isArray(result.value)) {
-      // Se for um array, pegar o primeiro elemento
-      buffer = Buffer.from(result.value[0]);
-    } else if (Buffer.isBuffer(result.value)) {
+    if (Buffer.isBuffer(result.value)) {
       // Se já for um Buffer
       buffer = result.value;
-    } else if (result.value && typeof result.value === 'object' && 
-              'buffer' in result.value && ArrayBuffer.isView(result.value as unknown as ArrayBufferView)) {
-      // Se for um TypedArray (como Uint8Array)
-      const typedArray = result.value as unknown as ArrayBufferView;
-      buffer = Buffer.from(typedArray.buffer);
+      console.log("É um Buffer, tamanho:", buffer.length);
+    } else if (ArrayBuffer.isView(result.value)) {
+      // Se for um TypedArray como Uint8Array
+      buffer = Buffer.from(result.value.buffer, result.value.byteOffset, result.value.byteLength);
+      console.log("É um TypedArray, tamanho:", buffer.length);
+    } else if (Array.isArray(result.value)) {
+      // Se for um array, converter para Buffer
+      buffer = Buffer.from(Uint8Array.from(result.value));
+      console.log("É um Array, tamanho:", buffer.length);
+    } else if (typeof result.value === 'string') {
+      // Se for uma string
+      buffer = Buffer.from(result.value, 'utf-8');
+      console.log("É uma String, tamanho:", buffer.length);
     } else {
-      // Caso seja outro tipo, converter para Buffer
-      buffer = Buffer.from(result.value);
+      // Caso seja outro tipo, tentar converter para Buffer
+      try {
+        buffer = Buffer.from(result.value);
+        console.log("Tipo desconhecido convertido para Buffer, tamanho:", buffer.length);
+      } catch (e) {
+        console.error("Erro ao converter para Buffer:", e);
+        throw new Error("Não foi possível converter o valor para Buffer");
+      }
     }
     
-    console.log("Tamanho do buffer final:", buffer.length);
     // Verificar se o buffer é válido
-    if (buffer.length === 0) {
+    if (!buffer || buffer.length === 0) {
       throw new Error("Buffer vazio ou inválido");
     }
 
