@@ -48,8 +48,8 @@ export default function ArticlePage() {
         jsonLd={generateArticleLD(noticia)}
       />
 
-      <article className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-merriweather font-bold mb-4">
+      <article className="max-w-3xl mx-auto pt-8">
+        <h1 className="text-4xl font-merriweather font-bold mb-6">
           {noticia.titulo}
         </h1>
 
