@@ -99,15 +99,31 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
     // Obter o valor e garantir que ele seja um Buffer
     let buffer: Buffer;
     
+    console.log("Tipo do valor do resultado:", typeof result.value);
+    console.log("É um Buffer?", Buffer.isBuffer(result.value));
+    console.log("É um array?", Array.isArray(result.value));
+    console.log("Valor do resultado:", result.value ? (result.value.length > 100 ? 'dados muito longos' : result.value) : 'não definido');
+    
     if (Array.isArray(result.value)) {
       // Se for um array, pegar o primeiro elemento
       buffer = Buffer.from(result.value[0]);
     } else if (Buffer.isBuffer(result.value)) {
       // Se já for um Buffer
       buffer = result.value;
+    } else if (result.value && typeof result.value === 'object' && 
+              'buffer' in result.value && ArrayBuffer.isView(result.value as unknown as ArrayBufferView)) {
+      // Se for um TypedArray (como Uint8Array)
+      const typedArray = result.value as unknown as ArrayBufferView;
+      buffer = Buffer.from(typedArray.buffer);
     } else {
       // Caso seja outro tipo, converter para Buffer
       buffer = Buffer.from(result.value);
+    }
+    
+    console.log("Tamanho do buffer final:", buffer.length);
+    // Verificar se o buffer é válido
+    if (buffer.length === 0) {
+      throw new Error("Buffer vazio ou inválido");
     }
 
     return { 

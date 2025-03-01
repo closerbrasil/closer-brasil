@@ -59,9 +59,17 @@ export async function registerRoutes(app: Express) {
       const { data, contentType } = await getFile(filePath);
 
       // Definir o Content-Type e enviar o arquivo
+      console.log("Enviando arquivo:", filePath);
+      console.log("Content-Type:", contentType);
+      console.log("Tamanho do arquivo:", data.length);
+      
+      // Definir cabeçalhos corretos
       res.set('Content-Type', contentType);
       res.set('Cache-Control', 'public, max-age=31536000');
-      res.send(data);
+      res.set('Content-Length', data.length.toString());
+      
+      // Usar res.end em vez de res.send para dados binários
+      res.end(data);
     } catch (error) {
       console.error("Erro ao recuperar arquivo:", error);
       res.status(404).json({ message: "Arquivo não encontrado" });
