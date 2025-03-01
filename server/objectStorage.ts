@@ -3,8 +3,8 @@ import { Client } from '@replit/object-storage';
 // Configurar o cliente do Object Storage
 const client = new Client();
 
-// Obter o nome do bucket do arquivo .replit
-const defaultBucketName = process.env.REPLIT_OBJECT_STORAGE_BUCKET_NAME || 'replit-objstore-1b0455e7-f57f-4137-a193-d9065de8ec41';
+// Mapa para armazenar metadados dos arquivos (já que a API não permite armazenar Content-Type)
+const fileMetadata: Record<string, { contentType: string }> = {};
 
 // Interface para o resultado do upload
 export interface UploadResult {
@@ -31,7 +31,7 @@ export async function uploadFile(
     const key = `uploads/${timestamp}-${randomSuffix}.${fileExtension}`;
 
     // Fazer upload do arquivo para o bucket
-    const { ok, error } = await client.uploadFromBuffer(key, buffer, {
+    const { ok, error } = await client.uploadFromBytes(key, buffer, {
       'Content-Type': mimeType,
       'Cache-Control': 'public, max-age=31536000',
     });
@@ -57,7 +57,7 @@ export async function uploadFile(
 export async function getFile(key: string): Promise<{data: Buffer, contentType: string}> {
   try {
     // Obter o arquivo do bucket
-    const { ok, value, error, metadata } = await client.downloadAsBuffer(key);
+    const { ok, value, error, metadata } = await client.downloadAsBytes(key);
 
     if (!ok) {
       throw new Error(`Falha ao obter arquivo: ${error}`);
