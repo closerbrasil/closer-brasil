@@ -21,7 +21,8 @@ function getBaseUrl(): string {
   
   // Verificar primeiro se existe uma variável de ambiente configurada para o domínio
   if (process.env.SITE_DOMAIN) {
-    baseUrl = process.env.SITE_DOMAIN;
+    // Remover qualquer barra no final da URL para evitar dupla barra
+    baseUrl = process.env.SITE_DOMAIN.replace(/\/+$/, '');
     console.log("Usando domínio personalizado da variável de ambiente:", baseUrl);
   }
   // No ambiente Replit, usar o domínio do Replit no formato correto
@@ -100,9 +101,8 @@ export async function uploadFile(
       console.log("Upload para Object Storage bem-sucedido:", key);
     }
 
-    // Gerar a URL pública do arquivo usando a função auxiliar
-    const baseUrl = getBaseUrl();    
-    const url = `${baseUrl}/api/object-storage/${key}`;
+    // Gerar a URL pública do arquivo usando a função getPublicUrl
+    const url = getPublicUrl(key);
 
     return { key, url };
   } catch (error) {
@@ -266,5 +266,8 @@ export function getPublicUrl(key: string): string {
   // Usar a função auxiliar para obter a URL base
   const baseUrl = getBaseUrl();
   
-  return `${baseUrl}/api/object-storage/${key}`;
+  // Garantir que a chave não comece com barra para evitar dupla barra
+  const cleanKey = key.startsWith('/') ? key.substring(1) : key;
+  
+  return `${baseUrl}/api/object-storage/${cleanKey}`;
 }
