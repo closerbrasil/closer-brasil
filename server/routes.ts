@@ -46,8 +46,13 @@ export async function registerRoutes(app: Express) {
         data: imageBase64
       });
 
-      // Retorna a URL da imagem para uso no frontend
-      const imageUrl = `/api/imagens/${novaImagem.id}`;
+      // Obter a URL base da aplicação para URLs absolutas
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.headers.host || req.get('host');
+      const baseUrl = `${protocol}://${host}`;
+
+      // Retorna a URL completa da imagem para uso no frontend
+      const imageUrl = `${baseUrl}/api/imagens/${novaImagem.id}`;
       res.json({ imageUrl });
     } catch (error) {
       console.error("Erro no upload de arquivo:", error);
