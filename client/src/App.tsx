@@ -14,7 +14,13 @@ import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
 // Páginas administrativas
 import AdminLogin from "@/pages/admin/login";
+import AdminDashboard from "@/pages/admin/dashboard";
 import AdminCreatePost from "@/pages/admin/create-post";
+import AdminManagePosts from "@/pages/admin/manage-posts";
+import AdminCategories from "@/pages/admin/categories";
+import AdminTags from "@/pages/admin/tags";
+import AdminAuthors from "@/pages/admin/authors";
+import AdminComments from "@/pages/admin/comments";
 
 function Router() {
   return (
@@ -27,7 +33,13 @@ function Router() {
       <Route path="/about" component={About} />
       {/* Rotas administrativas (não visíveis na navegação) */}
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin/criar-noticia" component={AdminCreatePost} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/create-post" component={AdminCreatePost} />
+      <Route path="/admin/manage-posts" component={AdminManagePosts} />
+      <Route path="/admin/categories" component={AdminCategories} />
+      <Route path="/admin/tags" component={AdminTags} />
+      <Route path="/admin/authors" component={AdminAuthors} />
+      <Route path="/admin/comments" component={AdminComments} />
       <Route component={NotFound} />
     </Switch>
   );
