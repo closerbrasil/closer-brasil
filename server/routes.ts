@@ -7,6 +7,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { uploadFile, getFile } from "./objectStorage";
 
 // Configurar o multer para armazenar temporariamente os arquivos
 const upload = multer({
@@ -27,59 +28,43 @@ const upload = multer({
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
 
-  // Endpoint para upload de imagem
+  // Endpoint para upload de imagem usando Object Storage
   app.post("/api/upload", upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Nenhum arquivo enviado" });
       }
 
-      // Converte a imagem para base64
-      const imageBase64 = req.file.buffer.toString('base64');
+      // Fazer upload para o Object Storage
+      const result = await uploadFile(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype
+      );
 
-      // Salva a imagem no banco de dados
-      const novaImagem = await storage.salvarImagem({
-        filename: req.file.originalname + Date.now(),
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size.toString(),
-        data: imageBase64
-      });
-
-      // Obter a URL base da aplicação para URLs absolutas
-      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-      const host = req.headers.host || req.get('host');
-      const baseUrl = `${protocol}://${host}`;
-
-      // Retorna a URL completa da imagem para uso no frontend
-      const imageUrl = `${baseUrl}/api/imagens/${novaImagem.id}`;
-      res.json({ imageUrl });
+      // Retornar a URL pública da imagem
+      res.json({ imageUrl: result.url });
     } catch (error) {
       console.error("Erro no upload de arquivo:", error);
       res.status(500).json({ message: "Erro ao processar o upload do arquivo" });
     }
   });
 
-  // Endpoint para servir imagens do banco de dados
-  app.get("/api/imagens/:id", async (req, res) => {
+  // Endpoint para servir imagens do Object Storage
+  app.get("/api/object-storage/:path(*)", async (req, res) => {
     try {
-      const imagem = await storage.getImagemPorId(req.params.id);
+      const filePath = req.params.path;
 
-      if (!imagem) {
-        return res.status(404).json({ message: "Imagem não encontrada" });
-      }
+      // Obter o arquivo do Object Storage
+      const { data, contentType } = await getFile(filePath);
 
-      // Define o tipo de conteúdo baseado no mimetype
-      res.set('Content-Type', imagem.mimetype);
-
-      // Converte de volta de base64 para buffer
-      const imageBuffer = Buffer.from(imagem.data, 'base64');
-
-      // Envia a imagem como resposta
-      res.send(imageBuffer);
+      // Definir o Content-Type e enviar o arquivo
+      res.set('Content-Type', contentType);
+      res.set('Cache-Control', 'public, max-age=31536000');
+      res.send(data);
     } catch (error) {
-      console.error("Erro ao recuperar imagem:", error);
-      res.status(500).json({ message: "Erro ao recuperar imagem" });
+      console.error("Erro ao recuperar arquivo:", error);
+      res.status(404).json({ message: "Arquivo não encontrado" });
     }
   });
 
