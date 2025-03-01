@@ -31,10 +31,14 @@ export async function uploadFile(
     const key = `uploads/${timestamp}-${randomSuffix}.${fileExtension}`;
 
     // Fazer upload do arquivo para o bucket
-    await client.put(defaultBucketName, key, buffer, {
+    const { ok, error } = await client.uploadFromBuffer(key, buffer, {
       'Content-Type': mimeType,
       'Cache-Control': 'public, max-age=31536000',
     });
+
+    if (!ok) {
+      throw new Error(`Falha ao fazer upload: ${error}`);
+    }
 
     // Gerar a URL pública do arquivo
     const url = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/object-storage/${key}`;
@@ -53,13 +57,17 @@ export async function uploadFile(
 export async function getFile(key: string): Promise<{data: Buffer, contentType: string}> {
   try {
     // Obter o arquivo do bucket
-    const { data, metadata } = await client.get(defaultBucketName, key);
-    
+    const { ok, value, error, metadata } = await client.downloadAsBuffer(key);
+
+    if (!ok) {
+      throw new Error(`Falha ao obter arquivo: ${error}`);
+    }
+
     // Recuperar o tipo de conteúdo
-    const contentType = metadata['Content-Type'] || 'application/octet-stream';
-    
+    const contentType = metadata?.['Content-Type'] || 'application/octet-stream';
+
     return { 
-      data: Buffer.from(data), 
+      data: value, 
       contentType 
     };
   } catch (error) {
