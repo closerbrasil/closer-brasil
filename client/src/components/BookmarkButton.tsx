@@ -55,6 +55,7 @@ export function BookmarkButton({
             className={cn(
               "relative transition-all p-0 bg-transparent hover:bg-transparent text-black",
               isAnimating && "scale-110",
+              "absolute -top-2 right-2",
               className
             )}
             aria-label={saved ? "Remover dos favoritos" : "Adicionar aos favoritos"}
@@ -62,7 +63,7 @@ export function BookmarkButton({
             <Bookmark 
               size={iconSize} 
               className="transition-transform"
-              fill={saved ? "black" : "transparent"} 
+              fill={saved ? "white" : "transparent"} 
               stroke="currentColor"
               strokeWidth={2}
             />
