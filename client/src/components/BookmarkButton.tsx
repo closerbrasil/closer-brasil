@@ -53,7 +53,7 @@ export function BookmarkButton({
             size="icon"
             onClick={handleToggleBookmark}
             className={cn(
-              "relative transition-all bg-black/60 hover:bg-black/80 text-white",
+              "relative transition-all p-0 bg-transparent hover:bg-transparent text-black",
               isAnimating && "scale-110",
               className
             )}
@@ -62,7 +62,9 @@ export function BookmarkButton({
             <Bookmark 
               size={iconSize} 
               className="transition-transform"
-              fill={saved ? "white" : "transparent"} 
+              fill={saved ? "black" : "transparent"} 
+              stroke="currentColor"
+              strokeWidth={2}
             />
           </Button>
         </TooltipTrigger>
