@@ -1,4 +1,4 @@
-import { Noticia, Categoria, Autor, Tag, Comentario, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, InsertComentario, noticia, categorias, autores, tags, noticiasTags, comentarios } from "@shared/schema";
+import { Noticia, Categoria, Autor, Tag, Comentario, Imagem, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, InsertComentario, InsertImagem, noticia, categorias, autores, tags, noticiasTags, comentarios, imagens } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
 
@@ -37,6 +37,10 @@ export interface IStorage {
   criarComentario(comentario: InsertComentario): Promise<Comentario>;
   aprovarComentario(id: string): Promise<Comentario>;
   removerComentario(id: string): Promise<void>;
+
+  // Imagens
+  salvarImagem(imagem: InsertImagem): Promise<Imagem>;
+  getImagemPorId(id: string): Promise<Imagem | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -277,6 +281,23 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(comentarios)
       .where(eq(comentarios.id, id));
+  }
+
+  // Imagens
+  async salvarImagem(imagem: InsertImagem): Promise<Imagem> {
+    const [result] = await db
+      .insert(imagens)
+      .values(imagem)
+      .returning();
+    return result;
+  }
+
+  async getImagemPorId(id: string): Promise<Imagem | undefined> {
+    const [result] = await db
+      .select()
+      .from(imagens)
+      .where(eq(imagens.id, id));
+    return result;
   }
 }
 

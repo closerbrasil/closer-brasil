@@ -2,33 +2,15 @@ import type { Express } from "express";
 import express from "express";  // Adicionado import do express
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema } from "@shared/schema";
+import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema, insertImagemSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Configurar o multer para upload de arquivos
-const uploadsDir = path.join(process.cwd(), "public/uploads");
-
-// Garantir que o diretório de uploads existe
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage_multer = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
-  }
-});
-
-const upload = multer({ 
-  storage: storage_multer,
+// Configurar o multer para armazenar temporariamente os arquivos
+const upload = multer({
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024, // limite de 5MB
   },
@@ -45,21 +27,54 @@ const upload = multer({
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
 
-  // Servir arquivos estáticos da pasta public
-  app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
-
   // Endpoint para upload de imagem
-  app.post("/api/upload", upload.single('image'), (req, res) => {
+  app.post("/api/upload", upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Nenhum arquivo enviado" });
       }
-      // Retornar o caminho do arquivo para ser usado no frontend
-      const filePath = `/uploads/${req.file.filename}`;
-      res.json({ imageUrl: filePath });
+
+      // Converte a imagem para base64
+      const imageBase64 = req.file.buffer.toString('base64');
+
+      // Salva a imagem no banco de dados
+      const novaImagem = await storage.salvarImagem({
+        filename: req.file.originalname + Date.now(),
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size.toString(),
+        data: imageBase64
+      });
+
+      // Retorna a URL da imagem para uso no frontend
+      const imageUrl = `/api/imagens/${novaImagem.id}`;
+      res.json({ imageUrl });
     } catch (error) {
       console.error("Erro no upload de arquivo:", error);
       res.status(500).json({ message: "Erro ao processar o upload do arquivo" });
+    }
+  });
+
+  // Endpoint para servir imagens do banco de dados
+  app.get("/api/imagens/:id", async (req, res) => {
+    try {
+      const imagem = await storage.getImagemPorId(req.params.id);
+
+      if (!imagem) {
+        return res.status(404).json({ message: "Imagem não encontrada" });
+      }
+
+      // Define o tipo de conteúdo baseado no mimetype
+      res.set('Content-Type', imagem.mimetype);
+
+      // Converte de volta de base64 para buffer
+      const imageBuffer = Buffer.from(imagem.data, 'base64');
+
+      // Envia a imagem como resposta
+      res.send(imageBuffer);
+    } catch (error) {
+      console.error("Erro ao recuperar imagem:", error);
+      res.status(500).json({ message: "Erro ao recuperar imagem" });
     }
   });
 

@@ -41,6 +41,17 @@ export const tags = pgTable("tags", {
   atualizadoEm: timestamp("atualizado_em").defaultNow().notNull(),
 });
 
+// Nova tabela para armazenar imagens
+export const imagens = pgTable("imagens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  filename: varchar("filename", { length: 255 }).notNull(),
+  originalname: varchar("originalname", { length: 255 }).notNull(),
+  mimetype: varchar("mimetype", { length: 100 }).notNull(),
+  size: text("size").notNull(),
+  data: text("data").notNull(), // Dados da imagem em Base64
+  criadoEm: timestamp("criado_em").defaultNow().notNull(),
+});
+
 // Tabela de junção para relacionamento many-to-many entre notícias e tags
 export const noticiasTags = pgTable("noticias_tags", {
   noticiaId: uuid("noticia_id").references(() => noticia.id).notNull(),
@@ -172,6 +183,12 @@ export const insertComentarioSchema = createInsertSchema(comentarios).omit({
   conteudo: z.string().min(1, "O comentário não pode estar vazio"),
 });
 
+// Schema para imagens
+export const insertImagemSchema = createInsertSchema(imagens).omit({
+  id: true,
+  criadoEm: true,
+});
+
 
 // Tipos
 export type Autor = typeof autores.$inferSelect;
@@ -188,3 +205,6 @@ export type InsertNoticia = z.infer<typeof insertNoticiaSchema>;
 
 export type Comentario = typeof comentarios.$inferSelect;
 export type InsertComentario = z.infer<typeof insertComentarioSchema>;
+
+export type Imagem = typeof imagens.$inferSelect;
+export type InsertImagem = z.infer<typeof insertImagemSchema>;
