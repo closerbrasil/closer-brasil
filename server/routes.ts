@@ -26,7 +26,72 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express) {
-  // Rota de teste para o Object Storage
+  // Rota de teste para o Object Storage - PNG
+  app.get("/api/test-object-storage-png", async (_req, res) => {
+    try {
+      // Criar uma imagem PNG simples (1x1 pixel preto)
+      const pngBuffer = Buffer.from([
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 
+        0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 
+        0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xDE, 0x00, 0x00, 0x00, 
+        0x0C, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0xF8, 0xCF, 0xC0, 0x00, 
+        0x00, 0x03, 0x01, 0x01, 0x00, 0x18, 0xDD, 0x8D, 0xB0, 0x00, 0x00, 0x00, 
+        0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+      ]);
+      
+      // Fazer upload
+      const result = await uploadFile(pngBuffer, 'test.png', 'image/png');
+      
+      // Gerar HTML com preview para visualização
+      res.setHeader('Content-Type', 'text/html');
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Teste de Object Storage - PNG</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .container { max-width: 800px; margin: 0 auto; }
+            .success { color: green; font-weight: bold; }
+            .preview { margin-top: 20px; border: 1px solid #ddd; padding: 10px; }
+            img { max-width: 100%; border: 1px solid #000; }
+            pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>Teste de Object Storage - PNG</h2>
+            <p class="success">✅ Arquivo PNG criado com sucesso!</p>
+            
+            <h3>Informações:</h3>
+            <pre>
+URL: ${result.url}
+Chave: ${result.key}
+Tipo: image/png
+Tamanho: ${pngBuffer.length} bytes
+            </pre>
+            
+            <h3>Preview do PNG (pixel 1x1):</h3>
+            <div class="preview">
+              <img src="${result.url}" alt="PNG Test" width="50" height="50" />
+            </div>
+            
+            <p><a href="${result.url}" target="_blank">Abrir em nova janela</a></p>
+            <p><a href="/api/test-object-storage">Testar SVG</a></p>
+          </div>
+        </body>
+        </html>
+      `);
+    } catch (error) {
+      console.error("Erro no teste de Object Storage com PNG:", error);
+      res.status(500).json({
+        message: "Erro ao testar Object Storage com PNG",
+        error: String(error)
+      });
+    }
+  });
+
+  // Rota de teste para o Object Storage - SVG
   app.get("/api/test-object-storage", async (_req, res) => {
     try {
       // Criar um arquivo SVG de teste simples - formato mais básico para compatibilidade máxima
@@ -79,6 +144,7 @@ Chave: ${result.key}
             <pre>${svgContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
             
             <p><a href="${result.url}" target="_blank">Abrir em nova janela</a></p>
+            <p><a href="/api/test-object-storage-png">Testar PNG</a></p>
           </div>
         </body>
         </html>
