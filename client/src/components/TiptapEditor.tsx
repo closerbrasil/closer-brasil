@@ -61,6 +61,11 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
       Placeholder.configure({
         placeholder,
       }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right'],
+        defaultAlignment: 'left',
+      }),
     ],
     content,
     onUpdate: ({ editor }) => {

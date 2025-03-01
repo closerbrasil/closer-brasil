@@ -27,8 +27,8 @@ import type { Comentario } from "@shared/schema";
 
 // Interface estendida para mapear corretamente os campos do comentário
 interface ComentarioVisao extends Comentario {
-  autor: string;
-  email: string;
+  autor: string; // Representa autorNome formatado
+  email: string; // Campo adicional para exibição
   noticia?: {
     titulo?: string;
     slug?: string;
@@ -153,10 +153,10 @@ export default function CommentsPage() {
     return {
       ...comentario,
       autor: comentario.autorNome || "Anônimo",
-      email: comentario.email || "Email não informado",
+      email: "exemplo@email.com", // Valor temporário para testes - não está no schema
       noticia: {
-        titulo: "Título da notícia", // Seria ideal buscar o título real
-        slug: "slug-da-noticia"      // Seria ideal buscar o slug real
+        titulo: "Título da notícia", // Valor temporário - idealmente viria da API
+        slug: "slug-da-noticia"      // Valor temporário - idealmente viria da API
       }
     };
   };
@@ -198,83 +198,88 @@ export default function CommentsPage() {
                 </TableHeader>
                 <TableBody>
                   {data?.comentarios && data.comentarios.length > 0 ? (
-                    data.comentarios.map((comentario: Comentario) => (
-                      <TableRow key={comentario.id}>
-                        <TableCell className="font-medium">
-                          {comentario.autor}
-                          <div className="text-xs text-gray-500">{comentario.email}</div>
-                        </TableCell>
-                        <TableCell className="max-w-xs">
-                          <div className="truncate">
-                            {comentario.conteudo}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <a 
-                            href={`/noticia/${comentario.noticia?.slug}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center text-primary hover:underline"
-                          >
-                            <LinkIcon className="h-3 w-3 mr-1" />
-                            {comentario.noticia?.titulo?.substring(0, 20)}...
-                          </a>
-                        </TableCell>
-                        <TableCell>
-                          {formatDate(comentario.criadoEm)}
-                        </TableCell>
-                        <TableCell>
-                          {comentario.aprovado ? (
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                              Aprovado
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                              Pendente
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleViewClick(comentario)}
+                    data.comentarios.map((comentario: Comentario) => {
+                      // Converte para ComentarioVisao para acessar os campos adicionais
+                      const comentarioVisao = mapToComentarioVisao(comentario);
+                      
+                      return (
+                        <TableRow key={comentario.id}>
+                          <TableCell className="font-medium">
+                            {comentarioVisao.autor}
+                            <div className="text-xs text-gray-500">{comentarioVisao.email}</div>
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="truncate">
+                              {comentario.conteudo}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <a 
+                              href={`/noticia/${comentarioVisao.noticia?.slug}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center text-primary hover:underline"
                             >
-                              <Eye className="h-4 w-4" />
-                              <span className="sr-only">Ver</span>
-                            </Button>
-                            
-                            {!comentario.aprovado && (
+                              <LinkIcon className="h-3 w-3 mr-1" />
+                              {comentarioVisao.noticia?.titulo?.substring(0, 20)}...
+                            </a>
+                          </TableCell>
+                          <TableCell>
+                            {formatDate(comentario.criadoEm)}
+                          </TableCell>
+                          <TableCell>
+                            {comentario.aprovado ? (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                Aprovado
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                                Pendente
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-green-600 hover:text-green-900"
-                                onClick={() => handleApproveClick(comentario.id)}
-                                disabled={approveMutation.isPending}
+                                onClick={() => handleViewClick(comentario)}
                               >
-                                {approveMutation.isPending && approveMutation.variables === comentario.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <CheckCircle2 className="h-4 w-4" />
-                                )}
-                                <span className="sr-only">Aprovar</span>
+                                <Eye className="h-4 w-4" />
+                                <span className="sr-only">Ver</span>
                               </Button>
-                            )}
-                            
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-red-600 hover:text-red-900"
-                              onClick={() => handleDeleteClick(comentario)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">Excluir</span>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                              
+                              {!comentario.aprovado && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-green-600 hover:text-green-900"
+                                  onClick={() => handleApproveClick(comentario.id)}
+                                  disabled={approveMutation.isPending}
+                                >
+                                  {approveMutation.isPending && approveMutation.variables === comentario.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <CheckCircle2 className="h-4 w-4" />
+                                  )}
+                                  <span className="sr-only">Aprovar</span>
+                                </Button>
+                              )}
+                              
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-red-600 hover:text-red-900"
+                                onClick={() => handleDeleteClick(comentario)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Excluir</span>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   ) : (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-6 text-gray-500">
