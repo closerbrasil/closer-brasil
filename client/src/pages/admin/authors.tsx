@@ -69,8 +69,8 @@ export default function AuthorsPage() {
       avatarUrl: "",
       cargo: "",
       email: "",
-      twitter: "",
-      linkedin: "",
+      twitterUrl: "",
+      linkedinUrl: "",
     },
   });
 
@@ -217,8 +217,8 @@ export default function AuthorsPage() {
       avatarUrl: "",
       cargo: "",
       email: "",
-      twitter: "",
-      linkedin: "",
+      twitterUrl: "",
+      linkedinUrl: "",
     });
     setSelectedAuthor(null);
     setUploadedImage(null);
@@ -233,8 +233,8 @@ export default function AuthorsPage() {
       avatarUrl: autor.avatarUrl || "",
       cargo: autor.cargo || "",
       email: autor.email || "",
-      twitter: autor.twitter || "",
-      linkedin: autor.linkedin || "",
+      twitterUrl: autor.twitterUrl || "",
+      linkedinUrl: autor.linkedinUrl || "",
     });
     setSelectedAuthor(autor);
     setUploadedImage(autor.avatarUrl || null);
@@ -542,7 +542,7 @@ export default function AuthorsPage() {
                 {/* Twitter */}
                 <FormField
                   control={form.control}
-                  name="twitter"
+                  name="twitterUrl"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Twitter</FormLabel>
@@ -561,7 +561,7 @@ export default function AuthorsPage() {
                 {/* LinkedIn */}
                 <FormField
                   control={form.control}
-                  name="linkedin"
+                  name="linkedinUrl"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>LinkedIn</FormLabel>
