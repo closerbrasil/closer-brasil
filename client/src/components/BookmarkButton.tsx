@@ -53,9 +53,8 @@ export function BookmarkButton({
             size="icon"
             onClick={handleToggleBookmark}
             className={cn(
-              "relative transition-all p-0 bg-transparent hover:bg-transparent text-black",
+              "transition-all p-0 bg-transparent hover:bg-transparent text-black",
               isAnimating && "scale-110",
-              "absolute -top-2 right-2",
               className
             )}
             aria-label={saved ? "Remover dos favoritos" : "Adicionar aos favoritos"}
