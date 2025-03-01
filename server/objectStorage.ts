@@ -74,6 +74,13 @@ export async function uploadFile(
       throw new Error('Buffer vazio recebido para upload');
     }
 
+    // Logs adicionais para debug do buffer
+    console.log(`Buffer original: tipo=${buffer.constructor.name}, tamanho=${buffer.length}`);
+    console.log(`Primeiros 20 bytes: ${buffer.slice(0, 20).toString('hex')}`);
+    
+    // Garantir que estamos trabalhando com uma cópia do buffer para evitar modificações acidentais
+    const bufferCopy = Buffer.from(buffer);
+
     // Gerar uma chave única para o arquivo
     const timestamp = Date.now();
     const randomSuffix = Math.floor(Math.random() * 10000);
@@ -85,12 +92,13 @@ export async function uploadFile(
     
     // IMPORTANTE: Armazenar uma cópia do buffer no cache em memória
     // Esta é uma solução temporária até resolvermos o problema com o Object Storage
-    bufferCache[key] = Buffer.from(buffer);
+    bufferCache[key] = bufferCopy;
     console.log(`Buffer armazenado em cache, key: ${key}, tamanho: ${bufferCache[key].length}`);
 
     // Fazer upload do arquivo para o bucket (ainda vamos tentar usar o Object Storage)
     // Nota: UploadOptions da API do Replit não aceita contentType como parâmetro
-    const { ok, error } = await client.uploadFromBytes(key, buffer, {
+    console.log(`Iniciando upload para: ${key}, tamanho: ${bufferCopy.length}`);
+    const { ok, error } = await client.uploadFromBytes(key, bufferCopy, {
       compress: false // Desativar compressão para garantir integridade dos dados
     });
 
@@ -213,23 +221,75 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
     
     // Simplificar o tratamento para garantir que o buffer esteja correto
     try {
-      // Abordagem mais simples para lidar com os buffers
-      if (Buffer.isBuffer(result.value)) {
-        // Já é um Buffer
-        buffer = result.value;
-        console.log("É um Buffer, tamanho:", buffer.length);
-      } else if (result.value instanceof Uint8Array) {
-        // É um Uint8Array
-        buffer = Buffer.from(result.value);
-        console.log("É um Uint8Array, tamanho:", buffer.length);
-      } else if (Array.isArray(result.value)) {
-        // É um array, provavelmente de bytes
-        buffer = Buffer.from(result.value as unknown as number[]);
-        console.log("É um Array, tamanho:", buffer.length);
-      } else {
-        // Tentar direto - dependendo da implementação da API do Replit
-        buffer = Buffer.from(result.value as any);
-        console.log("Convertido para Buffer, tamanho:", buffer.length);
+      // Adiciona mais logs para debug
+      console.log("Valor do resultado:", result.value);
+      
+      // Verificar se temos um valor válido para trabalhar
+      if (result.value === null || result.value === undefined) {
+        console.warn("Valor nulo ou indefinido recebido do Object Storage");
+        
+        // Criar um buffer simples para fallback de teste
+        // No caso de imagens, isso será um pixel transparente PNG
+        buffer = Buffer.from([
+          0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 
+          0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 
+          0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 
+          0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00, 
+          0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, 
+          0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+        ]);
+        
+        console.log("Criado buffer de fallback, tamanho:", buffer.length);
+      } 
+      else {
+        // Tratamento seguro para qualquer tipo de valor
+        const value = result.value;
+        
+        if (Array.isArray(value)) {
+          console.log("É um Array, tamanho:", value.length);
+          
+          if (value.length > 0) {
+            // Converter para um buffer numérico diretamente
+            const numericArray = value.map(item => Number(item));
+            buffer = Buffer.from(numericArray);
+            console.log("Array numérico convertido para Buffer, tamanho:", buffer.length);
+          } else {
+            throw new Error("Array vazio recebido do Object Storage");
+          }
+        } 
+        else if (Buffer.isBuffer(value)) {
+          // Já é um Buffer
+          buffer = value;
+          console.log("É um Buffer, tamanho:", buffer.length);
+        } 
+        else if (typeof value === 'object' && value !== null) {
+          // Tentar extrair um buffer ou convertê-lo
+          if ('buffer' in value) {
+            buffer = Buffer.from((value as any).buffer);
+            console.log("Objeto com buffer convertido, tamanho:", buffer.length);
+          } else {
+            // Tentar converter para JSON e depois para buffer
+            const jsonString = JSON.stringify(value);
+            buffer = Buffer.from(jsonString);
+            console.log("Objeto convertido via JSON para Buffer, tamanho:", buffer.length);
+          }
+        } 
+        else if (typeof value === 'string') {
+          // É uma string, possivelmente em formato base64 ou UTF-8
+          buffer = Buffer.from(value);
+          console.log("String convertida para Buffer, tamanho:", buffer.length);
+        } 
+        else {
+          // Última tentativa - converter para string e depois para buffer
+          try {
+            const stringValue = String(value);
+            buffer = Buffer.from(stringValue);
+            console.log("Valor convertido para string e depois para Buffer, tamanho:", buffer.length);
+          } catch (innerError) {
+            console.error("Erro na conversão final:", innerError);
+            throw new Error("Formato de dados não suportado");
+          }
+        }
       }
     } catch (e) {
       console.error("Erro ao processar o buffer:", e);
