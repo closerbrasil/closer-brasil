@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";  // Adicionado import do express
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema, insertImagemSchema } from "@shared/schema";
+import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema, insertImagemSchema, insertTagSchema, InsertTag } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -405,6 +405,82 @@ Chave: ${result.key}
         return;
       }
       throw error;
+    }
+  });
+
+  // Tags
+  app.get("/api/tags", async (_req, res) => {
+    const tags = await storage.getTags();
+    res.json(tags);
+  });
+
+  app.get("/api/tags/:slug", async (req, res) => {
+    const tag = await storage.getTagPorSlug(req.params.slug);
+    if (!tag) {
+      res.status(404).json({ message: "Tag não encontrada" });
+      return;
+    }
+    res.json(tag);
+  });
+
+  app.post("/api/tags", async (req, res) => {
+    try {
+      const tag = insertTagSchema.parse(req.body);
+      const created = await storage.criarTag(tag);
+      res.status(201).json(created);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Dados da tag inválidos", errors: error.errors });
+        return;
+      }
+      throw error;
+    }
+  });
+
+  app.patch("/api/tags/:id", async (req, res) => {
+    try {
+      // Validar parcialmente os dados da tag
+      const validData: Partial<InsertTag> = {};
+      if (req.body.nome !== undefined) validData.nome = req.body.nome;
+      if (req.body.slug !== undefined) validData.slug = req.body.slug;
+      if (req.body.descricao !== undefined) validData.descricao = req.body.descricao;
+      
+      const updated = await storage.atualizarTag(req.params.id, validData);
+      res.json(updated);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Dados da tag inválidos", errors: error.errors });
+        return;
+      }
+      res.status(500).json({ message: "Erro ao atualizar tag" });
+    }
+  });
+
+  app.delete("/api/tags/:id", async (req, res) => {
+    try {
+      await storage.removerTag(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao remover tag" });
+    }
+  });
+
+  // Obter notícias por tag
+  app.get("/api/tags/:slug/noticias", async (req, res) => {
+    try {
+      const tag = await storage.getTagPorSlug(req.params.slug);
+      if (!tag) {
+        return res.status(404).json({ message: "Tag não encontrada" });
+      }
+      
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const noticias = await storage.getNoticiasPorTag(tag.id, page, limit);
+      
+      res.json(noticias);
+    } catch (error) {
+      console.error("Erro ao buscar notícias por tag:", error);
+      res.status(500).json({ message: "Erro ao obter notícias pela tag" });
     }
   });
 

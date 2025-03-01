@@ -9,6 +9,7 @@ export interface IStorage {
   getNoticiaPorId(id: string): Promise<Noticia | undefined>;
   getNoticiasPorCategoria(categoriaSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
   getNoticiasPorAutor(autorSlug: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
+  getNoticiasPorTag(tagId: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
   criarNoticia(noticia: InsertNoticia): Promise<Noticia>;
   atualizarNoticia(id: string, noticia: Partial<InsertNoticia>): Promise<Noticia>;
 
@@ -27,6 +28,8 @@ export interface IStorage {
   getTags(): Promise<Tag[]>;
   getTagPorSlug(slug: string): Promise<Tag | undefined>;
   criarTag(tag: InsertTag): Promise<Tag>;
+  atualizarTag(id: string, tag: Partial<InsertTag>): Promise<Tag>;
+  removerTag(id: string): Promise<void>;
   getTagsDaNoticia(noticiaId: string): Promise<Tag[]>;
   adicionarTagNaNoticia(noticiaId: string, tagId: string): Promise<void>;
   removerTagDaNoticia(noticiaId: string, tagId: string): Promise<void>;
@@ -241,6 +244,65 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(noticiasTags)
       .where(sql`${noticiasTags.noticiaId} = ${noticiaId} AND ${noticiasTags.tagId} = ${tagId}`);
+  }
+
+  async atualizarTag(id: string, tag: Partial<InsertTag>): Promise<Tag> {
+    const [result] = await db
+      .update(tags)
+      .set({ ...tag, atualizadoEm: new Date() })
+      .where(eq(tags.id, id))
+      .returning();
+    return result;
+  }
+
+  async removerTag(id: string): Promise<void> {
+    // Primeiro remover todas as associações da tag com notícias
+    await db
+      .delete(noticiasTags)
+      .where(eq(noticiasTags.tagId, id));
+    
+    // Depois remover a tag
+    await db
+      .delete(tags)
+      .where(eq(tags.id, id));
+  }
+
+  async getNoticiasPorTag(tagId: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }> {
+    const offset = (page - 1) * limit;
+    
+    // Contar total de notícias com esta tag
+    const [countResult] = await db
+      .select({ count: sql<number>`count(DISTINCT ${noticia.id})` })
+      .from(noticiasTags)
+      .innerJoin(noticia, eq(noticiasTags.noticiaId, noticia.id))
+      .where(eq(noticiasTags.tagId, tagId));
+    
+    const total = Number(countResult?.count || 0);
+    
+    // Buscar notícias paginadas
+    const noticiasIds = await db
+      .select({ id: noticia.id })
+      .from(noticiasTags)
+      .innerJoin(noticia, eq(noticiasTags.noticiaId, noticia.id))
+      .where(eq(noticiasTags.tagId, tagId))
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(noticia.publicadoEm));
+    
+    if (noticiasIds.length === 0) {
+      return { noticias: [], total };
+    }
+    
+    // Buscar os dados completos das notícias
+    const noticiasCompletas = await db
+      .select()
+      .from(noticia)
+      .where(sql`${noticia.id} IN (${noticiasIds.map(n => n.id).join(',')})`);
+    
+    return {
+      noticias: noticiasCompletas,
+      total
+    };
   }
 
   // Comentários
