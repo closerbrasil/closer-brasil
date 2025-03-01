@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Categoria } from "@shared/schema";
-import { Menu, Bookmark } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -29,15 +29,6 @@ export default function Navigation() {
                 {categoria.nome}
               </Link>
             ))}
-
-            {/* Favoritos link */}
-            <Link 
-              href="/favoritos"
-              className="text-gray-600 hover:text-black transition-colors flex items-center"
-            >
-              <Bookmark className="h-4 w-4 mr-1" />
-              Favoritos
-            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -61,15 +52,6 @@ export default function Navigation() {
                 {categoria.nome}
               </Link>
             ))}
-
-            {/* Favoritos link (mobile) */}
-            <Link 
-              href="/favoritos"
-              className="flex items-center py-2 text-gray-600 hover:text-black transition-colors"
-            >
-              <Bookmark className="h-4 w-4 mr-1" />
-              Favoritos
-            </Link>
           </div>
         )}
       </div>
