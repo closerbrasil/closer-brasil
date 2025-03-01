@@ -6,7 +6,6 @@ import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TagList } from "@/components/TagList";
 import { Comments } from "@/components/Comments";
-import { BookmarkButton } from "@/components/BookmarkButton";
 
 export default function ArticlePage() {
   const [, params] = useRoute("/noticia/:slug");
@@ -50,19 +49,11 @@ export default function ArticlePage() {
       />
 
       <article className="max-w-3xl mx-auto">
-        <div className="flex items-start justify-between mb-4">
-          <h1 className="text-4xl font-merriweather font-bold mr-3">
-            {noticia.titulo}
-          </h1>
-          <BookmarkButton 
-            articleId={noticia.id} 
-            articleTitle={noticia.titulo}
-            size="lg"
-            className="mt-1 flex-shrink-0"
-          />
-        </div>
+        <h1 className="text-4xl font-merriweather font-bold mb-4">
+          {noticia.titulo}
+        </h1>
 
-        {tags && <TagList tags={tags} className="mb-6" />}
+        {tags && Array.isArray(tags) && <TagList tags={tags} className="mb-6" />}
 
         <img
           src={noticia.imageUrl}
