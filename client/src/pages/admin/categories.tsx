@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import AdminLayout from "@/components/layout/AdminLayout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +35,7 @@ import { z } from "zod";
 import { Pencil, Trash2, Loader2, PlusCircle } from "lucide-react";
 import type { Categoria, InsertCategoria } from "@shared/schema";
 import { insertCategoriaSchema } from "@shared/schema";
+import AdminLayout from "@/layouts/AdminLayout";
 
 // Estender o schema para adicionar validações específicas
 const categoriaSchema = insertCategoriaSchema.extend({
@@ -162,7 +162,7 @@ export default function CategoriesPage() {
     form.reset({
       nome: categoria.nome,
       slug: categoria.slug,
-      descricao: categoria.descricao,
+      descricao: categoria.descricao || "",
     });
     setSelectedCategory(categoria);
     setIsDialogOpen(true);

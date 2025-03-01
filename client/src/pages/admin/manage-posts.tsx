@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
-import AdminLayout from "@/components/layout/AdminLayout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
+import AdminLayout from "@/layouts/AdminLayout";
 import {
   Table,
   TableBody,
