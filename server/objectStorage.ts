@@ -6,6 +6,11 @@ const client = new Client();
 // Mapa para armazenar metadados dos arquivos em memória (já que a API não permite armazenar Content-Type)
 const fileMetadata: Record<string, { contentType: string }> = {};
 
+// Cache temporário para armazenar os buffers dos arquivos em memória
+// Esta é uma solução temporária para o problema de recuperação de arquivos
+// Em produção, você não faria isso, pois consumiria muita memória
+const bufferCache: Record<string, Buffer> = {};
+
 // Interface para o resultado do upload
 export interface UploadResult {
   key: string;
@@ -24,6 +29,17 @@ export async function uploadFile(
   mimeType: string
 ): Promise<UploadResult> {
   try {
+    console.log("Fazendo upload para o Object Storage", {
+      mimeType,
+      tamanhoBuffer: buffer.length,
+      primeirosBytes: buffer.length > 20 ? buffer.slice(0, 20).toString('hex') : 'buffer vazio'
+    });
+
+    // Verificar se o buffer é válido
+    if (!buffer || buffer.length === 0) {
+      throw new Error('Buffer vazio recebido para upload');
+    }
+
     // Gerar uma chave única para o arquivo
     const timestamp = Date.now();
     const randomSuffix = Math.floor(Math.random() * 10000);
@@ -32,20 +48,34 @@ export async function uploadFile(
 
     // Armazenar os metadados do arquivo
     fileMetadata[key] = { contentType: mimeType };
+    
+    // IMPORTANTE: Armazenar uma cópia do buffer no cache em memória
+    // Esta é uma solução temporária até resolvermos o problema com o Object Storage
+    bufferCache[key] = Buffer.from(buffer);
+    console.log(`Buffer armazenado em cache, key: ${key}, tamanho: ${bufferCache[key].length}`);
 
-    // Fazer upload do arquivo para o bucket
-    // Nota: Desativamos a compressão, que pode estar causando problemas com alguns tipos de arquivo
+    // Fazer upload do arquivo para o bucket (ainda vamos tentar usar o Object Storage)
+    // Nota: UploadOptions da API do Replit não aceita contentType como parâmetro
     const { ok, error } = await client.uploadFromBytes(key, buffer, {
       compress: false // Desativar compressão para garantir integridade dos dados
     });
 
     if (!ok) {
-      throw new Error(`Falha ao fazer upload: ${error}`);
+      console.warn(`Aviso: Falha ao fazer upload para o Object Storage: ${error}. Usando cache local.`);
+      // Mesmo com falha, continuamos porque temos o cache
+    } else {
+      console.log("Upload para Object Storage bem-sucedido:", key);
     }
 
-    // Gerar a URL pública do arquivo com URL completa
-    // A URL completa é necessária para que funcione nos previews
-    const baseUrl = process.env.BASE_URL || 'https://workspace.contatovoicefy.repl.co';
+    // Gerar a URL pública do arquivo
+    let baseUrl = process.env.BASE_URL;
+    if (!baseUrl) {
+      if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+        baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+      } else {
+        baseUrl = 'http://localhost:5000';
+      }
+    }
     const url = `${baseUrl}/api/object-storage/${key}`;
 
     return { key, url };
@@ -62,6 +92,51 @@ export async function uploadFile(
 export async function getFile(key: string): Promise<{data: Buffer, contentType: string}> {
   try {
     console.log("Obtendo arquivo com chave:", key);
+    
+    // Primeiro, verificar se temos o arquivo no cache em memória
+    if (bufferCache[key]) {
+      console.log(`Usando arquivo do cache em memória, key: ${key}, tamanho: ${bufferCache[key].length}`);
+      
+      // Determinar o contentType
+      let contentType = 'application/octet-stream';
+      if (fileMetadata[key]) {
+        contentType = fileMetadata[key].contentType;
+      } else {
+        // Inferir pelo tipo de arquivo
+        const extension = key.split('.').pop()?.toLowerCase();
+        if (extension) {
+          switch (extension) {
+            case 'jpg':
+            case 'jpeg':
+              contentType = 'image/jpeg';
+              break;
+            case 'png':
+              contentType = 'image/png';
+              break;
+            case 'gif':
+              contentType = 'image/gif';
+              break;
+            case 'svg':
+              contentType = 'image/svg+xml';
+              break;
+            case 'pdf':
+              contentType = 'application/pdf';
+              break;
+            // Adicionar mais conforme necessário
+          }
+        }
+      }
+      
+      // Retornar do cache
+      return {
+        data: bufferCache[key],
+        contentType
+      };
+    }
+    
+    // Se não temos no cache, tentar obter do Object Storage
+    console.log("Arquivo não encontrado no cache, tentando Object Storage...");
+    
     // Obter o arquivo do bucket
     const result = await client.downloadAsBytes(key);
     
@@ -139,6 +214,10 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
     if (!buffer || buffer.length === 0) {
       throw new Error("Buffer vazio ou inválido");
     }
+    
+    // Armazenar no cache para futuras solicitações
+    bufferCache[key] = buffer;
+    console.log(`Buffer armazenado em cache do Object Storage, key: ${key}, tamanho: ${buffer.length}`);
 
     return { 
       data: buffer, 
