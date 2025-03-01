@@ -144,8 +144,8 @@ export default function ManagePostsPage() {
                     data.noticias.map((noticia) => (
                       <TableRow key={noticia.id}>
                         <TableCell className="font-medium">{noticia.titulo}</TableCell>
-                        <TableCell>{noticia.categoria?.nome || "Sem categoria"}</TableCell>
-                        <TableCell>{noticia.autor?.nome || "Sem autor"}</TableCell>
+                        <TableCell>{"Categoria não disponível"}</TableCell>
+                        <TableCell>{"Autor não disponível"}</TableCell>
                         <TableCell>
                           {new Date(noticia.publicadoEm).toLocaleDateString("pt-BR")}
                         </TableCell>
