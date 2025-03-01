@@ -93,6 +93,9 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
           case 'gif':
             contentType = 'image/gif';
             break;
+          case 'svg':
+            contentType = 'image/svg+xml';
+            break;
           case 'pdf':
             contentType = 'application/pdf';
             break;

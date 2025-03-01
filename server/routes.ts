@@ -29,12 +29,13 @@ export async function registerRoutes(app: Express) {
   // Rota de teste para o Object Storage
   app.get("/api/test-object-storage", async (_req, res) => {
     try {
-      // Criar um arquivo SVG de teste simples - cores mais chamativas para testar
-      const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-        <rect width="200" height="200" fill="#FF5733" />
-        <circle cx="100" cy="100" r="50" fill="#33FF57" />
-        <text x="50" y="100" fill="white" font-family="Arial" font-size="20">Teste SVG</text>
-      </svg>`;
+      // Criar um arquivo SVG de teste simples - formato mais básico para compatibilidade máxima
+      const svgContent = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="blue" />
+  <circle cx="100" cy="100" r="50" fill="red" />
+  <text x="70" y="100" fill="white" font-size="20">Teste</text>
+</svg>`;
       
       // Converter para buffer com encoding UTF-8
       const buffer = Buffer.from(svgContent, 'utf-8');
@@ -127,8 +128,17 @@ Chave: ${result.key}
       console.log("Content-Type:", contentType);
       console.log("Tamanho do arquivo:", data.length);
       
-      // Definir cabeçalhos corretos
-      res.set('Content-Type', contentType);
+      // Tratamento especial para SVG para garantir que seja exibido corretamente
+      if (contentType === 'image/svg+xml') {
+        // Para SVG, devemos usar um encoding UTF-8 explícito para garantir a renderização correta
+        res.set('Content-Type', 'image/svg+xml; charset=utf-8');
+      } else {
+        // Para outros tipos, usamos o contentType normalmente
+        res.set('Content-Type', contentType);
+      }
+      
+      // Desabilitar compression para garantir que os dados binários não sejam corrompidos
+      res.set('Content-Encoding', 'identity');
       res.set('Cache-Control', 'public, max-age=31536000');
       res.set('Content-Length', data.length.toString());
       
