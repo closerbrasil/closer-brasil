@@ -317,7 +317,7 @@ export default function CreatePostPage() {
                       {uploadedImage && (
                         <div className="relative w-full h-48 rounded-md overflow-hidden border border-gray-200">
                           <img 
-                            src={uploadedImage} 
+                            src={uploadedImage.startsWith('http') ? uploadedImage : `${window.location.origin}${uploadedImage}`} 
                             alt="Preview" 
                             className="w-full h-full object-cover"
                           />
