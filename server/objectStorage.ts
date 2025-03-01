@@ -3,42 +3,8 @@ import { Client } from '@replit/object-storage';
 // Configurar o cliente do Object Storage
 const client = new Client();
 
-// Mapa para armazenar metadados dos arquivos (já que a API não permite armazenar Content-Type)
+// Mapa para armazenar metadados dos arquivos em memória (já que a API não permite armazenar Content-Type)
 const fileMetadata: Record<string, { contentType: string }> = {};
-
-// Função para persistir os metadados em um arquivo local
-function saveMetadata() {
-  try {
-    // Criar diretório se não existir
-    if (!fs.existsSync('./.data')) {
-      fs.mkdirSync('./.data', { recursive: true });
-    }
-    
-    fs.writeFileSync('./.data/file_metadata.json', JSON.stringify(fileMetadata, null, 2));
-  } catch (error) {
-    console.error('Erro ao salvar metadados:', error);
-  }
-}
-
-// Função para carregar os metadados do arquivo local
-function loadMetadata() {
-  try {
-    if (fs.existsSync('./.data/file_metadata.json')) {
-      const data = fs.readFileSync('./.data/file_metadata.json', 'utf8');
-      const loadedMetadata = JSON.parse(data);
-      
-      // Copiar os dados carregados para o objeto de metadados
-      Object.assign(fileMetadata, loadedMetadata);
-      
-      console.log(`Carregados metadados para ${Object.keys(fileMetadata).length} arquivos`);
-    }
-  } catch (error) {
-    console.error('Erro ao carregar metadados:', error);
-  }
-}
-
-// Carregar metadados ao iniciar o servidor
-loadMetadata();
 
 // Interface para o resultado do upload
 export interface UploadResult {
@@ -77,7 +43,9 @@ export async function uploadFile(
     }
 
     // Gerar a URL pública do arquivo
-    const url = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/object-storage/${key}`;
+    // Vamos usar uma URL relativa em vez de absoluta para evitar problemas de CORS
+    // e para que funcione tanto em desenvolvimento quanto em produção
+    const url = `/api/object-storage/${key}`;
 
     return { key, url };
   } catch (error) {
@@ -157,5 +125,5 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
  * @param key Chave do arquivo no bucket
  */
 export function getPublicUrl(key: string): string {
-  return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/object-storage/${key}`;
+  return `/api/object-storage/${key}`;
 }
