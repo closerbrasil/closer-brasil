@@ -68,14 +68,20 @@ export async function uploadFile(
     }
 
     // Gerar a URL pública do arquivo
-    let baseUrl = process.env.BASE_URL;
-    if (!baseUrl) {
-      if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-        baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-      } else {
-        baseUrl = 'http://localhost:5000';
-      }
+    // Usar a URL atual do Replit, que é acessível externamente
+    let baseUrl;
+    
+    // No ambiente Replit, usar o domínio do Replit
+    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+      console.log("Usando URL do Replit:", baseUrl);
+    } 
+    // Em desenvolvimento local, usar localhost
+    else {
+      baseUrl = 'http://localhost:5000';
+      console.log("Usando URL local:", baseUrl);
     }
+    
     const url = `${baseUrl}/api/object-storage/${key}`;
 
     return { key, url };
@@ -236,15 +242,19 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
 export function getPublicUrl(key: string): string {
   // Usar a URL atual da aplicação em vez de uma URL codificada
   // Isso garantirá que a URL funcione independentemente de onde a aplicação estiver rodando
-  // Tentar usar a URL do ambiente, ou cair para localhost no ambiente de desenvolvimento
-  let baseUrl = process.env.BASE_URL;
   
-  if (!baseUrl) {
-    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+  // Usar a URL atual do Replit, que é acessível externamente
+  let baseUrl;
+  
+  // No ambiente Replit, usar o domínio do Replit
+  if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+    baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+    console.log("Usando URL do Replit para getPublicUrl:", baseUrl);
+  } 
+  // Em desenvolvimento local, usar localhost
+  else {
+    baseUrl = 'http://localhost:5000';
+    console.log("Usando URL local para getPublicUrl:", baseUrl);
   }
   
   return `${baseUrl}/api/object-storage/${key}`;
