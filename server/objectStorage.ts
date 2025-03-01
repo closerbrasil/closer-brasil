@@ -249,10 +249,50 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
           console.log("É um Array, tamanho:", value.length);
           
           if (value.length > 0) {
-            // Converter para um buffer numérico diretamente
-            const numericArray = value.map(item => Number(item));
-            buffer = Buffer.from(numericArray);
-            console.log("Array numérico convertido para Buffer, tamanho:", buffer.length);
+            // Verificar se o elemento do array é um Buffer
+            if (Buffer.isBuffer(value[0])) {
+              // Se o primeiro elemento for um Buffer, usá-lo diretamente
+              buffer = value[0];
+              console.log("Buffer encontrado dentro do array, tamanho:", buffer.length);
+            } else if (typeof value[0] === 'object' && value[0] !== null) {
+              // Pode ser um objeto semelhante a Buffer ou algum outro tipo
+              try {
+                const bufferData = value[0];
+                // Verificar se o objeto é um pseudo-Buffer com propriedades específicas
+                if (typeof bufferData === 'object' && bufferData !== null) {
+                  // Verificar propriedades comuns em objetos tipo Buffer
+                  if ('data' in bufferData && Array.isArray((bufferData as any).data)) {
+                    buffer = Buffer.from((bufferData as any).data);
+                  } else if ('buffer' in bufferData) {
+                    buffer = Buffer.from((bufferData as any).buffer);
+                  } else if ('byteLength' in bufferData && '_isBuffer' in bufferData) {
+                    // É provavelmente um Buffer serializado
+                    const arr = Object.values(bufferData).filter(v => typeof v === 'number');
+                    buffer = Buffer.from(arr);
+                  } else {
+                    // Tentar converter o objeto para JSON e depois para buffer
+                    const jsonString = JSON.stringify(bufferData);
+                    buffer = Buffer.from(jsonString);
+                  }
+                } else {
+                  // Tentar converter o objeto para JSON e depois para buffer
+                  const jsonString = JSON.stringify(bufferData);
+                  buffer = Buffer.from(jsonString);
+                }
+                console.log("Objeto dentro do array convertido para Buffer, tamanho:", buffer.length);
+              } catch (innerError) {
+                console.error("Erro ao processar objeto no array:", innerError);
+                // Última tentativa - extrair bytes do objeto se possível
+                const flatArray = JSON.stringify(value).replace(/[^0-9,]/g, '').split(',').map(Number);
+                buffer = Buffer.from(flatArray);
+                console.log("Array convertido via extração para Buffer, tamanho:", buffer.length);
+              }
+            } else {
+              // Tentar converter o array para um buffer numérico
+              const numericArray = value.map(item => Number(item));
+              buffer = Buffer.from(numericArray);
+              console.log("Array numérico convertido para Buffer, tamanho:", buffer.length);
+            }
           } else {
             throw new Error("Array vazio recebido do Object Storage");
           }

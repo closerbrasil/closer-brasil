@@ -34,11 +34,22 @@ function StatsCard({ title, value, icon, description, loading = false }: StatsCa
 }
 
 export default function AdminDashboard() {
-  const { data: noticias, isLoading: noticiasLoading } = useQuery({
+  // Adicionando tipagem específica para os dados da API
+  interface NoticiasResponse {
+    noticias: Array<{
+      id: string;
+      titulo: string;
+      publicadoEm: string;
+      // Outros campos podem ser adicionados conforme necessário
+    }>;
+    total: number;
+  }
+
+  const { data: noticias, isLoading: noticiasLoading } = useQuery<NoticiasResponse>({
     queryKey: ["/api/noticias"],
   });
 
-  const { data: categorias, isLoading: categoriasLoading } = useQuery({
+  const { data: categorias, isLoading: categoriasLoading } = useQuery<Array<any>>({
     queryKey: ["/api/categorias"],
   });
 
@@ -53,14 +64,14 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <StatsCard
             title="Total de Artigos"
-            value={noticiasLoading ? "0" : noticias?.noticias?.length || 0}
+            value={noticiasLoading ? "0" : (noticias?.noticias ?? []).length}
             icon={<FileText className="h-6 w-6 text-primary" />}
             loading={noticiasLoading}
           />
           
           <StatsCard
             title="Categorias"
-            value={categoriasLoading ? "0" : categorias?.length || 0}
+            value={categoriasLoading ? "0" : (categorias ?? []).length}
             icon={<Folder className="h-6 w-6 text-primary" />}
             loading={categoriasLoading}
           />
@@ -91,7 +102,7 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-2">
-                {noticias?.noticias?.slice(0, 5).map((noticia: any) => (
+                {(noticias?.noticias ?? []).slice(0, 5).map((noticia) => (
                   <div 
                     key={noticia.id} 
                     className="p-3 bg-gray-50 rounded-md flex justify-between items-center"
@@ -102,6 +113,9 @@ export default function AdminDashboard() {
                     </span>
                   </div>
                 ))}
+                {(noticias?.noticias ?? []).length === 0 && (
+                  <p className="text-gray-500 text-center py-4">Nenhuma notícia encontrada</p>
+                )}
               </div>
             )}
           </div>

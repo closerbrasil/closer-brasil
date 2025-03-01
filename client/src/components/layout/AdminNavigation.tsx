@@ -1,78 +1,78 @@
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Tag, 
-  Folder, 
-  Users, 
-  MessageSquare, 
-  PlusCircle,
-  List
+import { Link, useLocation } from "wouter";
+import { cn } from "@/lib/utils";
+import {
+  BarChart3,
+  FileEdit,
+  Home,
+  Layers,
+  MessageSquare,
+  Tags,
+  Users,
 } from "lucide-react";
 
 export default function AdminNavigation() {
-  const [location, navigate] = useLocation();
+  const [location] = useLocation();
 
-  const isActive = (path: string) => {
-    return location === path;
-  };
-
-  const navItems = [
+  const navigationItems = [
     {
       name: "Dashboard",
-      path: "/admin/dashboard",
-      icon: <LayoutDashboard className="h-5 w-5 mr-2" />,
+      href: "/admin/dashboard",
+      icon: <Home className="h-5 w-5" />,
     },
     {
-      name: "Artigos",
-      path: "/admin/artigos",
-      icon: <FileText className="h-5 w-5 mr-2" />,
+      name: "Criar Notícia",
+      href: "/admin/create-post",
+      icon: <FileEdit className="h-5 w-5" />,
     },
     {
-      name: "Criar Artigo",
-      path: "/admin/criar-noticia",
-      icon: <PlusCircle className="h-5 w-5 mr-2" />,
+      name: "Gerenciar Notícias",
+      href: "/admin/manage-posts",
+      icon: <Layers className="h-5 w-5" />,
     },
     {
       name: "Categorias",
-      path: "/admin/categorias",
-      icon: <Folder className="h-5 w-5 mr-2" />,
+      href: "/admin/categories",
+      icon: <BarChart3 className="h-5 w-5" />,
     },
     {
       name: "Tags",
-      path: "/admin/tags",
-      icon: <Tag className="h-5 w-5 mr-2" />,
+      href: "/admin/tags",
+      icon: <Tags className="h-5 w-5" />,
     },
     {
       name: "Autores",
-      path: "/admin/autores",
-      icon: <Users className="h-5 w-5 mr-2" />,
+      href: "/admin/authors",
+      icon: <Users className="h-5 w-5" />,
     },
     {
       name: "Comentários",
-      path: "/admin/comentarios",
-      icon: <MessageSquare className="h-5 w-5 mr-2" />,
+      href: "/admin/comments",
+      icon: <MessageSquare className="h-5 w-5" />,
     },
   ];
 
   return (
-    <nav className="bg-white rounded-lg shadow-sm p-4">
-      <div className="space-y-1">
-        {navItems.map((item) => (
-          <Button
-            key={item.path}
-            variant={isActive(item.path) ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              isActive(item.path) ? "bg-primary text-primary-foreground" : ""
-            }`}
-            onClick={() => navigate(item.path)}
+    <nav className="space-y-1 bg-white shadow-sm rounded-lg p-4">
+      {navigationItems.map((item) => {
+        const isActive = location === item.href;
+        return (
+          <Link
+            key={item.name}
+            href={item.href}
+            className={cn(
+              "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+              isActive
+                ? "bg-primary/10 text-primary"
+                : "text-gray-700 hover:bg-gray-100"
+            )}
           >
-            {item.icon}
+            <span className={cn("mr-3", isActive ? "text-primary" : "text-gray-500")}>
+              {item.icon}
+            </span>
             {item.name}
-          </Button>
-        ))}
-      </div>
+          </Link>
+        );
+      })}
     </nav>
   );
 }
