@@ -25,13 +25,23 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Trash2, Loader2, XCircle, Eye, Link as LinkIcon } from "lucide-react";
 import type { Comentario } from "@shared/schema";
 
+// Interface estendida para mapear corretamente os campos do comentário
+interface ComentarioVisao extends Comentario {
+  autor: string;
+  email: string;
+  noticia?: {
+    titulo?: string;
+    slug?: string;
+  };
+}
+
 export default function CommentsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [selectedComment, setSelectedComment] = useState<Comentario | null>(null);
+  const [selectedComment, setSelectedComment] = useState<ComentarioVisao | null>(null);
   const pageSize = 10;
 
   // Buscar todos os comentários
@@ -100,13 +110,13 @@ export default function CommentsPage() {
     approveMutation.mutate(id);
   };
 
-  const handleDeleteClick = (comment: Comentario) => {
-    setSelectedComment(comment);
+  const handleDeleteClick = (comment: any) => {
+    setSelectedComment(mapToComentarioVisao(comment));
     setDeleteDialogOpen(true);
   };
 
-  const handleViewClick = (comment: Comentario) => {
-    setSelectedComment(comment);
+  const handleViewClick = (comment: any) => {
+    setSelectedComment(mapToComentarioVisao(comment));
     setViewDialogOpen(true);
   };
 
@@ -127,8 +137,8 @@ export default function CommentsPage() {
   };
 
   // Formatar data
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+  const formatDate = (dateStr: string | Date) => {
+    const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
     return new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',
       month: '2-digit',
@@ -136,6 +146,19 @@ export default function CommentsPage() {
       hour: '2-digit',
       minute: '2-digit'
     }).format(date);
+  };
+  
+  // Mapear Comentario para ComentarioVisao
+  const mapToComentarioVisao = (comentario: any): ComentarioVisao => {
+    return {
+      ...comentario,
+      autor: comentario.autorNome || "Anônimo",
+      email: comentario.email || "Email não informado",
+      noticia: {
+        titulo: "Título da notícia", // Seria ideal buscar o título real
+        slug: "slug-da-noticia"      // Seria ideal buscar o slug real
+      }
+    };
   };
 
   return (

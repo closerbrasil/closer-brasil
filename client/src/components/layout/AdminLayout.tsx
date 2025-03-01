@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import AdminNavigation from "./AdminNavigation";
+import AdminNavigation from "@/components/layout/AdminNavigation";
 
 interface AdminLayoutProps {
   children: ReactNode;

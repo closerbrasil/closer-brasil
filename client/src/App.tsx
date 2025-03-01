@@ -32,6 +32,13 @@ function Router() {
       <Route path="/author" component={Author} />
       <Route path="/about" component={About} />
       {/* Rotas administrativas (não visíveis na navegação) */}
+      <Route path="/admin">
+        {() => {
+          // Redirecionar /admin para /admin/dashboard
+          window.location.href = "/admin/dashboard";
+          return null;
+        }}
+      </Route>
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/create-post" component={AdminCreatePost} />
