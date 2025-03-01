@@ -16,6 +16,7 @@ import NotFound from "@/pages/not-found";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminCreatePost from "@/pages/admin/create-post";
+import AdminEditPost from "@/pages/admin/edit-post";
 import AdminManagePosts from "@/pages/admin/manage-posts";
 import AdminCategories from "@/pages/admin/categories";
 import AdminTags from "@/pages/admin/tags";
@@ -61,6 +62,7 @@ function AdminRouter() {
       <Route path="/admin/tags" component={AdminTags} />
       <Route path="/admin/authors" component={AdminAuthors} />
       <Route path="/admin/comments" component={AdminComments} />
+      <Route path="/admin/edit-post/:id" component={AdminEditPost} />
       <Route component={NotFound} />
     </Switch>
   );
