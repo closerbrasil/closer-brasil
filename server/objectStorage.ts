@@ -42,10 +42,10 @@ export async function uploadFile(
       throw new Error(`Falha ao fazer upload: ${error}`);
     }
 
-    // Gerar a URL pública do arquivo
-    // Vamos usar uma URL relativa em vez de absoluta para evitar problemas de CORS
-    // e para que funcione tanto em desenvolvimento quanto em produção
-    const url = `/api/object-storage/${key}`;
+    // Gerar a URL pública do arquivo com URL completa
+    // A URL completa é necessária para que funcione nos previews
+    const baseUrl = process.env.BASE_URL || 'https://workspace.contatovoicefy.repl.co';
+    const url = `${baseUrl}/api/object-storage/${key}`;
 
     return { key, url };
   } catch (error) {
@@ -125,5 +125,6 @@ export async function getFile(key: string): Promise<{data: Buffer, contentType: 
  * @param key Chave do arquivo no bucket
  */
 export function getPublicUrl(key: string): string {
-  return `/api/object-storage/${key}`;
+  const baseUrl = process.env.BASE_URL || 'https://workspace.contatovoicefy.repl.co';
+  return `${baseUrl}/api/object-storage/${key}`;
 }
