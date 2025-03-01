@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import type { Categoria, Autor } from "@shared/schema";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, Image } from "lucide-react";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { useLocation } from "wouter";
 
@@ -45,6 +45,9 @@ export default function CreatePostPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { isAuthenticated, requireAuth } = useAdminAuth();
   const [, navigate] = useLocation();
 
@@ -102,6 +105,54 @@ export default function CreatePostPage() {
     form.setValue("slug", generateSlug(title));
   };
 
+  // Manipular o upload de imagem
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setIsUploading(true);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao fazer upload da imagem');
+      }
+
+      const data = await response.json();
+      setUploadedImage(data.imageUrl);
+      form.setValue('imageUrl', data.imageUrl);
+      toast({
+        title: "Upload concluído",
+        description: "A imagem foi carregada com sucesso",
+      });
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      toast({
+        title: "Erro no upload",
+        description: "Não foi possível carregar a imagem",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Limpar o input para permitir selecionar o mesmo arquivo novamente
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Abrir o diálogo de seleção de arquivo
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   // Enviar o formulário
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -123,6 +174,7 @@ export default function CreatePostPage() {
 
       // Resetar o formulário
       form.reset();
+      setUploadedImage(null);
 
       // Invalidar cache para atualizar listas de notícias
       queryClient.invalidateQueries({ queryKey: ["/api/noticias"] });
@@ -246,16 +298,76 @@ export default function CreatePostPage() {
                 )}
               />
 
-              {/* URL da imagem */}
+              {/* Upload de imagem */}
               <FormField
                 control={form.control}
                 name="imageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>URL da imagem</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://exemplo.com/imagem.jpg" {...field} />
-                    </FormControl>
+                    <FormLabel>Imagem</FormLabel>
+                    <div className="space-y-4">
+                      {/* Campo escondido para mostrar o valor atual */}
+                      <Input 
+                        type="hidden" 
+                        {...field} 
+                        value={field.value || ""}
+                      />
+
+                      {/* Preview da imagem */}
+                      {uploadedImage && (
+                        <div className="relative w-full h-48 rounded-md overflow-hidden border border-gray-200">
+                          <img 
+                            src={uploadedImage} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+
+                      {/* Componente de upload */}
+                      <div className="flex items-center gap-4">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={triggerFileInput}
+                          disabled={isUploading}
+                          className="flex items-center gap-2"
+                        >
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="h-4 w-4" />
+                              Fazer upload
+                            </>
+                          )}
+                        </Button>
+
+                        <div className="flex-1">
+                          <Input
+                            type="text"
+                            placeholder="Ou insira a URL da imagem diretamente"
+                            value={field.value || ""}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              setUploadedImage(e.target.value);
+                            }}
+                          />
+                        </div>
+
+                        {/* Input file escondido */}
+                        <input 
+                          ref={fileInputRef}
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleImageUpload} 
+                          className="hidden" 
+                        />
+                      </div>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

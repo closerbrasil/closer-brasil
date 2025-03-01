@@ -1,11 +1,67 @@
 import type { Express } from "express";
+import express from "express";  // Adicionado import do express
 import { createServer } from "http";
 import { storage } from "./storage";
 import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Configurar o multer para upload de arquivos
+const uploadsDir = path.join(process.cwd(), "public/uploads");
+
+// Garantir que o diretório de uploads existe
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage_multer = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ 
+  storage: storage_multer,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // limite de 5MB
+  },
+  fileFilter: (_req, file, cb) => {
+    // Aceitar apenas imagens
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos de imagem são permitidos') as any);
+    }
+  }
+});
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
+
+  // Servir arquivos estáticos da pasta public
+  app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
+
+  // Endpoint para upload de imagem
+  app.post("/api/upload", upload.single('image'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Nenhum arquivo enviado" });
+      }
+      // Retornar o caminho do arquivo para ser usado no frontend
+      const filePath = `/uploads/${req.file.filename}`;
+      res.json({ imageUrl: filePath });
+    } catch (error) {
+      console.error("Erro no upload de arquivo:", error);
+      res.status(500).json({ message: "Erro ao processar o upload do arquivo" });
+    }
+  });
 
   // Weather API endpoint
   app.get("/api/weather", async (_req, res) => {
