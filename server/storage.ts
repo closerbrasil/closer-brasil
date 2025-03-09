@@ -106,7 +106,7 @@ export class DatabaseStorage implements IStorage {
         resumo: noticia.resumo,
         conteudo: noticia.conteudo,
         imageUrl: noticia.imageUrl,
-        imagemCredito: sql<string | null>`null`.as('imagemCredito'), // Adicionando campo virtual
+        imagemCredito: noticia.imagemCredito, // Agora utilizando o campo real do banco
         autorId: noticia.autorId,
         categoriaId: noticia.categoriaId,
         publicadoEm: noticia.publicadoEm,
@@ -142,7 +142,7 @@ export class DatabaseStorage implements IStorage {
         resumo: noticia.resumo,
         conteudo: noticia.conteudo,
         imageUrl: noticia.imageUrl,
-        imagemCredito: sql<string | null>`null`.as('imagemCredito'), // Adicionando campo virtual
+        imagemCredito: noticia.imagemCredito, // Agora utilizando o campo real do banco
         autorId: noticia.autorId,
         categoriaId: noticia.categoriaId,
         publicadoEm: noticia.publicadoEm,
@@ -188,7 +188,7 @@ export class DatabaseStorage implements IStorage {
         resumo: noticia.resumo,
         conteudo: noticia.conteudo,
         imageUrl: noticia.imageUrl,
-        imagemCredito: sql<string | null>`null`.as('imagemCredito'), // Adicionando campo virtual
+        imagemCredito: noticia.imagemCredito, // Agora utilizando o campo real do banco
         autorId: noticia.autorId,
         categoriaId: noticia.categoriaId,
         publicadoEm: noticia.publicadoEm,
@@ -241,7 +241,7 @@ export class DatabaseStorage implements IStorage {
         resumo: noticia.resumo,
         conteudo: noticia.conteudo,
         imageUrl: noticia.imageUrl,
-        imagemCredito: sql<string | null>`null`.as('imagemCredito'), // Adicionando campo virtual
+        imagemCredito: noticia.imagemCredito, // Agora utilizando o campo real do banco
         autorId: noticia.autorId,
         categoriaId: noticia.categoriaId,
         publicadoEm: noticia.publicadoEm,
@@ -276,34 +276,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async criarNoticia(novaNoticia: InsertNoticia): Promise<Noticia> {
-    // Adicionando campo virtual após a criação
-    const [resultado] = await db
+    const [result] = await db
       .insert(noticia)
       .values(novaNoticia)
       .returning();
-      
-    // Adicionando o campo imagemCredito
-    const result = {
-      ...resultado,
-      imagemCredito: null as string | null
-    };
     
     return result;
   }
 
   async atualizarNoticia(id: string, atualizacao: Partial<InsertNoticia>): Promise<Noticia> {
-    // Adicionando campo virtual após a atualização
-    const [resultado] = await db
+    const [result] = await db
       .update(noticia)
       .set(atualizacao)
       .where(eq(noticia.id, id))
       .returning();
-      
-    // Adicionando o campo imagemCredito
-    const result = {
-      ...resultado,
-      imagemCredito: null as string | null
-    };
     
     return result;
   }
@@ -469,7 +455,7 @@ export class DatabaseStorage implements IStorage {
         resumo: noticia.resumo,
         conteudo: noticia.conteudo,
         imageUrl: noticia.imageUrl,
-        imagemCredito: sql<string | null>`null`.as('imagemCredito'), // Adicionando campo virtual
+        imagemCredito: noticia.imagemCredito, // Agora utilizando o campo real do banco
         autorId: noticia.autorId,
         categoriaId: noticia.categoriaId,
         publicadoEm: noticia.publicadoEm,
