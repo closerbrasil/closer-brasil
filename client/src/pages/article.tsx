@@ -113,22 +113,29 @@ export default function ArticlePage() {
 
       <article className="max-w-3xl mx-auto pt-8 px-4">
         {/* Categoria e informações editoriais */}
-        <div className="flex flex-wrap gap-2 items-center text-sm text-gray-600 mb-4">
-          {categoria && (
-            <Link href={`/categoria/${categoria.slug}`} className="bg-primary/10 text-primary px-3 py-1 rounded-full font-medium hover:bg-primary/20">
-              {categoria.nome}
-            </Link>
-          )}
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 mr-1" />
-            <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
+        <div className="mb-4">
+          {/* Categoria */}
+          <div className="mb-2">
+            {categoria && (
+              <Link href={`/categoria/${categoria.slug}`} className="bg-primary/10 text-primary px-3 py-1 rounded-full font-medium hover:bg-primary/20">
+                {categoria.nome}
+              </Link>
+            )}
           </div>
-          {noticia.tempoLeitura && (
+          
+          {/* Data e tempo de leitura na mesma linha */}
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 mr-1" />
-              <span>{noticia.tempoLeitura}</span>
+              <Calendar className="h-4 w-4 mr-1" />
+              <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
             </div>
-          )}
+            {noticia.tempoLeitura && (
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-1" />
+                <span>{noticia.tempoLeitura}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Título principal */}
