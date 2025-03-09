@@ -49,10 +49,8 @@ export default function ArticlePage() {
       />
 
       <article className="max-w-3xl mx-auto pt-8">
-        <h1 className="text-4xl font-merriweather font-bold mb-6">
-          {noticia.titulo}
-        </h1>
-
+        {/* Título foi removido daqui para evitar duplicidade com o conteúdo HTML */}
+        
         {tags && Array.isArray(tags) && <TagList tags={tags} className="mb-6" />}
 
         <img
