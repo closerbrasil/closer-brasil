@@ -34,7 +34,13 @@ export async function registerRoutes(app: Express) {
     let replDomains = null;
     try {
       if (process.env.REPLIT_DOMAINS) {
-        replDomains = JSON.parse(process.env.REPLIT_DOMAINS);
+        if (process.env.REPLIT_DOMAINS.startsWith('[') && process.env.REPLIT_DOMAINS.endsWith(']')) {
+          // Provavelmente é um array JSON válido
+          replDomains = JSON.parse(process.env.REPLIT_DOMAINS);
+        } else {
+          // Provavelmente é uma string simples, não um JSON
+          replDomains = process.env.REPLIT_DOMAINS;
+        }
       }
     } catch (error) {
       console.error("Erro ao analisar REPLIT_DOMAINS:", error);

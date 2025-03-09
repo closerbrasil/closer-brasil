@@ -29,11 +29,28 @@ function getBaseUrl(): string {
   else if (process.env.REPL_ID) {
     // Use a variável de ambiente REPLIT_DOMAINS se estiver disponível
     if (process.env.REPLIT_DOMAINS) {
-      const domains = JSON.parse(process.env.REPLIT_DOMAINS);
-      if (domains && domains.length > 0) {
-        baseUrl = `https://${domains[0]}`;
-      } else {
-        baseUrl = `https://closerbrasil.com`;
+      try {
+        // Tentar analisar como JSON
+        const domains = JSON.parse(process.env.REPLIT_DOMAINS);
+        if (domains && Array.isArray(domains) && domains.length > 0) {
+          baseUrl = `https://${domains[0]}`;
+        } else if (typeof domains === 'string') {
+          // Se for uma string após a análise JSON (objeto string serializado)
+          baseUrl = domains.startsWith('http') ? domains : `https://${domains}`;
+        } else {
+          baseUrl = `https://closerbrasil.com`;
+        }
+      } catch (error) {
+        // Se falhar ao analisar como JSON, tratar como string direta
+        console.warn("Erro ao analisar REPLIT_DOMAINS como JSON:", error);
+        const domainStr = process.env.REPLIT_DOMAINS;
+        if (typeof domainStr === 'string') {
+          // Remover aspas extras que possam estar causando problemas
+          const cleanDomain = domainStr.replace(/^["'](.*)["']$/, '$1');
+          baseUrl = cleanDomain.startsWith('http') ? cleanDomain : `https://${cleanDomain}`;
+        } else {
+          baseUrl = `https://closerbrasil.com`;
+        }
       }
     } else {
       // Fallback para closerbrasil.com como solicitado
