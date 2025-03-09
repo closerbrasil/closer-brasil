@@ -57,8 +57,8 @@ export default function ArticlePage() {
     window.open(url, '_blank');
   };
   
-  // Função para compartilhar o artigo no Twitter/X
-  const shareOnTwitter = () => {
+  // Função para compartilhar o artigo no X (ex-Twitter)
+  const shareOnX = () => {
     const text = `${noticia?.titulo}`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
     window.open(url, '_blank');
@@ -226,14 +226,14 @@ export default function ArticlePage() {
               <span className="hidden sm:inline">Facebook</span>
             </Button>
             <Button 
-              onClick={shareOnTwitter} 
+              onClick={shareOnX} 
               variant="outline" 
               size="sm" 
-              className="flex items-center gap-2 bg-[#1DA1F2] hover:bg-[#0c85d0] text-white border-[#1DA1F2] hover:border-[#0c85d0]"
-              title="Compartilhar no Twitter/X"
+              className="flex items-center gap-2 bg-[#000000] hover:bg-[#333333] text-white border-[#000000] hover:border-[#333333]"
+              title="Compartilhar no X"
             >
               <FaTwitter className="h-4 w-4" />
-              <span className="hidden sm:inline">Twitter</span>
+              <span className="hidden sm:inline">X</span>
             </Button>
             <Button 
               onClick={shareNative} 
