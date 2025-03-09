@@ -6,10 +6,10 @@ import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TagList } from "@/components/TagList";
 import { Comments } from "@/components/Comments";
-import { BookmarkButton } from "@/components/BookmarkButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, Share2, Eye } from "lucide-react";
+import { Calendar, Clock, Share2, Facebook, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FaWhatsapp, FaFacebookF, FaTwitter } from "react-icons/fa";
 
 export default function ArticlePage() {
   const [, params] = useRoute("/noticia/:slug");
@@ -44,8 +44,28 @@ export default function ArticlePage() {
       )
     : [];
 
-  // Função para compartilhar o artigo
-  const shareArticle = () => {
+  // Função para compartilhar o artigo no WhatsApp
+  const shareOnWhatsApp = () => {
+    const text = `${noticia?.titulo} - ${window.location.href}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+  
+  // Função para compartilhar o artigo no Facebook
+  const shareOnFacebook = () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+    window.open(url, '_blank');
+  };
+  
+  // Função para compartilhar o artigo no Twitter/X
+  const shareOnTwitter = () => {
+    const text = `${noticia?.titulo}`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
+    window.open(url, '_blank');
+  };
+  
+  // Função para compartilhar usando API nativa (se disponível)
+  const shareNative = () => {
     if (navigator.share) {
       navigator.share({
         title: noticia?.titulo || '',
@@ -183,18 +203,47 @@ export default function ArticlePage() {
             </div>
           )}
 
-          {/* Botões de ação */}
+          {/* Botões de compartilhamento */}
           <div className="flex items-center gap-2">
             <Button 
-              onClick={shareArticle} 
+              onClick={shareOnWhatsApp} 
               variant="outline" 
               size="sm" 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white border-[#25D366] hover:border-[#128C7E]"
+              title="Compartilhar no WhatsApp"
+            >
+              <FaWhatsapp className="h-4 w-4" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </Button>
+            <Button 
+              onClick={shareOnFacebook} 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 bg-[#1877F2] hover:bg-[#166FE5] text-white border-[#1877F2] hover:border-[#166FE5]"
+              title="Compartilhar no Facebook"
+            >
+              <FaFacebookF className="h-4 w-4" />
+              <span className="hidden sm:inline">Facebook</span>
+            </Button>
+            <Button 
+              onClick={shareOnTwitter} 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 bg-[#1DA1F2] hover:bg-[#0c85d0] text-white border-[#1DA1F2] hover:border-[#0c85d0]"
+              title="Compartilhar no Twitter/X"
+            >
+              <FaTwitter className="h-4 w-4" />
+              <span className="hidden sm:inline">Twitter</span>
+            </Button>
+            <Button 
+              onClick={shareNative} 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 md:hidden"
+              title="Compartilhar"
             >
               <Share2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Compartilhar</span>
             </Button>
-            <BookmarkButton articleId={noticia.id} articleTitle={noticia.titulo} size="sm" />
           </div>
         </div>
 
