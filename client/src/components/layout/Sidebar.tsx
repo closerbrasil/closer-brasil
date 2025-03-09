@@ -25,9 +25,9 @@ export const Sidebar = () => {
     resolver: zodResolver(newsletterSchema),
   });
 
-  const { data: trending } = useQuery<{ noticias: Noticia[] }>({
+  const { data: trending } = useQuery<Noticia[]>({
     queryKey: ["/api/noticias/trending"],
-    select: (data) => ({ noticias: data?.slice(0, 5) ?? [] }),
+    select: (data) => data?.slice(0, 5) ?? [],
   });
 
   const onSubmit = (data: NewsletterForm) => {
@@ -46,9 +46,9 @@ export const Sidebar = () => {
       {/* Mais Lidas */}
       <Card className="p-6">
         <h2 className="text-lg font-bold mb-4">Mais Lidas</h2>
-        {trending?.noticias?.length ? (
+        {trending?.length ? (
           <div className="space-y-6">
-            {trending.noticias.map((article, index) => (
+            {trending.map((article: Noticia, index: number) => (
               <div key={article.id} className="group">
                 <Link href={`/noticia/${article.slug}`}>
                   <div className="flex gap-4">
@@ -65,7 +65,7 @@ export const Sidebar = () => {
                     </div>
                   </div>
                 </Link>
-                {index < trending.noticias.length - 1 && (
+                {index < trending.length - 1 && (
                   <Separator className="my-4" />
                 )}
               </div>
