@@ -12,6 +12,7 @@ export interface IStorage {
   getNoticiasPorTag(tagId: string, page: number, limit: number): Promise<{ noticias: Noticia[]; total: number }>;
   criarNoticia(noticia: InsertNoticia): Promise<Noticia>;
   atualizarNoticia(id: string, noticia: Partial<InsertNoticia>): Promise<Noticia>;
+  removerNoticia(id: string): Promise<void>;
 
   // Categorias
   getCategorias(): Promise<Categoria[]>;

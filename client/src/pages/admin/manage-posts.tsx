@@ -57,8 +57,20 @@ export default function ManagePostsPage() {
       const res = await fetch(`/api/noticias/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Falha ao excluir notícia");
-      return res.json();
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Erro na exclusão:", errorText);
+        throw new Error("Falha ao excluir notícia");
+      }
+      
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return res.json();
+      } else {
+        // Se a resposta não for JSON, apenas retornamos um objeto de sucesso
+        return { success: true };
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/noticias"] });
@@ -69,6 +81,7 @@ export default function ManagePostsPage() {
       setDeleteDialogOpen(false);
     },
     onError: (error) => {
+      console.error("Erro na mutação:", error);
       toast({
         title: "Erro ao excluir notícia",
         description: error instanceof Error ? error.message : "Ocorreu um erro desconhecido",
