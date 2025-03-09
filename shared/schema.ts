@@ -66,6 +66,7 @@ export const noticia = pgTable("noticia", {
   resumo: text("resumo").notNull(),
   conteudo: text("conteudo").notNull(),
   imageUrl: text("image_url").notNull(),
+  imagemCredito: text("imagem_credito"),
   autorId: uuid("autor_id").references(() => autores.id).notNull(),
   categoriaId: uuid("categoria_id").references(() => categorias.id).notNull(),
   publicadoEm: timestamp("publicado_em").defaultNow().notNull(),

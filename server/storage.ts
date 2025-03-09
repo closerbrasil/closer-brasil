@@ -54,8 +54,38 @@ export class DatabaseStorage implements IStorage {
     const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(noticia);
     const total = Number(countResult?.count || 0);
 
+    // Selecionar campos existentes no banco de dados
+    // Adicionando imagemCredito como null para compatibilidade temporária
     const noticiasResult = await db
-      .select()
+      .select({
+        id: noticia.id,
+        titulo: noticia.titulo,
+        slug: noticia.slug,
+        resumo: noticia.resumo,
+        conteudo: noticia.conteudo,
+        imageUrl: noticia.imageUrl,
+        imagemCredito: sql<string | null>`null`.as('imagemCredito'), // Adicionando campo virtual
+        autorId: noticia.autorId,
+        categoriaId: noticia.categoriaId,
+        publicadoEm: noticia.publicadoEm,
+        atualizadoEm: noticia.atualizadoEm,
+        metaTitulo: noticia.metaTitulo,
+        metaDescricao: noticia.metaDescricao,
+        urlCanonica: noticia.urlCanonica,
+        palavraChave: noticia.palavraChave,
+        tempoLeitura: noticia.tempoLeitura,
+        ogTitulo: noticia.ogTitulo,
+        ogDescricao: noticia.ogDescricao,
+        ogImagem: noticia.ogImagem,
+        twitterTitulo: noticia.twitterTitulo,
+        twitterDescricao: noticia.twitterDescricao,
+        twitterImagem: noticia.twitterImagem,
+        schemaType: noticia.schemaType,
+        schemaAutor: noticia.schemaAutor,
+        schemaPublisher: noticia.schemaPublisher,
+        status: noticia.status,
+        visibilidade: noticia.visibilidade
+      })
       .from(noticia)
       .limit(limit)
       .offset(offset)
@@ -69,7 +99,34 @@ export class DatabaseStorage implements IStorage {
 
   async getNoticiaPorSlug(slug: string): Promise<Noticia | undefined> {
     const [result] = await db
-      .select()
+      .select({
+        id: noticia.id,
+        titulo: noticia.titulo,
+        slug: noticia.slug,
+        resumo: noticia.resumo,
+        conteudo: noticia.conteudo,
+        imageUrl: noticia.imageUrl,
+        autorId: noticia.autorId,
+        categoriaId: noticia.categoriaId,
+        publicadoEm: noticia.publicadoEm,
+        atualizadoEm: noticia.atualizadoEm,
+        metaTitulo: noticia.metaTitulo,
+        metaDescricao: noticia.metaDescricao,
+        urlCanonica: noticia.urlCanonica,
+        palavraChave: noticia.palavraChave,
+        tempoLeitura: noticia.tempoLeitura,
+        ogTitulo: noticia.ogTitulo,
+        ogDescricao: noticia.ogDescricao,
+        ogImagem: noticia.ogImagem,
+        twitterTitulo: noticia.twitterTitulo,
+        twitterDescricao: noticia.twitterDescricao,
+        twitterImagem: noticia.twitterImagem,
+        schemaType: noticia.schemaType,
+        schemaAutor: noticia.schemaAutor,
+        schemaPublisher: noticia.schemaPublisher,
+        status: noticia.status,
+        visibilidade: noticia.visibilidade
+      })
       .from(noticia)
       .where(eq(noticia.slug, slug));
     return result;
@@ -77,7 +134,34 @@ export class DatabaseStorage implements IStorage {
 
   async getNoticiaPorId(id: string): Promise<Noticia | undefined> {
     const [result] = await db
-      .select()
+      .select({
+        id: noticia.id,
+        titulo: noticia.titulo,
+        slug: noticia.slug,
+        resumo: noticia.resumo,
+        conteudo: noticia.conteudo,
+        imageUrl: noticia.imageUrl,
+        autorId: noticia.autorId,
+        categoriaId: noticia.categoriaId,
+        publicadoEm: noticia.publicadoEm,
+        atualizadoEm: noticia.atualizadoEm,
+        metaTitulo: noticia.metaTitulo,
+        metaDescricao: noticia.metaDescricao,
+        urlCanonica: noticia.urlCanonica,
+        palavraChave: noticia.palavraChave,
+        tempoLeitura: noticia.tempoLeitura,
+        ogTitulo: noticia.ogTitulo,
+        ogDescricao: noticia.ogDescricao,
+        ogImagem: noticia.ogImagem,
+        twitterTitulo: noticia.twitterTitulo,
+        twitterDescricao: noticia.twitterDescricao,
+        twitterImagem: noticia.twitterImagem,
+        schemaType: noticia.schemaType,
+        schemaAutor: noticia.schemaAutor,
+        schemaPublisher: noticia.schemaPublisher,
+        status: noticia.status,
+        visibilidade: noticia.visibilidade
+      })
       .from(noticia)
       .where(eq(noticia.id, id));
     return result;
@@ -95,7 +179,34 @@ export class DatabaseStorage implements IStorage {
     const total = Number(countResult?.count || 0);
 
     const noticiasResult = await db
-      .select()
+      .select({
+        id: noticia.id,
+        titulo: noticia.titulo,
+        slug: noticia.slug,
+        resumo: noticia.resumo,
+        conteudo: noticia.conteudo,
+        imageUrl: noticia.imageUrl,
+        autorId: noticia.autorId,
+        categoriaId: noticia.categoriaId,
+        publicadoEm: noticia.publicadoEm,
+        atualizadoEm: noticia.atualizadoEm,
+        metaTitulo: noticia.metaTitulo,
+        metaDescricao: noticia.metaDescricao,
+        urlCanonica: noticia.urlCanonica,
+        palavraChave: noticia.palavraChave,
+        tempoLeitura: noticia.tempoLeitura,
+        ogTitulo: noticia.ogTitulo,
+        ogDescricao: noticia.ogDescricao,
+        ogImagem: noticia.ogImagem,
+        twitterTitulo: noticia.twitterTitulo,
+        twitterDescricao: noticia.twitterDescricao,
+        twitterImagem: noticia.twitterImagem,
+        schemaType: noticia.schemaType,
+        schemaAutor: noticia.schemaAutor,
+        schemaPublisher: noticia.schemaPublisher,
+        status: noticia.status,
+        visibilidade: noticia.visibilidade
+      })
       .from(noticia)
       .where(eq(noticia.categoriaId, categoria.id))
       .limit(limit)
@@ -120,7 +231,34 @@ export class DatabaseStorage implements IStorage {
     const total = Number(countResult?.count || 0);
 
     const noticiasResult = await db
-      .select()
+      .select({
+        id: noticia.id,
+        titulo: noticia.titulo,
+        slug: noticia.slug,
+        resumo: noticia.resumo,
+        conteudo: noticia.conteudo,
+        imageUrl: noticia.imageUrl,
+        autorId: noticia.autorId,
+        categoriaId: noticia.categoriaId,
+        publicadoEm: noticia.publicadoEm,
+        atualizadoEm: noticia.atualizadoEm,
+        metaTitulo: noticia.metaTitulo,
+        metaDescricao: noticia.metaDescricao,
+        urlCanonica: noticia.urlCanonica,
+        palavraChave: noticia.palavraChave,
+        tempoLeitura: noticia.tempoLeitura,
+        ogTitulo: noticia.ogTitulo,
+        ogDescricao: noticia.ogDescricao,
+        ogImagem: noticia.ogImagem,
+        twitterTitulo: noticia.twitterTitulo,
+        twitterDescricao: noticia.twitterDescricao,
+        twitterImagem: noticia.twitterImagem,
+        schemaType: noticia.schemaType,
+        schemaAutor: noticia.schemaAutor,
+        schemaPublisher: noticia.schemaPublisher,
+        status: noticia.status,
+        visibilidade: noticia.visibilidade
+      })
       .from(noticia)
       .where(eq(noticia.autorId, autor.id))
       .limit(limit)
@@ -304,7 +442,34 @@ export class DatabaseStorage implements IStorage {
     
     // Buscar os dados completos das notícias
     const noticiasCompletas = await db
-      .select()
+      .select({
+        id: noticia.id,
+        titulo: noticia.titulo,
+        slug: noticia.slug,
+        resumo: noticia.resumo,
+        conteudo: noticia.conteudo,
+        imageUrl: noticia.imageUrl,
+        autorId: noticia.autorId,
+        categoriaId: noticia.categoriaId,
+        publicadoEm: noticia.publicadoEm,
+        atualizadoEm: noticia.atualizadoEm,
+        metaTitulo: noticia.metaTitulo,
+        metaDescricao: noticia.metaDescricao,
+        urlCanonica: noticia.urlCanonica,
+        palavraChave: noticia.palavraChave,
+        tempoLeitura: noticia.tempoLeitura,
+        ogTitulo: noticia.ogTitulo,
+        ogDescricao: noticia.ogDescricao,
+        ogImagem: noticia.ogImagem,
+        twitterTitulo: noticia.twitterTitulo,
+        twitterDescricao: noticia.twitterDescricao,
+        twitterImagem: noticia.twitterImagem,
+        schemaType: noticia.schemaType,
+        schemaAutor: noticia.schemaAutor,
+        schemaPublisher: noticia.schemaPublisher,
+        status: noticia.status,
+        visibilidade: noticia.visibilidade
+      })
       .from(noticia)
       .where(sql`${noticia.id} IN (${noticiasIds.map(n => n.id).join(',')})`);
     
