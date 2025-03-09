@@ -43,8 +43,10 @@ export const Hero = () => {
             {noticiaPrincipal.resumo}
           </p>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <time dateTime={noticiaPrincipal.publicadoEm}>
-              {new Date(noticiaPrincipal.publicadoEm).toLocaleDateString('pt-BR')}
+            <time dateTime={noticiaPrincipal.publicadoEm ? noticiaPrincipal.publicadoEm.toString() : ''}>
+              {noticiaPrincipal.publicadoEm 
+                ? new Date(noticiaPrincipal.publicadoEm).toLocaleDateString('pt-BR') 
+                : ''}
             </time>
             <span>•</span>
             <span>{noticiaPrincipal.tempoLeitura}</span>
