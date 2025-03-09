@@ -449,6 +449,29 @@ Chave: ${result.key}
     }
     res.json(noticia);
   });
+  
+  // Rota para atualizar notícia existente
+  app.patch("/api/noticias/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      
+      // Verificar se a notícia existe
+      const noticia = await storage.getNoticiaPorId(id);
+      if (!noticia) {
+        return res.status(404).json({ message: "Notícia não encontrada" });
+      }
+
+      // Validar dados de atualização
+      const atualizacao = req.body;
+      
+      // Atualizar a notícia
+      const noticiaAtualizada = await storage.atualizarNoticia(id, atualizacao);
+      res.json(noticiaAtualizada);
+    } catch (error) {
+      console.error("Erro ao atualizar notícia:", error);
+      res.status(500).json({ message: "Erro ao atualizar notícia" });
+    }
+  });
 
   // Comentários
   app.get("/api/noticias/:id/comentarios", async (req, res) => {
@@ -495,6 +518,18 @@ Chave: ${result.key}
   app.get("/api/tags", async (_req, res) => {
     const tags = await storage.getTags();
     res.json(tags);
+  });
+  
+  // Obter tags de uma notícia específica
+  app.get("/api/noticias/:id/tags", async (req, res) => {
+    try {
+      const noticiaId = req.params.id;
+      const tags = await storage.getTagsDaNoticia(noticiaId);
+      res.json(tags);
+    } catch (error) {
+      console.error("Erro ao buscar tags da notícia:", error);
+      res.status(500).json({ message: "Erro ao buscar tags da notícia" });
+    }
   });
 
   app.get("/api/tags/:slug", async (req, res) => {
