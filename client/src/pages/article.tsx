@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
-import type { Noticia } from "@shared/schema";
+import type { Noticia, Tag } from "@shared/schema";
 import { generateArticleLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +16,7 @@ export default function ArticlePage() {
     enabled: !!slug
   });
 
-  const { data: tags } = useQuery({
+  const { data: tags } = useQuery<Tag[]>({
     queryKey: ["/api/noticias", noticia?.id, "tags"],
     enabled: !!noticia?.id
   });
@@ -49,24 +49,26 @@ export default function ArticlePage() {
       />
 
       <article className="max-w-3xl mx-auto pt-8">
-        {/* Título foi removido daqui para evitar duplicidade com o conteúdo HTML */}
-        
-        {tags && Array.isArray(tags) && <TagList tags={tags} className="mb-6" />}
+        <h1 className="text-4xl font-merriweather font-bold mb-6">
+          {noticia?.titulo || ""}
+        </h1>
+
+        {tags && Array.isArray(tags) && tags.length > 0 && <TagList tags={tags} className="mb-6" />}
 
         <img
-          src={noticia.imageUrl}
-          alt={noticia.titulo}
+          src={noticia?.imageUrl || ""}
+          alt={noticia?.titulo || ""}
           className="w-full h-[400px] object-cover rounded-lg mb-8"
         />
 
         <div
           className="prose prose-lg max-w-none mb-12 prose-headings:mb-2"
-          dangerouslySetInnerHTML={{ __html: noticia.conteudo }}
+          dangerouslySetInnerHTML={{ __html: noticia?.conteudo || "" }}
         />
 
         {/* Seção de comentários */}
         <div className="mt-12 pt-8 border-t">
-          <Comments noticiaId={noticia.id} />
+          <Comments noticiaId={noticia?.id || ""} />
         </div>
       </article>
     </>
