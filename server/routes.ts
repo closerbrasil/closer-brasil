@@ -605,8 +605,8 @@ Chave: ${result.key}
         return res.status(404).json({ message: "Notícia não encontrada" });
       }
       
-      // Implementar lógica de remoção aqui
-      // Por enquanto, apenas retornamos sucesso
+      // Excluir a notícia
+      await storage.removerNoticia(req.params.id);
       res.json({ success: true, message: "Notícia excluída com sucesso" });
     } catch (error) {
       console.error("Erro ao excluir notícia:", error);

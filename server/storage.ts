@@ -294,6 +294,23 @@ export class DatabaseStorage implements IStorage {
     
     return result;
   }
+  
+  async removerNoticia(id: string): Promise<void> {
+    // Primeiro remover todas as associações da notícia com tags
+    await db
+      .delete(noticiasTags)
+      .where(eq(noticiasTags.noticiaId, id));
+    
+    // Depois remover os comentários relacionados
+    await db
+      .delete(comentarios)
+      .where(eq(comentarios.noticiaId, id));
+    
+    // Finalmente, remover a notícia
+    await db
+      .delete(noticia)
+      .where(eq(noticia.id, id));
+  }
 
   // Categorias
   async getCategorias(): Promise<Categoria[]> {
