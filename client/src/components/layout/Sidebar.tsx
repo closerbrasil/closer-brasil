@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import type { Noticia } from "@shared/schema";
+import { Loader2 } from "lucide-react";
 
 const newsletterSchema = z.object({
   email: z.string().email("Por favor, insira um e-mail válido"),
@@ -21,6 +23,7 @@ type NewsletterForm = z.infer<typeof newsletterSchema>;
 
 export const Sidebar = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<NewsletterForm>({
     resolver: zodResolver(newsletterSchema),
     defaultValues: {
@@ -34,12 +37,31 @@ export const Sidebar = () => {
     select: (data) => data?.slice(0, 5) ?? [],
   });
 
-  const onSubmit = (data: NewsletterForm) => {
-    toast({
-      title: "Inscrição realizada!",
-      description: "Você receberá nossas newsletters no e-mail cadastrado.",
-    });
-    form.reset();
+  const onSubmit = async (data: NewsletterForm) => {
+    setIsSubmitting(true);
+    
+    try {
+      // Simulação de chamada de API com um pequeno atraso
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Sucesso
+      toast({
+        title: "Inscrição realizada!",
+        description: `Olá ${data.name}, você receberá nossas newsletters no e-mail cadastrado.`,
+        variant: "default",
+      });
+      
+      form.reset();
+    } catch (error) {
+      // Erro
+      toast({
+        title: "Erro ao enviar inscrição",
+        description: "Não foi possível processar sua inscrição. Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -119,8 +141,15 @@ export const Sidebar = () => {
               )}
             />
 
-            <Button type="submit" className="w-full">
-              Inscrever-se
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                "Inscrever-se"
+              )}
             </Button>
           </form>
         </Form>
