@@ -27,9 +27,19 @@ function getBaseUrl(): string {
   }
   // No ambiente Replit, usar o domínio do Replit no formato correto
   else if (process.env.REPL_ID) {
-    // Formato novo do Replit: ID-versão.ambiente.replit.dev
-    baseUrl = `https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev`;
-    console.log("Usando URL do novo domínio Replit:", baseUrl);
+    // Use a variável de ambiente REPLIT_DOMAINS se estiver disponível
+    if (process.env.REPLIT_DOMAINS) {
+      const domains = JSON.parse(process.env.REPLIT_DOMAINS);
+      if (domains && domains.length > 0) {
+        baseUrl = `https://${domains[0]}`;
+      } else {
+        baseUrl = `https://closerbrasil.com`;
+      }
+    } else {
+      // Fallback para closerbrasil.com como solicitado
+      baseUrl = `https://closerbrasil.com`;
+    }
+    console.log("Usando URL do domínio configurado:", baseUrl);
   } 
   // Fallback para o formato antigo ou desenvolvimento local
   else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {

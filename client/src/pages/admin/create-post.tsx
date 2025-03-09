@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { TiptapEditor } from "@/components/TiptapEditor";
 import {
   Select,
   SelectContent,
@@ -336,19 +337,21 @@ export default function CreatePostPage() {
 
                 {/* Coluna direita */}
                 <div className="space-y-6">
-                  {/* Conteúdo */}
+                  {/* Conteúdo - Editor TipTap */}
                   <FormField
                     control={form.control}
                     name="conteudo"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col space-y-2">
                         <FormLabel>Conteúdo</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Conteúdo completo da notícia em formato HTML" 
-                            className="h-[370px] font-mono text-sm" 
-                            {...field} 
-                          />
+                          <div className="min-h-[400px]">
+                            <TiptapEditor
+                              content={field.value}
+                              onChange={field.onChange}
+                              placeholder="Escreva o conteúdo completo da notícia aqui..."
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

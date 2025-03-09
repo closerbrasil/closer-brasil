@@ -5,6 +5,7 @@ import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { TiptapEditor } from "@/components/TiptapEditor";
 import {
   Form,
   FormControl,
@@ -561,19 +562,21 @@ export default function EditPostPage() {
               </div>
             </div>
 
-            {/* Conteúdo */}
+            {/* Conteúdo - Editor TipTap */}
             <FormField
               control={form.control}
               name="conteudo"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col space-y-2">
                   <FormLabel>Conteúdo</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Conteúdo da notícia"
-                      className="h-64 font-mono text-sm"
-                      {...field}
-                    />
+                    <div className="min-h-[400px]">
+                      <TiptapEditor
+                        content={field.value}
+                        onChange={field.onChange}
+                        placeholder="Escreva o conteúdo completo da notícia aqui..."
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
