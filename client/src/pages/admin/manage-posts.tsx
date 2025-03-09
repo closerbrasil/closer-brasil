@@ -107,12 +107,12 @@ export default function ManagePostsPage() {
       />
 
       <AdminLayout title="Gerenciar Notícias">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <p className="text-gray-500">
             Gerencie todas as publicações do portal de notícias
           </p>
-          <Button asChild>
-            <Link href="/admin/create-post" className="flex items-center gap-2">
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/admin/create-post" className="flex items-center justify-center gap-2">
               <PlusCircle className="h-4 w-4" />
               Criar Nova
             </Link>
@@ -128,7 +128,8 @@ export default function ManagePostsPage() {
           </div>
         ) : (
           <>
-            <div className="rounded-md border">
+            {/* Tabela para desktop */}
+            <div className="rounded-md border hidden md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -194,19 +195,83 @@ export default function ManagePostsPage() {
                 </TableBody>
               </Table>
             </div>
+            
+            {/* Lista para mobile */}
+            <div className="space-y-4 md:hidden">
+              {data?.noticias && data.noticias.length > 0 ? (
+                data.noticias.map((noticia) => (
+                  <div key={noticia.id} className="bg-white rounded-lg border p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-medium truncate flex-1">{noticia.titulo}</h3>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/noticia/${noticia.slug}`} className="flex items-center cursor-pointer">
+                              <Eye className="mr-2 h-4 w-4" />
+                              Visualizar
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/admin/edit-post/${noticia.id}`} className="flex items-center cursor-pointer">
+                              <FileEdit className="mr-2 h-4 w-4" />
+                              Editar
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600 focus:text-red-600 flex items-center cursor-pointer"
+                            onClick={() => handleDeleteClick(noticia.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <p>Data: {new Date(noticia.publicadoEm).toLocaleDateString("pt-BR")}</p>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" asChild className="h-8 px-2 text-xs">
+                          <Link href={`/noticia/${noticia.slug}`}>
+                            <Eye className="h-3 w-3 mr-1" />
+                            Ver
+                          </Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild className="h-8 px-2 text-xs">
+                          <Link href={`/admin/edit-post/${noticia.id}`}>
+                            <FileEdit className="h-3 w-3 mr-1" />
+                            Editar
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6 text-gray-500 bg-white rounded-lg border p-4">
+                  Nenhuma notícia encontrada
+                </div>
+              )}
+            </div>
 
             {/* Paginação */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-end space-x-2 py-4">
+              <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 py-4">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
+                  className="flex-1 md:flex-none max-w-[120px]"
                 >
                   Anterior
                 </Button>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 px-2 text-center">
                   Página {currentPage} de {totalPages}
                 </span>
                 <Button
@@ -214,6 +279,7 @@ export default function ManagePostsPage() {
                   size="sm"
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
+                  className="flex-1 md:flex-none max-w-[120px]"
                 >
                   Próxima
                 </Button>
