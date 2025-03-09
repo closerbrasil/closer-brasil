@@ -108,7 +108,7 @@ export default function ArticlePage() {
         } : undefined}
         jsonLd={generateArticleLD(noticia, autor)}
         keywords={tags.map(tag => (tag as any).nome)}
-        canonicalUrl={noticia.urlCanonica}
+        canonicalUrl={noticia.urlCanonica || undefined}
       />
 
       <article className="max-w-3xl mx-auto pt-8 px-4">
