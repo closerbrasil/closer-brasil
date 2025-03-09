@@ -20,15 +20,27 @@ import {
   Image as ImageIcon,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  Code,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 interface TiptapEditorProps {
   content: string;
@@ -41,6 +53,8 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
   const [imageUrl, setImageUrl] = useState('');
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
   const [imagePopoverOpen, setImagePopoverOpen] = useState(false);
+  const [htmlDialogOpen, setHtmlDialogOpen] = useState(false);
+  const [htmlContent, setHtmlContent] = useState('');
 
   // Configurar o editor
   const editor = useEditor({
@@ -102,6 +116,22 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
         .run();
       setImageUrl('');
       setImagePopoverOpen(false);
+    }
+  };
+
+  // Funções para edição de HTML
+  const openHtmlDialog = () => {
+    if (editor) {
+      setHtmlContent(editor.getHTML());
+      setHtmlDialogOpen(true);
+    }
+  };
+
+  const applyHtmlChanges = () => {
+    if (editor) {
+      editor.commands.setContent(htmlContent);
+      onChange(htmlContent);
+      setHtmlDialogOpen(false);
     }
   };
 
@@ -287,6 +317,18 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
         >
           <Redo className="h-4 w-4" />
         </Button>
+
+        {/* Botão para editar HTML */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={openHtmlDialog}
+          title="Editar como HTML"
+          type="button"
+          className="ml-auto"
+        >
+          <Code className="h-4 w-4" />
+        </Button>
       </div>
     );
   };
@@ -298,6 +340,35 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
         editor={editor}
         className="prose prose-sm max-w-none border rounded-b-md p-4 min-h-[300px] focus:outline-none"
       />
+
+      {/* Diálogo para editar HTML */}
+      <Dialog open={htmlDialogOpen} onOpenChange={setHtmlDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Editar HTML</DialogTitle>
+            <DialogDescription>
+              Edite o conteúdo diretamente no formato HTML. Tenha cuidado, alterações incorretas podem quebrar o layout.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-2">
+            <Textarea 
+              value={htmlContent}
+              onChange={(e) => setHtmlContent(e.target.value)}
+              className="min-h-[300px] font-mono text-sm"
+              spellCheck={false}
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHtmlDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={applyHtmlChanges} className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              Aplicar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
