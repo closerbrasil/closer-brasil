@@ -21,6 +21,7 @@ export interface IStorage {
   // Autores
   getAutores(): Promise<Autor[]>;
   getAutorPorSlug(slug: string): Promise<Autor | undefined>;
+  getAutorPorId(id: string): Promise<Autor | undefined>;
   criarAutor(autor: InsertAutor): Promise<Autor>;
   atualizarAutor(id: string, autor: Partial<InsertAutor>): Promise<Autor>;
 
@@ -180,6 +181,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(autores)
       .where(eq(autores.slug, slug));
+    return autor;
+  }
+
+  async getAutorPorId(id: string): Promise<Autor | undefined> {
+    const [autor] = await db
+      .select()
+      .from(autores)
+      .where(eq(autores.id, id));
     return autor;
   }
 

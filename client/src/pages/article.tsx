@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
-import type { Noticia } from "@shared/schema";
+import type { Noticia, Autor } from "@shared/schema";
 import { generateArticleLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +14,12 @@ export default function ArticlePage() {
   const { data: noticia, isLoading } = useQuery<Noticia>({
     queryKey: [`/api/noticias/${slug}`],
     enabled: !!slug
+  });
+
+  // Buscar dados do autor quando tivermos o ID do autor da notícia
+  const { data: autor } = useQuery<Autor>({
+    queryKey: [`/api/autores`, noticia?.autorId],
+    enabled: !!noticia?.autorId
   });
 
   const { data: tagsResponse } = useQuery({
@@ -52,7 +58,11 @@ export default function ArticlePage() {
         type="article"
         image={noticia.imageUrl}
         publishedTime={publishedDate.toISOString()}
-        jsonLd={generateArticleLD(noticia)}
+        author={autor ? {
+          name: autor.nome,
+          url: `/autor/${autor.slug}`
+        } : undefined}
+        jsonLd={generateArticleLD(noticia, autor)}
       />
 
       <article className="max-w-3xl mx-auto pt-8">

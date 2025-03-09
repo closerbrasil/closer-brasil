@@ -334,8 +334,21 @@ Chave: ${result.key}
     res.json(autores);
   });
 
-  app.get("/api/autores/:slug", async (req, res) => {
-    const autor = await storage.getAutorPorSlug(req.params.slug);
+  app.get("/api/autores/:identificador", async (req, res) => {
+    const identificador = req.params.identificador;
+    
+    // Verifica se o identificador é um UUID (formato de ID)
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identificador);
+    
+    let autor;
+    if (isUUID) {
+      // Se for UUID, busca por ID
+      autor = await storage.getAutorPorId(identificador);
+    } else {
+      // Senão, busca por slug
+      autor = await storage.getAutorPorSlug(identificador);
+    }
+    
     if (!autor) {
       res.status(404).json({ message: "Autor não encontrado" });
       return;
