@@ -35,7 +35,7 @@ export const Hero = () => {
         </div>
         <div className="flex flex-col justify-center space-y-4">
           <Link href={`/noticia/${noticiaPrincipal.slug}`}>
-            <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:text-5xl">
+            <h1 className="text-2xl font-bold leading-snug tracking-tight md:text-3xl lg:text-4xl line-clamp-3">
               {noticiaPrincipal.titulo}
             </h1>
           </Link>
