@@ -23,6 +23,10 @@ export const Sidebar = () => {
   const { toast } = useToast();
   const form = useForm<NewsletterForm>({
     resolver: zodResolver(newsletterSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
   });
 
   const { data: trending } = useQuery<Noticia[]>({
