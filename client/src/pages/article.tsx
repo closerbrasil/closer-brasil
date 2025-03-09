@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
-import type { Noticia, Tag } from "@shared/schema";
+import type { Noticia } from "@shared/schema";
 import { generateArticleLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,10 +16,17 @@ export default function ArticlePage() {
     enabled: !!slug
   });
 
-  const { data: tags } = useQuery<Tag[]>({
+  const { data: tagsResponse } = useQuery({
     queryKey: ["/api/noticias", noticia?.id, "tags"],
     enabled: !!noticia?.id
   });
+  
+  // Verificar e converter os dados de tag para o formato esperado
+  const tags = tagsResponse && Array.isArray(tagsResponse) 
+    ? tagsResponse.filter(tag => 
+        tag && typeof tag === 'object' && 'id' in tag && 'nome' in tag && 'slug' in tag
+      )
+    : [];
 
   if (isLoading) {
     return (
@@ -53,7 +60,7 @@ export default function ArticlePage() {
           {noticia?.titulo || ""}
         </h1>
 
-        {tags && Array.isArray(tags) && tags.length > 0 && <TagList tags={tags} className="mb-6" />}
+        {tags.length > 0 && <TagList tags={tags as any} className="mb-6" />}
 
         <img
           src={noticia?.imageUrl || ""}
