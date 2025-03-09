@@ -151,22 +151,21 @@ export default function ArticlePage() {
             alt={noticia.titulo}
             className="w-full max-h-[500px] object-cover rounded-lg"
           />
-          {/* Crédito de imagem (temporariamente comentado até a atualização do banco) */}
-          {/*noticia.imagemCredito && (
+          {noticia.imagemCredito && (
             <figcaption className="text-sm text-gray-500 mt-2 italic text-right">
               Crédito: {noticia.imagemCredito}
             </figcaption>
-          )*/}
+          )}
         </figure>
 
         {/* Barra de ações */}
         <div className="flex justify-between items-center mb-8">
           {/* Informações do autor */}
-          {autor && (
+          {autor && autor.nome && (
             <div className="flex items-center">
               <Avatar className="h-10 w-10 mr-3">
                 <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
-                <AvatarFallback>{autor.nome.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback>{autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}</AvatarFallback>
               </Avatar>
               <div>
                 <Link href={`/autor/${autor.slug}`} className="font-medium hover:underline block text-sm">
@@ -204,7 +203,7 @@ export default function ArticlePage() {
             <div className="flex items-center mb-4">
               <Avatar className="h-12 w-12 mr-4">
                 <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
-                <AvatarFallback>{autor.nome.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback>{autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}</AvatarFallback>
               </Avatar>
               <div>
                 <Link href={`/autor/${autor.slug}`} className="font-bold text-lg hover:underline">

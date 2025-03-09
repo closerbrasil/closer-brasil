@@ -1,0 +1,29 @@
+[vite] connecting...
+[vite] connected.
+Cannot read properties of undefined (reading 'substring')
+at ArticlePage (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/pages/article.tsx:238:179)
+at renderWithHooks (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:11548:26)
+at updateFunctionComponent (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:14582:28)
+at beginWork (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:15924:22)
+at HTMLUnknownElement.callCallback2 (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:3674:22)
+at Object.invokeGuardedCallbackDev (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:3699:24)
+at invokeGuardedCallback (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:3733:39)
+at beginWork$1 (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:19765:15)
+at performUnitOfWork (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:19198:20)
+at workLoopSync (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ea020833:19137:13)
+Cannot read properties of undefined (reading 'substring')
+The above error occurred in the <ArticlePage> component:
+
+    at ArticlePage (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/pages/article.tsx:31:22)
+    at Route (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ea020833:323:16)
+    at Switch (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ea020833:379:17)
+    at SiteRouter
+    at main
+    at div
+    at QueryClientProvider (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=ea020833:2805:3)
+    at _a (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=ea020833:624:5)
+    at App (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/App.tsx?v=ZHE1YGu0J4Lz7akzhWi3q:157:22)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+Cannot read properties of undefined (reading 'substring')
