@@ -72,28 +72,40 @@ export function RelatedPosts({
 
   return (
     <div className="mt-12 mb-8">
-      <h3 className="text-2xl font-bold mb-6 border-b pb-2">Posts Relacionados</h3>
+      <h3 className="text-2xl font-bold mb-6 border-b pb-2">Leia Também</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {relatedPosts.map((post) => (
-          <div key={post.id} className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div key={post.id} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
             <Link href={`/noticia/${post.slug}`}>
               <div className="cursor-pointer">
-                <div className="relative h-40 overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <img 
                     src={post.imageUrl} 
                     alt={post.titulo} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+                  {post.categoriaId && categoria && (
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-primary/90 text-white text-xs px-2 py-1 rounded font-medium">
+                        {categoria.nome}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className="p-4">
-                  <div className="flex items-center text-xs text-gray-500 mb-2">
+                  <div className="flex items-center text-xs text-gray-500 mb-3">
                     <Calendar className="h-3 w-3 mr-1" />
                     <time dateTime={new Date(post.publicadoEm).toISOString()}>
                       {new Date(post.publicadoEm).toLocaleDateString('pt-BR')}
                     </time>
+                    {post.tempoLeitura && (
+                      <span className="ml-3 text-xs text-gray-500">
+                        {post.tempoLeitura}
+                      </span>
+                    )}
                   </div>
-                  <h4 className="font-bold text-md line-clamp-2 mb-2 hover:text-primary transition-colors">
+                  <h4 className="font-bold text-md line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                     {post.titulo}
                   </h4>
                   <p className="text-sm text-gray-600 line-clamp-2">

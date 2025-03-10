@@ -304,7 +304,6 @@ export default function ArticlePage() {
 
         {/* Seção de comentários */}
         <div className="mt-12 pt-8 border-t">
-          <h3 className="text-xl font-bold mb-6">Comentários</h3>
           <Comments noticiaId={noticia.id} />
         </div>
       </article>

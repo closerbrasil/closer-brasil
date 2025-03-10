@@ -62,21 +62,78 @@ export function Comments({ noticiaId }: CommentsProps) {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold">Comentários</h2>
+      {/* Lista de comentários */}
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">
+            {comentarios?.length ? `${comentarios.length} Comentário${comentarios.length !== 1 ? 's' : ''}` : 'Comentários'}
+          </h2>
+        </div>
+        
+        {isLoading ? (
+          <div className="space-y-4 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-gray-50 p-5 rounded-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/5"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : comentarios?.length ? (
+          <div className="divide-y divide-gray-100">
+            {comentarios.map((comentario) => (
+              <div key={comentario.id} className="py-5">
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-medium text-sm">
+                    {comentario.autorNome ? comentario.autorNome.substring(0, 1).toUpperCase() : 'A'}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-gray-900">
+                        {comentario.autorNome || "Anônimo"}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        há {formatDistanceToNow(new Date(comentario.criadoEm), { locale: ptBR })}
+                      </span>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">{comentario.conteudo}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-gray-50 rounded-lg">
+            <p className="text-gray-500 mb-2">Nenhum comentário ainda</p>
+            <p className="text-gray-500 text-sm">Seja o primeiro a compartilhar seus pensamentos sobre este artigo</p>
+          </div>
+        )}
+      </div>
 
       {/* Formulário de comentário */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-4">Deixe seu comentário</h3>
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <h3 className="text-xl font-semibold mb-4">Deixe seu comentário</h3>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => submitComment({ ...data, noticiaId }))} className="space-y-4">
+          <form onSubmit={form.handleSubmit((data) => submitComment({ ...data, noticiaId }))} className="space-y-5">
             <FormField
               control={form.control}
               name="autorNome"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome (opcional)</FormLabel>
+                  <FormLabel className="text-sm font-medium">Nome (opcional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Seu nome (ou deixe em branco para comentar anonimamente)" {...field} />
+                    <Input 
+                      placeholder="Seu nome (ou deixe em branco para comentar anonimamente)" 
+                      className="bg-gray-50 border-gray-200 focus:bg-white"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,11 +145,11 @@ export function Comments({ noticiaId }: CommentsProps) {
               name="conteudo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Comentário</FormLabel>
+                  <FormLabel className="text-sm font-medium">Seu comentário</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Escreva seu comentário aqui..." 
-                      className="min-h-[100px] resize-y"
+                      className="min-h-[120px] resize-y bg-gray-50 border-gray-200 focus:bg-white"
                       {...field}
                     />
                   </FormControl>
@@ -101,38 +158,25 @@ export function Comments({ noticiaId }: CommentsProps) {
               )}
             />
 
-            <Button 
-              type="submit" 
-              disabled={isPending}
-              className="w-full sm:w-auto bg-black hover:bg-black/90 text-white px-8 py-2 text-base font-medium"
-            >
-              {isPending ? "Enviando..." : "Publicar comentário"}
-            </Button>
+            <div className="pt-2">
+              <Button 
+                type="submit" 
+                disabled={isPending}
+                className="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6"
+              >
+                {isPending ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Enviando...
+                  </span>
+                ) : "Publicar comentário"}
+              </Button>
+            </div>
           </form>
         </Form>
-      </div>
-
-      {/* Lista de comentários */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <p>Carregando comentários...</p>
-        ) : comentarios?.length ? (
-          comentarios.map((comentario) => (
-            <div key={comentario.id} className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">
-                  {comentario.autorNome || "Anônimo"}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  há {formatDistanceToNow(new Date(comentario.criadoEm), { locale: ptBR })}
-                </span>
-              </div>
-              <p className="text-gray-700">{comentario.conteudo}</p>
-            </div>
-          ))
-        ) : (
-          <p className="text-muted-foreground">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
-        )}
       </div>
     </div>
   );

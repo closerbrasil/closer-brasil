@@ -22,7 +22,8 @@ export function TagList({ tags, className = "" }: TagListProps) {
         <Link
           key={tag.id}
           href={`/tag/${tag.slug}`}
-          className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm hover:bg-gray-200 transition-colors"
+          className="inline-flex items-center rounded-full bg-gray-100 px-4 py-1.5 text-sm font-medium hover:bg-gray-200 hover:text-primary transition-colors"
+          title={tag.descricao || `Ver artigos relacionados a ${tag.nome}`}
         >
           #{tag.nome}
         </Link>

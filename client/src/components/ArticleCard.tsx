@@ -48,63 +48,93 @@ export default function ArticleCard({ article }: ArticleCardProps) {
   });
 
   return (
-    <article className="group relative">
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+    <article className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+      <div className="relative aspect-video w-full overflow-hidden">
         <Link href={`/noticia/${article.slug}`}>
           <img
             src={article.imageUrl}
             alt={article.titulo}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         </Link>
         
-        {/* Exibir categoria como badge no canto do card */}
+        {/* Categoria no canto do card */}
         {categoria && (
-          <div className="absolute bottom-2 left-2">
+          <div className="absolute top-3 left-3">
             <Link href={`/categoria/${categoria.slug}`}>
-              <Badge variant="secondary" className="bg-primary/90 text-white hover:bg-primary cursor-pointer">
+              <Badge variant="secondary" className="bg-primary/90 text-white hover:bg-primary cursor-pointer font-medium">
                 {categoria.nome}
               </Badge>
             </Link>
           </div>
         )}
+        
+        {/* Tempo de leitura (se disponível) */}
+        {article.tempoLeitura && (
+          <div className="absolute bottom-3 right-3">
+            <Badge variant="outline" className="bg-black/70 text-white border-0 text-xs">
+              {article.tempoLeitura}
+            </Badge>
+          </div>
+        )}
       </div>
-      <div className="mt-4">
+      
+      <div className="p-5">
+        {/* Data de publicação */}
+        <div className="flex items-center text-xs text-gray-500 mb-3">
+          <time dateTime={new Date(article.publicadoEm).toISOString()}>
+            {new Date(article.publicadoEm).toLocaleDateString('pt-BR', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
+            })}
+          </time>
+        </div>
+        
+        {/* Título do artigo */}
         <Link href={`/noticia/${article.slug}`}>
-          <h2 className="text-xl font-medium group-hover:text-primary transition-colors">
+          <h2 className="text-xl font-bold leading-tight mb-3 group-hover:text-primary transition-colors line-clamp-2">
             {article.titulo}
           </h2>
         </Link>
-        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+        
+        {/* Resumo do artigo */}
+        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
           {article.resumo}
         </p>
-        <div className="mt-2 flex items-center justify-between">
+        
+        {/* Autor e informações adicionais */}
+        <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
           {autor && (
-            <div className="flex items-center">
-              <div className="h-6 w-6 mr-2 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+            <Link href={`/autor/${autor.slug}`} className="flex items-center group/author">
+              <Avatar className="h-8 w-8 mr-2 border border-gray-200">
                 {autor.avatarUrl ? (
-                  <img 
-                    src={autor.avatarUrl} 
-                    alt={autor.nome} 
-                    className="w-full h-full object-cover"
-                  />
+                  <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[8px] font-bold">
+                  <AvatarFallback className="bg-gray-100 text-gray-700 text-xs">
                     {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
-                  </div>
+                  </AvatarFallback>
                 )}
-              </div>
-              <Link href={`/autor/${autor.slug}`} className="text-xs hover:underline">
+              </Avatar>
+              <span className="text-sm font-medium group-hover/author:text-primary transition-colors">
                 {autor.nome}
-              </Link>
-            </div>
+              </span>
+            </Link>
           )}
-          <div className="text-xs text-muted-foreground">
-            há {formatDistanceToNow(new Date(article.publicadoEm), { locale: ptBR })}
-          </div>
+          
+          {/* Botão "Ler mais" em telas pequenas */}
+          <Link href={`/noticia/${article.slug}`} className="hidden xs:inline-block text-sm font-medium text-primary hover:underline">
+            Ler mais
+          </Link>
         </div>
-        {tags.length > 0 && <TagList tags={tags} className="mt-3" />}
+        
+        {/* Tags relacionadas (se houver) */}
+        {tags.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-gray-100">
+            <TagList tags={tags.slice(0, 3)} className="text-xs" />
+          </div>
+        )}
       </div>
     </article>
   );
