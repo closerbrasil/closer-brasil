@@ -204,7 +204,7 @@ export default function ArticlePage() {
         </h1>
 
         {/* Resumo do artigo */}
-        <p className="text-lg text-gray-700 mb-6 font-serif leading-relaxed">
+        <p className="text-lg text-gray-700 mb-6 font-merriweather leading-relaxed">
           {noticia.resumo}
         </p>
 
