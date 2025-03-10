@@ -5,6 +5,7 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
+import Youtube from '@tiptap/extension-youtube';
 import { 
   Bold, 
   Italic, 
@@ -22,7 +23,8 @@ import {
   AlignCenter,
   AlignRight,
   Code,
-  Check
+  Check,
+  Youtube as YoutubeIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,8 +53,10 @@ interface TiptapEditorProps {
 export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu conteúdo aqui...' }: TiptapEditorProps) {
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
   const [imagePopoverOpen, setImagePopoverOpen] = useState(false);
+  const [youtubePopoverOpen, setYoutubePopoverOpen] = useState(false);
   const [htmlDialogOpen, setHtmlDialogOpen] = useState(false);
   const [htmlContent, setHtmlContent] = useState('');
 
@@ -79,6 +83,15 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
         types: ['heading', 'paragraph'],
         alignments: ['left', 'center', 'right'],
         defaultAlignment: 'left',
+      }),
+      Youtube.configure({
+        controls: true,
+        nocookie: true,
+        progressBarColor: 'red',
+        modestBranding: true,
+        HTMLAttributes: {
+          class: 'w-full aspect-video my-4 rounded-md overflow-hidden',
+        },
       }),
     ],
     content,
@@ -116,6 +129,18 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
         .run();
       setImageUrl('');
       setImagePopoverOpen(false);
+    }
+  };
+  
+  const addYoutubeVideo = () => {
+    if (youtubeUrl && editor) {
+      editor
+        .chain()
+        .focus()
+        .setYoutubeVideo({ src: youtubeUrl })
+        .run();
+      setYoutubeUrl('');
+      setYoutubePopoverOpen(false);
     }
   };
 
@@ -295,6 +320,36 @@ export function TiptapEditor({ content, onChange, placeholder = 'Escreva seu con
                 />
                 <Button onClick={addImage} type="button">Inserir</Button>
               </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* YouTube Popover */}
+        <Popover open={youtubePopoverOpen} onOpenChange={setYoutubePopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+            >
+              <YoutubeIcon className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">URL do YouTube</label>
+              <div className="flex gap-2">
+                <Input
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                  className="flex-1"
+                />
+                <Button onClick={addYoutubeVideo} type="button">Inserir</Button>
+              </div>
+              <p className="text-xs text-gray-500">
+                Cole a URL completa do vídeo do YouTube (ex: https://www.youtube.com/watch?v=XXXX)
+              </p>
             </div>
           </PopoverContent>
         </Popover>
