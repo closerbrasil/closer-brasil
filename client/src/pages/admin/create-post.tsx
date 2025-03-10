@@ -223,7 +223,7 @@ export default function CreatePostPage() {
   // Mutation para adicionar tag a uma notícia
   const addTagMutation = useMutation({
     mutationFn: async ({ noticiaId, tagId }: { noticiaId: string; tagId: string }) => {
-      return apiRequest('POST', `/api/noticias/${noticiaId}/tags/${tagId}`);
+      return apiRequest('POST', `/api/noticias/${noticiaId}/tags`, { tagId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/noticias'] });
