@@ -17,6 +17,7 @@ export interface IStorage {
   // Categorias
   getCategorias(): Promise<Categoria[]>;
   getCategoriaPorSlug(slug: string): Promise<Categoria | undefined>;
+  getCategoriaPorId(id: string): Promise<Categoria | undefined>;
   criarCategoria(categoria: InsertCategoria): Promise<Categoria>;
 
   // Autores
@@ -322,6 +323,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(categorias)
       .where(eq(categorias.slug, slug));
+    return categoria;
+  }
+
+  async getCategoriaPorId(id: string): Promise<Categoria | undefined> {
+    const [categoria] = await db
+      .select()
+      .from(categorias)
+      .where(eq(categorias.id, id));
     return categoria;
   }
 
