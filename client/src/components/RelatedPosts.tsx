@@ -23,6 +23,12 @@ export function RelatedPosts({
     enabled: !!categoriaId,
   });
   
+  // Obter dados das categorias dos posts relacionados
+  const { data: todasCategorias } = useQuery<Categoria[]>({
+    queryKey: ['/api/categorias'],
+    enabled: !categoriaId, // Carrega todas as categorias se não tivermos uma categoria específica
+  });
+  
   // Buscar todas as notícias quando não temos categoria
   const { data: todasNoticias, isLoading: isLoadingTodas } = useQuery<{ noticias: Noticia[], total: number }>({
     queryKey: ['/api/noticias'],
@@ -85,11 +91,45 @@ export function RelatedPosts({
                     alt={post.titulo} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {post.categoriaId && categoria && (
+                  {post.categoriaId && (
                     <div className="absolute top-3 left-3">
-                      <span className="bg-primary/90 text-white text-xs px-2 py-1 rounded font-medium">
-                        {categoria.nome}
-                      </span>
+                      {(() => {
+                        // Se temos uma categoria fixa, usamos ela
+                        if (categoria && post.categoriaId === categoriaId) {
+                          return (
+                            <span 
+                              className="text-white text-xs px-2 py-1 rounded font-medium"
+                              style={{ backgroundColor: categoria.cor || "#3b82f6" }}
+                            >
+                              {categoria.nome}
+                            </span>
+                          );
+                        }
+                        
+                        // Caso contrário, procuramos a categoria correta na lista de todas as categorias
+                        if (todasCategorias) {
+                          const postCategoria = todasCategorias.find(cat => cat.id === post.categoriaId);
+                          if (postCategoria) {
+                            return (
+                              <span 
+                                className="text-white text-xs px-2 py-1 rounded font-medium"
+                                style={{ backgroundColor: postCategoria.cor || "#3b82f6" }}
+                              >
+                                {postCategoria.nome}
+                              </span>
+                            );
+                          }
+                        }
+                        
+                        // Fallback: se não encontramos a categoria, mostramos um label genérico
+                        return (
+                          <span 
+                            className="text-white text-xs px-2 py-1 rounded font-medium bg-primary"
+                          >
+                            Notícia
+                          </span>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
