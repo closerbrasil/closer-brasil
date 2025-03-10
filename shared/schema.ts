@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, varchar, uuid, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, varchar, uuid, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -95,6 +95,23 @@ export const noticia = pgTable("noticia", {
   visibilidade: varchar("visibilidade", { length: 20 }).default("publico").notNull(),
 });
 
+// Tabela de vídeos
+export const videos = pgTable("videos", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  noticiaId: uuid("noticia_id").references(() => noticia.id).notNull().unique(), // Relação 1:1 com notícia
+  plataforma: varchar("plataforma", { length: 50 }).default("youtube").notNull(), // youtube, vimeo, etc.
+  videoId: varchar("video_id", { length: 100 }).notNull(), // ID do vídeo na plataforma
+  duracao: integer("duracao"), // Duração em segundos
+  embedUrl: text("embed_url"), // URL de incorporação completa
+  autoplay: boolean("autoplay").default(false), // Configuração de reprodução automática
+  controles: boolean("controles").default(true), // Mostrar controles do player
+  loop: boolean("loop").default(false), // Reprodução em loop
+  posicaoDestaque: integer("posicao_destaque"), // Para ordenar vídeos em destaque
+  visualizacoes: integer("visualizacoes").default(0), // Contador de visualizações
+  dataCriacao: timestamp("data_criacao").defaultNow().notNull(), // Data de upload/criação do vídeo
+  dataAtualizacao: timestamp("data_atualizacao").defaultNow().notNull(),
+});
+
 // Nova tabela de comentários
 export const comentarios = pgTable("comentarios", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -118,6 +135,18 @@ export const noticiaRelations = relations(noticia, ({ one, many }) => ({
   }),
   tags: many(noticiasTags),
   comentarios: many(comentarios),
+  video: one(videos, {
+    fields: [noticia.id],
+    references: [videos.noticiaId],
+  }),
+}));
+
+// Relações para vídeos
+export const videosRelations = relations(videos, ({ one }) => ({
+  noticia: one(noticia, {
+    fields: [videos.noticiaId],
+    references: [noticia.id],
+  }),
 }));
 
 export const tagsRelations = relations(tags, ({ many }) => ({
@@ -192,6 +221,17 @@ export const insertImagemSchema = createInsertSchema(imagens).omit({
   criadoEm: true,
 });
 
+// Schema para vídeos
+export const insertVideoSchema = createInsertSchema(videos).omit({
+  id: true,
+  dataCriacao: true,
+  dataAtualizacao: true,
+  visualizacoes: true,
+}).extend({
+  videoId: z.string().min(1, "ID do vídeo é obrigatório"),
+  plataforma: z.enum(["youtube", "vimeo", "outros"]).default("youtube"),
+  duracao: z.number().optional(),
+});
 
 // Tipos
 export type Autor = typeof autores.$inferSelect;
@@ -211,3 +251,6 @@ export type InsertComentario = z.infer<typeof insertComentarioSchema>;
 
 export type Imagem = typeof imagens.$inferSelect;
 export type InsertImagem = z.infer<typeof insertImagemSchema>;
+
+export type Video = typeof videos.$inferSelect;
+export type InsertVideo = z.infer<typeof insertVideoSchema>;
