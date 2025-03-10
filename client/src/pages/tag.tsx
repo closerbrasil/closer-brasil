@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import type { Noticia, Tag } from "@shared/schema";
 import ArticleCard from "@/components/ArticleCard";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Newspaper, Hash, TrendingUp } from "lucide-react";
+import { getSiteDomain } from "@/lib/seo";
 
 export default function TagPage() {
   const [, params] = useRoute("/tag/:slug");
@@ -25,34 +27,92 @@ export default function TagPage() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="space-y-4">
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-          </div>
-        ))}
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Skeleton para o cabeçalho */}
+        <Skeleton className="h-12 w-3/4 mb-4 mt-8" />
+        <Skeleton className="h-4 w-full mb-12" />
+        
+        {/* Skeleton para os cards de artigos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="space-y-4">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
+  // Gerar JSON-LD para a página da tag
+  const tagJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "headline": `Artigos sobre ${tag?.nome}`,
+    "description": tag?.descricao || `Confira os últimos artigos e notícias relacionados a ${tag?.nome}.`,
+    "url": `${getSiteDomain()}/tag/${slug}`,
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": noticiasData?.noticias.map((noticia, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `${getSiteDomain()}/noticia/${noticia.slug}`,
+        "name": noticia.titulo
+      })) || []
+    },
+    "keywords": [tag?.nome],
+    "inLanguage": "pt-BR"
+  };
+
+  const totalNoticias = noticiasData?.total || 0;
+
   return (
     <>
       <SEOHead
-        title={tag?.nome || "Tag"}
-        description={`Artigos com a tag ${tag?.nome}`}
+        title={`${tag?.nome || "Tag"} - Artigos e Notícias`}
+        description={tag?.descricao || `Confira os últimos artigos e notícias relacionados a ${tag?.nome}. Temos ${totalNoticias} publicações sobre este tema.`}
+        type="website"
+        keywords={[tag?.nome || "", "notícias", "artigos", "Brasil"]}
+        jsonLd={tagJsonLd}
       />
 
-      <h1 className="text-3xl font-merriweather font-bold mb-8">
-        #{tag?.nome}
-      </h1>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Cabeçalho da página */}
+        <div className="mb-10 border-b pb-6">
+          <div className="flex items-center mb-2">
+            <Hash className="mr-2 h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-merriweather font-bold">
+              {tag?.nome}
+            </h1>
+          </div>
+          
+          {tag?.descricao && (
+            <p className="text-gray-600 mt-2 mb-4 text-lg">{tag.descricao}</p>
+          )}
+          
+          <div className="flex items-center text-sm text-gray-500">
+            <Newspaper className="h-4 w-4 mr-1" />
+            <span>{totalNoticias} {totalNoticias === 1 ? 'artigo publicado' : 'artigos publicados'}</span>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {noticiasData?.noticias?.map((noticia) => (
-          <ArticleCard key={noticia.id} article={noticia} />
-        )) || (
-          <p className="text-gray-600">Nenhuma notícia encontrada com esta tag.</p>
+        {/* Lista de artigos */}
+        {noticiasData?.noticias?.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {noticiasData.noticias.map((noticia) => (
+              <ArticleCard key={noticia.id} article={noticia} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 mb-2">Nenhuma notícia encontrada com esta tag.</p>
+            <Link href="/" className="text-primary hover:underline">
+              Voltar para a página inicial
+            </Link>
+          </div>
         )}
       </div>
     </>
