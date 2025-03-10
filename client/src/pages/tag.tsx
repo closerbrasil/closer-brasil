@@ -95,7 +95,7 @@ export default function TagPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="mb-6">
+        <div className="mb-10">
           <SEOBreadcrumb items={breadcrumbItems} />
         </div>
         
