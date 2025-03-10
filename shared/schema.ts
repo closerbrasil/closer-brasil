@@ -60,6 +60,12 @@ export const noticiasTags = pgTable("noticias_tags", {
   tagId: uuid("tag_id").references(() => tags.id).notNull(),
 });
 
+// Tabela de junção para relacionamento many-to-many entre notícias e categorias
+export const noticiasCategorias = pgTable("noticias_categorias", {
+  noticiaId: uuid("noticia_id").references(() => noticia.id).notNull(),
+  categoriaId: uuid("categoria_id").references(() => categorias.id).notNull(),
+});
+
 // Tabela de notícias com campos SEO
 export const noticia = pgTable("noticia", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -70,7 +76,7 @@ export const noticia = pgTable("noticia", {
   imageUrl: text("image_url").notNull(),
   imagemCredito: text("imagem_credito"),
   autorId: uuid("autor_id").references(() => autores.id).notNull(),
-  categoriaId: uuid("categoria_id").references(() => categorias.id).notNull(),
+  categoriaId: uuid("categoria_id").references(() => categorias.id).notNull(), // Mantido para compatibilidade com código existente
   publicadoEm: timestamp("publicado_em").defaultNow().notNull(),
   atualizadoEm: timestamp("atualizado_em").defaultNow().notNull(),
   // Campos SEO
