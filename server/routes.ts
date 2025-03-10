@@ -544,6 +544,36 @@ Chave: ${result.key}
       res.status(500).json({ message: "Erro ao buscar tags da notícia" });
     }
   });
+  
+  // Adicionar tag a uma notícia
+  app.post("/api/noticias/:id/tags", async (req, res) => {
+    try {
+      const noticiaId = req.params.id;
+      const { tagId } = req.body;
+      
+      if (!tagId) {
+        return res.status(400).json({ message: "ID da tag é obrigatório" });
+      }
+      
+      await storage.adicionarTagNaNoticia(noticiaId, tagId);
+      res.status(201).json({ success: true });
+    } catch (error) {
+      console.error("Erro ao adicionar tag na notícia:", error);
+      res.status(500).json({ message: "Erro ao adicionar tag na notícia" });
+    }
+  });
+  
+  // Remover tag de uma notícia
+  app.delete("/api/noticias/:id/tags/:tagId", async (req, res) => {
+    try {
+      const { id: noticiaId, tagId } = req.params;
+      await storage.removerTagDaNoticia(noticiaId, tagId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Erro ao remover tag da notícia:", error);
+      res.status(500).json({ message: "Erro ao remover tag da notícia" });
+    }
+  });
 
   app.get("/api/tags/:slug", async (req, res) => {
     const tag = await storage.getTagPorSlug(req.params.slug);

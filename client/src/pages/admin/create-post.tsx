@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { insertNoticiaSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -26,9 +26,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import type { Categoria, Autor } from "@shared/schema";
-import { Loader2, Upload } from "lucide-react";
+import type { Categoria, Autor, Tag as TagType } from "@shared/schema";
+import { Loader2, Upload, X, PlusCircle, Tag as TagIcon } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger 
+} from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { apiRequest } from "@/lib/queryClient";
 
 // Estender o schema para adicionar validações específicas
 const createPostSchema = insertNoticiaSchema
@@ -48,6 +56,9 @@ export default function CreatePostPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTags, setSelectedTags] = useState<TagType[]>([]);
+  const [openTagsPopover, setOpenTagsPopover] = useState(false);
+  const [createdNoticiaId, setCreatedNoticiaId] = useState<string | null>(null);
 
   // Buscar categorias para o select
   const { data: categorias, isLoading: loadingCategorias } = useQuery<Categoria[]>({
@@ -57,6 +68,11 @@ export default function CreatePostPage() {
   // Buscar autores para o select
   const { data: autores, isLoading: loadingAutores } = useQuery<Autor[]>({
     queryKey: ["/api/autores"],
+  });
+  
+  // Buscar tags disponíveis
+  const { data: tags, isLoading: loadingTags } = useQuery<TagType[]>({
+    queryKey: ["/api/tags"],
   });
 
   // Inicializar o formulário
