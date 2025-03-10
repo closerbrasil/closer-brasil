@@ -175,10 +175,17 @@ export default function CreatePostPage() {
       }
 
       const data = await response.json();
+      const noticiaId = data.id;
+      
+      // Adicionar tags selecionadas à notícia criada
+      if (selectedTags.length > 0 && noticiaId) {
+        await addTagsToNoticia(noticiaId);
+      }
 
       // Resetar o formulário
       form.reset();
       setUploadedImage(null);
+      setSelectedTags([]);
 
       // Invalidar cache para atualizar listas de notícias
       queryClient.invalidateQueries({ queryKey: ["/api/noticias"] });
@@ -199,7 +206,58 @@ export default function CreatePostPage() {
     }
   };
 
-  const isLoading = loadingCategorias || loadingAutores;
+  // Funções para gerenciar tags
+  const handleSelectTag = (tag: TagType) => {
+    // Verifica se a tag já está selecionada
+    const isAlreadySelected = selectedTags.some((t) => t.id === tag.id);
+    if (!isAlreadySelected) {
+      setSelectedTags([...selectedTags, tag]);
+    }
+    setOpenTagsPopover(false);
+  };
+
+  const handleRemoveTag = (tag: TagType) => {
+    setSelectedTags(selectedTags.filter((t) => t.id !== tag.id));
+  };
+
+  // Mutation para adicionar tag a uma notícia
+  const addTagMutation = useMutation({
+    mutationFn: async ({ noticiaId, tagId }: { noticiaId: string; tagId: string }) => {
+      return apiRequest('POST', `/api/noticias/${noticiaId}/tags/${tagId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/noticias'] });
+    },
+    onError: (error) => {
+      console.error('Erro ao adicionar tag:', error);
+      toast({
+        title: 'Erro ao adicionar tag',
+        description: 'Não foi possível adicionar a tag à notícia',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Adicionar as tags selecionadas à notícia após criação
+  const addTagsToNoticia = async (noticiaId: string) => {
+    if (selectedTags.length === 0) return;
+    
+    const promises = selectedTags.map((tag) => 
+      addTagMutation.mutateAsync({ noticiaId, tagId: tag.id })
+    );
+    
+    try {
+      await Promise.all(promises);
+      toast({
+        title: 'Tags adicionadas',
+        description: 'Todas as tags foram associadas à notícia',
+      });
+    } catch (error) {
+      console.error('Erro ao adicionar tags:', error);
+    }
+  };
+
+  const isLoading = loadingCategorias || loadingAutores || loadingTags;
 
   return (
     <>
@@ -448,6 +506,75 @@ export default function CreatePostPage() {
                         </FormItem>
                       )}
                     />
+                    
+                    {/* Tags */}
+                    <div className="col-span-1 sm:col-span-2">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <FormLabel>Tags</FormLabel>
+                          <Popover open={openTagsPopover} onOpenChange={setOpenTagsPopover}>
+                            <PopoverTrigger asChild>
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8 flex items-center gap-1"
+                              >
+                                <PlusCircle className="h-3.5 w-3.5" />
+                                <span>Adicionar Tag</span>
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0" side="right" align="start">
+                              <Command>
+                                <CommandInput placeholder="Buscar tag..." />
+                                <CommandEmpty>Nenhuma tag encontrada</CommandEmpty>
+                                <CommandGroup className="max-h-60 overflow-auto">
+                                  {tags?.map((tag) => (
+                                    <CommandItem
+                                      key={tag.id}
+                                      onSelect={() => handleSelectTag(tag)}
+                                      className="flex items-center"
+                                    >
+                                      <TagIcon className="mr-2 h-4 w-4" />
+                                      <span>{tag.nome}</span>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 min-h-9 p-2 border rounded-md">
+                          {selectedTags.length === 0 && (
+                            <div className="text-muted-foreground text-sm flex items-center h-6">
+                              Nenhuma tag selecionada
+                            </div>
+                          )}
+                          
+                          {selectedTags.map((tag) => (
+                            <Badge 
+                              key={tag.id} 
+                              variant="secondary"
+                              className="flex items-center gap-1 px-3 py-1.5"
+                            >
+                              <TagIcon className="h-3 w-3" />
+                              <span>{tag.nome}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-4 w-4 p-0 ml-1"
+                                onClick={() => handleRemoveTag(tag)}
+                              >
+                                <X className="h-3 w-3" />
+                                <span className="sr-only">Remover tag</span>
+                              </Button>
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
