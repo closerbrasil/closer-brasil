@@ -32,15 +32,27 @@ export default function ArticlePage() {
     enabled: !!noticia?.categoriaId
   });
 
-  const { data: tagsResponse } = useQuery({
+  const { data: tagsResponse } = useQuery<unknown>({
     queryKey: ["/api/noticias", noticia?.id, "tags"],
     enabled: !!noticia?.id
   });
   
+  // Interface para Tag compatível com a interface do ArticleCard
+  interface TagData {
+    id: string;
+    nome: string;
+    slug: string;
+    descricao?: string;
+  }
+  
   // Verificar e converter os dados de tag para o formato esperado
-  const tags = tagsResponse && Array.isArray(tagsResponse) 
-    ? tagsResponse.filter(tag => 
-        tag && typeof tag === 'object' && 'id' in tag && 'nome' in tag && 'slug' in tag
+  const tags: TagData[] = tagsResponse && Array.isArray(tagsResponse) 
+    ? tagsResponse.filter((tag): tag is TagData => 
+        tag !== null && 
+        typeof tag === 'object' && 
+        'id' in tag && 
+        'nome' in tag && 
+        'slug' in tag
       )
     : [];
 
@@ -127,7 +139,7 @@ export default function ArticlePage() {
           url: `/autor/${autor.slug}`
         } : undefined}
         jsonLd={generateArticleLD(noticia, autor)}
-        keywords={tags.map(tag => (tag as any).nome)}
+        keywords={tags.map(tag => tag.nome)}
         canonicalUrl={noticia.urlCanonica || undefined}
       />
 
@@ -169,7 +181,7 @@ export default function ArticlePage() {
         </p>
 
         {/* Tags */}
-        {tags.length > 0 && <TagList tags={tags as any} className="mb-6" />}
+        {tags.length > 0 && <TagList tags={tags} className="mb-6" />}
 
         {/* Imagem principal */}
         <figure className="mb-8">

@@ -1,8 +1,15 @@
 import { Link } from "wouter";
-import type { Tag } from "@shared/schema";
+
+// Interface para garantir consistência com a TagData no ArticleCard
+interface TagData {
+  id: string;
+  nome: string;
+  slug: string;
+  descricao?: string;
+}
 
 interface TagListProps {
-  tags: Tag[];
+  tags: TagData[];
   className?: string;
 }
 

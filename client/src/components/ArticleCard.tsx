@@ -77,7 +77,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             há {formatDistanceToNow(new Date(article.publicadoEm), { locale: ptBR })}
           </div>
         </div>
-        {tags && Array.isArray(tags) && <TagList tags={tags as any} className="mt-3" />}
+        {tags.length > 0 && <TagList tags={tags} className="mt-3" />}
       </div>
     </article>
   );
