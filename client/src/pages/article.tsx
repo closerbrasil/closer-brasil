@@ -246,31 +246,6 @@ export default function ArticlePage() {
               </>
             )}
           </div>
-          
-          {/* Para artigos de vídeo, mostrar um botão "Assistir" destacado */}
-          {isVideoArticle && (
-            <div className="mt-4">
-              <Button 
-                className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2"
-                onClick={() => {
-                  // Rolar até o primeiro vídeo em destaque
-                  const videoElement = document.querySelector('.youtube-featured-video .article-youtube-wrapper');
-                  if (videoElement) {
-                    videoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  } else {
-                    // Se não encontrar o vídeo em destaque, tenta encontrar qualquer vídeo no conteúdo
-                    const contentVideo = document.querySelector('.article-youtube-wrapper');
-                    if (contentVideo) {
-                      contentVideo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }
-                }}
-              >
-                <Play className="h-4 w-4 fill-white" />
-                Assistir vídeo
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Título principal */}
