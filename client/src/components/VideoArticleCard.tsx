@@ -1,6 +1,6 @@
 import { Link } from "wouter";
-import { Clock, Calendar, Play } from "lucide-react";
-import type { Noticia } from "@shared/schema";
+import { Clock, Calendar, Play, Eye } from "lucide-react";
+import type { Noticia, Video } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 
 interface TagData {
@@ -16,13 +16,18 @@ interface ExtendedNoticia extends Noticia {
   categoriaCor?: string;
   autorNome?: string;
   autorSlug?: string;
+  videoData?: Video; // Adicionando videoData ao tipo ExtendedNoticia
 }
 
 interface VideoArticleCardProps {
   article: Noticia | ExtendedNoticia;
+  videoData?: Video; // Permitindo passar videoData como prop separada também
 }
 
-export default function VideoArticleCard({ article }: VideoArticleCardProps) {
+export default function VideoArticleCard({ article, videoData: propVideoData }: VideoArticleCardProps) {
+  // Usar videoData da prop ou do article
+  const videoData = propVideoData || ('videoData' in article ? article.videoData : undefined);
+  
   // Formatar a data de publicação
   const publishedDate = new Date(article.publicadoEm);
   const formattedDate = publishedDate.toLocaleDateString('pt-BR', {
@@ -31,19 +36,28 @@ export default function VideoArticleCard({ article }: VideoArticleCardProps) {
     year: "numeric"
   });
 
-  // Extrair o ID do vídeo do YouTube do conteúdo, se houver
-  const youtubeIdMatch = article.conteudo.match(/youtube\.com\/embed\/([^"&?/\s]+)/);
-  const youtubeId = youtubeIdMatch ? youtubeIdMatch[1] : null;
+  // Usar o ID do vídeo da API de vídeos ou extrair do conteúdo como fallback
+  const videoId = videoData?.videoId || 
+    (article.conteudo.match(/youtube\.com\/embed\/([^"&?/\s]+)/) || [])[1] || null;
+    
+  // Formatar visualizações de forma segura para evitar erros de TypeScript
+  const formatVisualizacoes = (count: number | null | undefined): string => {
+    if (typeof count === 'number' && count > 0) {
+      return count.toLocaleString('pt-BR');
+    }
+    return '0';
+  };
 
   return (
     <article className="relative flex flex-col bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       {/* Miniatura do vídeo com marcação de reprodução */}
       <div className="relative aspect-video bg-gray-200 overflow-hidden">
-        {article.imageUrl ? (
+        {/* Usar thumbnail do vídeo, se disponível, ou a imagem do artigo */}
+        {videoData?.thumbnailUrl || article.imageUrl ? (
           <>
             <img 
-              src={article.imageUrl} 
-              alt={article.titulo} 
+              src={videoData?.thumbnailUrl || article.imageUrl} 
+              alt={videoData?.titulo || article.titulo} 
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -51,6 +65,14 @@ export default function VideoArticleCard({ article }: VideoArticleCardProps) {
                 <Play fill="white" size={32} className="text-white ml-1" />
               </div>
             </div>
+            
+            {/* Exibir contador de visualizações se disponível */}
+            {videoData?.visualizacoes && videoData.visualizacoes > 0 && (
+              <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs rounded px-2 py-1 flex items-center">
+                <Eye className="h-3 w-3 mr-1" />
+                {formatVisualizacoes(videoData.visualizacoes)}
+              </div>
+            )}
           </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-800">
@@ -84,10 +106,17 @@ export default function VideoArticleCard({ article }: VideoArticleCardProps) {
         
         {/* Metadados do vídeo */}
         <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
-          {article.tempoLeitura && (
+          {/* Usar duração do vídeo se disponível, ou tempo de leitura do artigo como fallback */}
+          {(videoData?.duracao || article.tempoLeitura) && (
             <div className="flex items-center">
               <Clock className="h-3 w-3 mr-1" />
-              <span>{article.tempoLeitura}</span>
+              {videoData?.duracao ? (
+                <span>
+                  {Math.floor(videoData.duracao / 60)}:{(videoData.duracao % 60).toString().padStart(2, '0')}
+                </span>
+              ) : (
+                <span>{article.tempoLeitura}</span>
+              )}
             </div>
           )}
           
@@ -95,6 +124,14 @@ export default function VideoArticleCard({ article }: VideoArticleCardProps) {
             <Calendar className="h-3 w-3 mr-1" />
             <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
           </div>
+          
+          {/* Exibir visualizações aqui também como texto */}
+          {videoData?.visualizacoes && videoData.visualizacoes > 0 && (
+            <div className="flex items-center">
+              <Eye className="h-3 w-3 mr-1" />
+              <span>{formatVisualizacoes(videoData.visualizacoes)} visualizações</span>
+            </div>
+          )}
           
           {('autorNome' in article && article.autorNome) && (
             <Link href={`/autor/${'autorSlug' in article ? article.autorSlug : ''}`} className="hover:underline flex items-center">
