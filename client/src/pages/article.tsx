@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
+import { useEffect, useState } from "react";
 import type { Noticia, Autor, Categoria } from "@shared/schema";
 import { generateArticleLD, generateBreadcrumbLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
@@ -11,13 +12,16 @@ import { Comments } from "@/components/Comments";
 import { RelatedPosts } from "@/components/RelatedPosts";
 import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, Share2, Facebook, Send, User } from "lucide-react";
+import { Calendar, Clock, Share2, Facebook, Send, User, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FaWhatsapp, FaFacebookF, FaTwitter } from "react-icons/fa";
 
 export default function ArticlePage() {
   const [, params] = useRoute("/noticia/:slug");
   const slug = params?.slug;
+  
+  // Estado para controlar se é artigo de vídeo
+  const [isVideoArticle, setIsVideoArticle] = useState<boolean>(false);
 
   const { data: noticia, isLoading } = useQuery<Noticia>({
     queryKey: [`/api/noticias/${slug}`],
@@ -38,6 +42,25 @@ export default function ArticlePage() {
     queryKey: [`/api/categorias/${noticia?.categoriaId}`],
     enabled: !!noticia?.categoriaId
   });
+  
+  // Buscar todas as categorias para identificar se é um artigo de vídeo
+  const { data: categorias } = useQuery<Categoria[]>({
+    queryKey: ["/api/categorias"],
+    enabled: true
+  });
+  
+  // Determinar se é um artigo da categoria "vídeo" quando as categorias ou o artigo mudar
+  useEffect(() => {
+    if (noticia && categorias && categoria) {
+      // Verificar se a categoria atual é a de vídeo
+      const isVideo = 
+        categoria.slug === 'video' || 
+        categoria.nome.toLowerCase() === 'vídeo' || 
+        categoria.nome.toLowerCase() === 'video';
+      
+      setIsVideoArticle(isVideo);
+    }
+  }, [noticia, categorias, categoria]);
 
   // Interface para Tag compatível com a interface do ArticleCard
   interface TagData {
@@ -183,19 +206,64 @@ export default function ArticlePage() {
 
         {/* Informações editoriais */}
         <div className="mb-4">
-          {/* Data e tempo de leitura na mesma linha */}
+          {/* Data e tempo de leitura/duração na mesma linha */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-1" />
               <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
             </div>
+            
+            {/* Mostrar duração do artigo (tempo de leitura para texto, duração para vídeo) */}
             {noticia.tempoLeitura && (
               <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-1" />
-                <span>{noticia.tempoLeitura}</span>
+                {isVideoArticle ? (
+                  <>
+                    <Play className="h-4 w-4 mr-1 fill-primary text-primary" />
+                    <span className="text-primary font-medium">{noticia.tempoLeitura}</span>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="h-4 w-4 mr-1" />
+                    <span>{noticia.tempoLeitura}</span>
+                  </>
+                )}
               </div>
             )}
+            
+            {/* Badge de categoria como texto */}
+            {categoria && (
+              <>
+                <span className="text-gray-400">•</span>
+                <Link 
+                  href={`/categoria/${categoria.slug}`} 
+                  className="flex items-center hover:underline"
+                  style={{ color: categoria.cor || 'currentColor' }}
+                >
+                  {isVideoArticle && <Play className="h-3 w-3 mr-1 fill-current" />}
+                  <span className="font-medium">{categoria.nome}</span>
+                </Link>
+              </>
+            )}
           </div>
+          
+          {/* Para artigos de vídeo, mostrar um botão "Assistir" destacado */}
+          {isVideoArticle && (
+            <div className="mt-4">
+              <Button 
+                className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2"
+                onClick={() => {
+                  // Rolar até o primeiro vídeo do YouTube na página
+                  const videoElement = document.querySelector('.article-youtube-wrapper');
+                  if (videoElement) {
+                    videoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }}
+              >
+                <Play className="h-4 w-4 fill-white" />
+                Assistir vídeo
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Título principal */}
@@ -208,13 +276,53 @@ export default function ArticlePage() {
           {noticia.resumo}
         </p>
 
-        {/* Imagem principal */}
-        <figure className="mb-8">
+        {/* Imagem principal com destaque especial para artigos de vídeo */}
+        <figure className="mb-8 relative">
+          {/* Exibição normal da imagem */}
           <img
             src={noticia.imageUrl}
             alt={noticia.titulo}
             className="w-full max-h-[500px] object-cover rounded-lg"
           />
+          
+          {/* Overlay especial para artigos de vídeo com ícone de play e indicadores */}
+          {isVideoArticle && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-lg"></div>
+              
+              {/* Ícone de Play central grande */}
+              <div className="relative z-10 transform transition-transform hover:scale-110 cursor-pointer">
+                <div className="bg-white/90 rounded-full p-8 shadow-xl">
+                  <Play className="h-16 w-16 text-primary fill-primary" />
+                </div>
+              </div>
+              
+              {/* Badge de vídeo no canto superior */}
+              {categoria && (
+                <div className="absolute top-4 left-4 z-20">
+                  <Link href={`/categoria/${categoria.slug}`}>
+                    <div 
+                      className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium shadow-md hover:opacity-90 transition-opacity flex items-center gap-2"
+                      style={{ backgroundColor: categoria.cor || '#3b82f6' }}
+                    >
+                      <Play className="h-4 w-4 fill-white" />
+                      {categoria.nome}
+                    </div>
+                  </Link>
+                </div>
+              )}
+              
+              {/* Duração do vídeo */}
+              <div className="absolute bottom-4 right-4 z-20">
+                <div className="bg-black/70 text-white rounded-md px-3 py-1 text-sm flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  {noticia.tempoLeitura || "5 min"}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Crédito da imagem */}
           {noticia.imagemCredito && (
             <figcaption className="text-sm text-gray-500 mt-2 italic text-right">
               Crédito: {noticia.imagemCredito}
