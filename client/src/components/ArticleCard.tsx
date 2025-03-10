@@ -46,6 +46,15 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     queryKey: [`/api/categorias/${article.categoriaId}`],
     enabled: !!article.categoriaId
   });
+  
+  // Buscar autores para ter acesso a todos
+  const { data: autores } = useQuery<Autor[]>({
+    queryKey: ["/api/autores"],
+    enabled: true
+  });
+  
+  // Encontrar o autor correto pelo ID
+  const autorData = autor || (autores && autores.find(a => a.id === article.autorId));
 
   return (
     <article className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100">
@@ -60,15 +69,21 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         </Link>
         
         {/* Categoria no canto do card */}
-        {categoria && (
+        {categoria ? (
           <div className="absolute top-3 left-3">
             <Link href={`/categoria/${categoria.slug}`}>
-              <Badge variant="secondary" className="bg-primary/90 text-white hover:bg-primary cursor-pointer font-medium">
+              <Badge variant="secondary" className="bg-primary text-white hover:bg-primary/90 cursor-pointer font-medium text-sm shadow-md px-3 py-1">
                 {categoria.nome}
               </Badge>
             </Link>
           </div>
-        )}
+        ) : article.categoriaId ? (
+          <div className="absolute top-3 left-3">
+            <Badge variant="secondary" className="bg-primary text-white hover:bg-primary/90 cursor-pointer font-medium text-sm shadow-md px-3 py-1">
+              Categoria
+            </Badge>
+          </div>
+        ) : null}
         
         {/* Tempo de leitura (se disponível) */}
         {article.tempoLeitura && (
@@ -81,8 +96,8 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       </div>
       
       <div className="p-5">
-        {/* Data de publicação */}
-        <div className="flex items-center text-xs text-gray-500 mb-3">
+        {/* Data de publicação e categoria */}
+        <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
           <time dateTime={new Date(article.publicadoEm).toISOString()}>
             {new Date(article.publicadoEm).toLocaleDateString('pt-BR', {
               day: 'numeric',
@@ -90,6 +105,16 @@ export default function ArticleCard({ article }: ArticleCardProps) {
               year: 'numeric'
             })}
           </time>
+          
+          {/* Exibir categoria também como texto abaixo da imagem */}
+          {categoria && (
+            <>
+              <span className="text-gray-400 mx-1">•</span>
+              <Link href={`/categoria/${categoria.slug}`} className="text-primary hover:underline font-medium">
+                {categoria.nome}
+              </Link>
+            </>
+          )}
         </div>
         
         {/* Título do artigo */}
@@ -106,21 +131,30 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         
         {/* Autor e informações adicionais */}
         <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
-          {autor && (
-            <Link href={`/autor/${autor.slug}`} className="flex items-center group/author">
+          {autorData ? (
+            <Link href={`/autor/${autorData.slug}`} className="flex items-center group/author">
               <Avatar className="h-8 w-8 mr-2 border border-gray-200">
-                {autor.avatarUrl ? (
-                  <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
+                {autorData.avatarUrl ? (
+                  <AvatarImage src={autorData.avatarUrl} alt={autorData.nome} />
                 ) : (
                   <AvatarFallback className="bg-gray-100 text-gray-700 text-xs">
-                    {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
+                    {autorData.nome ? autorData.nome.substring(0, 2).toUpperCase() : 'AU'}
                   </AvatarFallback>
                 )}
               </Avatar>
               <span className="text-sm font-medium group-hover/author:text-primary transition-colors">
-                {autor.nome}
+                {autorData.nome}
               </span>
             </Link>
+          ) : (
+            <div className="flex items-center">
+              <Avatar className="h-8 w-8 mr-2 border border-gray-200">
+                <AvatarFallback className="bg-gray-100 text-gray-700 text-xs">
+                  AU
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm text-gray-500">Carregando...</span>
+            </div>
           )}
           
           {/* Botão "Ler mais" em telas pequenas */}
