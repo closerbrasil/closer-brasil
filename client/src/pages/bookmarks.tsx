@@ -60,7 +60,17 @@ export default function BookmarksPage() {
         description="Artigos que você salvou para ler mais tarde"
       />
 
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Breadcrumb visual - simples para esta página */}
+        <div className="mb-10">
+          <SEOBreadcrumb 
+            items={[
+              { name: 'Início', url: '/' },
+              { name: 'Meus Favoritos' }
+            ]} 
+          />
+        </div>
+        
         <div className="flex items-center mb-8">
           <Bookmark className="mr-2 h-6 w-6" />
           <h1 className="text-3xl font-bold">Meus Favoritos</h1>
