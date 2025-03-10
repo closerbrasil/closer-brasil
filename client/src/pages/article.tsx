@@ -12,8 +12,9 @@ import { Comments } from "@/components/Comments";
 import { RelatedPosts } from "@/components/RelatedPosts";
 import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, Share2, Facebook, Send, User, Play } from "lucide-react";
+import { Calendar, Clock, Share2, Facebook, Send, User, Play, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { FaWhatsapp, FaFacebookF, FaTwitter } from "react-icons/fa";
 
 export default function ArticlePage() {

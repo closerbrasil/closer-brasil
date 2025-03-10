@@ -1,0 +1,165 @@
+/* Estilos específicos para páginas de vídeo */
+
+/* Vídeo principal em destaque */
+.video-main-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0.5rem;
+  z-index: 1;
+}
+
+.article-youtube-wrapper {
+  position: relative;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #000;
+}
+
+/* Vídeos secundários no conteúdo */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 2rem 0;
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* Proporção de aspecto 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background-color: #000;
+}
+
+.video-secondary-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0.5rem;
+}
+
+/* Estilização para descrição de vídeo */
+.video-description {
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.video-description h1,
+.video-description h2,
+.video-description h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.video-description p {
+  margin-bottom: 1.25rem;
+}
+
+.video-description a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.video-description a:hover {
+  text-decoration: underline;
+}
+
+/* Estilização para a lista de vídeos relacionados */
+.video-related {
+  margin-top: 2rem;
+}
+
+.video-related-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: #f8fafc;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.video-related-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.video-related-thumbnail {
+  position: relative;
+}
+
+.video-related-thumbnail img {
+  height: 180px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.video-related-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.video-related-info {
+  padding: 1rem;
+}
+
+.video-related-title {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.video-related-meta {
+  font-size: 0.875rem;
+  color: #64748b;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Adicionar um visual de controles antes de carregar o vídeo */
+.video-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px;
+  height: 48px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.video-container::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-style: solid;
+  border-width: 10px 0 10px 20px;
+  border-color: transparent transparent transparent #fff;
+  pointer-events: none;
+  z-index: 2;
+}
