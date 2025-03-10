@@ -36,7 +36,7 @@ function SiteRouter() {
       <Route path="/noticia/:slug" component={Article} />
       <Route path="/categoria/:slug" component={Category} />
       <Route path="/tag/:slug" component={Tag} />
-      <Route path="/author" component={Author} />
+      <Route path="/autor/:slug" component={Author} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />
     </Switch>
