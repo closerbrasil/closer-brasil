@@ -98,16 +98,16 @@ export const noticia = pgTable("noticia", {
 // Tabela de vídeos
 export const videos = pgTable("videos", {
   id: uuid("id").defaultRandom().primaryKey(),
-  noticiaId: uuid("noticia_id").references(() => noticia.id).notNull().unique(), // Relação 1:1 com notícia
-  plataforma: varchar("plataforma", { length: 50 }).default("youtube").notNull(), // youtube, vimeo, etc.
+  noticiaId: uuid("noticia_id").references(() => noticia.id).notNull(), // Permitindo múltiplos vídeos por notícia
   videoId: varchar("video_id", { length: 100 }).notNull(), // ID do vídeo na plataforma
-  duracao: integer("duracao"), // Duração em segundos
+  plataforma: varchar("plataforma", { length: 50 }).default("youtube").notNull(), // youtube, vimeo, etc.
+  titulo: text("titulo"), // Título opcional do vídeo
+  descricao: text("descricao"), // Descrição opcional do vídeo
+  thumbnailUrl: text("thumbnail_url"), // URL da thumbnail
   embedUrl: text("embed_url"), // URL de incorporação completa
-  autoplay: boolean("autoplay").default(false), // Configuração de reprodução automática
-  controles: boolean("controles").default(true), // Mostrar controles do player
-  loop: boolean("loop").default(false), // Reprodução em loop
-  posicaoDestaque: integer("posicao_destaque"), // Para ordenar vídeos em destaque
+  duracao: integer("duracao"), // Duração em segundos
   visualizacoes: integer("visualizacoes").default(0), // Contador de visualizações
+  curtidas: integer("curtidas").default(0), // Contador de curtidas
   dataCriacao: timestamp("data_criacao").defaultNow().notNull(), // Data de upload/criação do vídeo
   dataAtualizacao: timestamp("data_atualizacao").defaultNow().notNull(),
 });
