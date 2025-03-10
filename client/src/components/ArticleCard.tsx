@@ -64,10 +64,19 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         <div className="mt-2 flex items-center justify-between">
           {autor && (
             <div className="flex items-center">
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
-                <AvatarFallback>{autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}</AvatarFallback>
-              </Avatar>
+              <div className="h-6 w-6 mr-2 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+                {autor.avatarUrl ? (
+                  <img 
+                    src={autor.avatarUrl} 
+                    alt={autor.nome} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[8px] font-bold">
+                    {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
+                  </div>
+                )}
+              </div>
               <Link href={`/autor/${autor.slug}`} className="text-xs hover:underline">
                 {autor.nome}
               </Link>

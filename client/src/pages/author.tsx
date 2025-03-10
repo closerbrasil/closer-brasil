@@ -130,10 +130,19 @@ export default function AuthorPage() {
         {/* Perfil do Autor */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-row items-start gap-6">
-            <Avatar className="w-32 h-32">
-              <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
-              <AvatarFallback className="text-3xl">{autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}</AvatarFallback>
-            </Avatar>
+            <div className="min-w-[128px] w-32 h-32 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+              {autor.avatarUrl ? (
+                <img 
+                  src={autor.avatarUrl} 
+                  alt={autor.nome} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-3xl font-bold">
+                  {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
+                </div>
+              )}
+            </div>
             
             <div className="flex-1">
               <h1 className="text-3xl font-bold mb-2">{autor.nome}</h1>

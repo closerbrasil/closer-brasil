@@ -162,7 +162,19 @@ export default function ArticlePage() {
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             {autor && (
               <div className="flex items-center">
-                <User className="h-4 w-4 mr-1" />
+                <div className="h-5 w-5 mr-2 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+                  {autor.avatarUrl ? (
+                    <img 
+                      src={autor.avatarUrl} 
+                      alt={autor.nome} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[8px] font-bold">
+                      {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
+                    </div>
+                  )}
+                </div>
                 <Link href={`/autor/${autor.slug}`} className="hover:underline">
                   {autor.nome}
                 </Link>
@@ -213,10 +225,19 @@ export default function ArticlePage() {
           {/* Informações do autor */}
           {autor && autor.nome && (
             <div className="flex items-center">
-              <Avatar className="h-10 w-10 mr-3">
-                <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
-                <AvatarFallback>{autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}</AvatarFallback>
-              </Avatar>
+              <div className="h-10 w-10 mr-3 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+                {autor.avatarUrl ? (
+                  <img 
+                    src={autor.avatarUrl} 
+                    alt={autor.nome} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm font-bold">
+                    {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
+                  </div>
+                )}
+              </div>
               <div>
                 <Link href={`/autor/${autor.slug}`} className="font-medium hover:underline block text-sm">
                   {autor.nome}
@@ -280,10 +301,19 @@ export default function ArticlePage() {
         {autor && autor.bio && (
           <div className="bg-gray-50 p-6 rounded-lg mb-12">
             <div className="flex items-center mb-4">
-              <Avatar className="h-12 w-12 mr-4">
-                <AvatarImage src={autor.avatarUrl} alt={autor.nome} />
-                <AvatarFallback>{autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}</AvatarFallback>
-              </Avatar>
+              <div className="h-12 w-12 mr-4 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+                {autor.avatarUrl ? (
+                  <img 
+                    src={autor.avatarUrl} 
+                    alt={autor.nome} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm font-bold">
+                    {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
+                  </div>
+                )}
+              </div>
               <div>
                 <Link href={`/autor/${autor.slug}`} className="font-bold text-lg hover:underline">
                   {autor.nome}
