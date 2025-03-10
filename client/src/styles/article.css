@@ -1,15 +1,46 @@
 /* Estilos personalizados para artigos */
 
-/* Reduzir o espaçamento entre itens de listas */
+/* Reduzir o espaçamento entre itens de listas - regra mais específica para ter maior prioridade */
 .prose ul li,
-.prose ol li {
+.prose ol li,
+.prose-lg ul li,
+.prose-lg ol li {
+  margin-top: 0 !important;
+  margin-bottom: 0.25em !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Remover o espaçamento entre itens de lista adjacentes */
+.prose li + li,
+.prose-lg li + li {
+  margin-top: 0 !important;
+}
+
+/* Ajustar espaçamento de listas aninhadas */
+.prose ul > li > ul,
+.prose ol > li > ol,
+.prose ul > li > ol,
+.prose ol > li > ul,
+.prose-lg ul > li > ul,
+.prose-lg ol > li > ol,
+.prose-lg ul > li > ol,
+.prose-lg ol > li > ul {
   margin-top: 0.25em !important;
   margin-bottom: 0.25em !important;
 }
 
-/* Ajustar espaçamento entre blocos de listas */
+/* Espaçamento geral de blocos de listas */
 .prose ul,
-.prose ol {
-  margin-top: 1em !important;
-  margin-bottom: 1em !important;
+.prose ol,
+.prose-lg ul,
+.prose-lg ol {
+  margin-top: 0.75em !important;
+  margin-bottom: 0.75em !important;
+}
+
+/* Espaços nos marcadores de lista e texto */
+.prose li::marker,
+.prose-lg li::marker {
+  margin-right: 0.5em !important;
 }
