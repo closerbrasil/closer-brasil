@@ -292,8 +292,8 @@ export default function VideoPage() {
           {noticia.resumo}
         </p>
 
-        {/* Vídeo em destaque - Container direto sem wrappers extras */}
-        <div className="video-main-container mb-8" ref={videoRef}>
+        {/* Vídeo em destaque */}
+        <div ref={videoRef} className="mb-8">
           {/* O iframe do vídeo será injetado aqui pelo VideoContent */}
         </div>
 

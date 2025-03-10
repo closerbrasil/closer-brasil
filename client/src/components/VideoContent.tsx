@@ -9,69 +9,76 @@ interface VideoContentProps {
 export function VideoContent({ content, mainContainerRef }: VideoContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Função para extrair e destacar o primeiro vídeo do YouTube, e formatar o restante do conteúdo
+  // Função para extrair o ID do YouTube de um iframe ou URL
+  const extractYoutubeId = (src: string): string | null => {
+    const match = src.match(/embed\/([^?&"]+)/);
+    return match ? match[1] : null;
+  };
+
+  // Função principal para processar o conteúdo e extrair o vídeo
   useEffect(() => {
-    if (contentRef.current) {
-      // Encontrar todos os iframes do YouTube no conteúdo
-      const youtubeIframes = contentRef.current.querySelectorAll('iframe[src*="youtube.com"]');
+    if (contentRef.current && mainContainerRef?.current) {
+      // Primeiro, limpar o container principal completamente
+      mainContainerRef.current.innerHTML = '';
       
-      // Verificar se existem iframes de YouTube e se temos um container de referência para o vídeo principal
-      if (youtubeIframes.length > 0 && mainContainerRef?.current) {
-        // Criar um container para vídeo que garante o formato adequado
-        const videoContainer = document.createElement('div');
-        videoContainer.className = 'video-main-container';
+      // Encontrar todos os iframes do YouTube no conteúdo
+      const youtubeIframes = Array.from(contentRef.current.querySelectorAll('iframe'))
+        .filter(iframe => (iframe as HTMLIFrameElement).src && 
+                          (iframe as HTMLIFrameElement).src.includes('youtube.com'));
+      
+      if (youtubeIframes.length > 0) {
+        // Extrair o ID do primeiro iframe YouTube
+        const firstIframe = youtubeIframes[0] as HTMLIFrameElement;
+        const youtubeId = extractYoutubeId(firstIframe.src);
         
-        // Copiar o primeiro iframe para a seção de destaque
-        const firstYoutubeIframe = youtubeIframes[0].cloneNode(true) as HTMLIFrameElement;
-        
-        // Limpar o container principal
-        mainContainerRef.current.innerHTML = '';
-        
-        // Adicionar classes ao iframe
-        firstYoutubeIframe.classList.add('video-main-iframe');
-        
-        // Adicionar o container e depois o iframe ao container principal
-        mainContainerRef.current.appendChild(videoContainer);
-        videoContainer.appendChild(firstYoutubeIframe);
-        
-        // Remover o primeiro iframe do conteúdo para evitar duplicidade
-        if (youtubeIframes[0].parentNode) {
-          youtubeIframes[0].parentNode.removeChild(youtubeIframes[0]);
-        }
-        
-        // Remover quaisquer imagens que possam estar presentes no container
-        const imgElements = contentRef.current.querySelectorAll('img');
-        imgElements.forEach(img => {
-          if (img.parentNode) {
-            img.parentNode.removeChild(img);
+        if (youtubeId) {
+          // Criar um iframe limpo diretamente com o ID do YouTube
+          const iframe = document.createElement('iframe');
+          iframe.src = `https://www.youtube.com/embed/${youtubeId}?rel=0`;
+          iframe.className = 'video-main-iframe';
+          iframe.setAttribute('allowfullscreen', 'true');
+          iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+          
+          // Adicionar o iframe diretamente ao container principal
+          mainContainerRef.current.appendChild(iframe);
+          
+          // Remover o primeiro iframe do conteúdo para evitar duplicidade
+          if (firstIframe.parentNode) {
+            firstIframe.parentNode.removeChild(firstIframe);
           }
-        });
+        }
       }
       
-      // Formatar os demais iframes do YouTube no conteúdo (se houver mais de um)
-      contentRef.current.querySelectorAll('iframe[src*="youtube.com"]').forEach(iframe => {
-        // Verificar se já está dentro de um wrapper
-        if (!iframe.parentElement?.classList.contains('video-container')) {
-          // Criar wrapper para manter proporção adequada
-          const wrapper = document.createElement('div');
-          wrapper.className = 'video-wrapper';
-          
-          // Criar container interno para o iframe
-          const container = document.createElement('div');
-          container.className = 'video-container';
-          
-          // Inserir o iframe dentro do container
-          const parent = iframe.parentNode;
-          if (parent) {
-            parent.insertBefore(wrapper, iframe);
-            wrapper.appendChild(container);
-            container.appendChild(iframe);
-          }
-          
-          // Adicionar classes ao iframe
-          iframe.classList.add('video-secondary-iframe');
+      // Remover todas as imagens que possam estar no conteúdo principal
+      contentRef.current.querySelectorAll('img').forEach(img => {
+        if (img.parentNode) {
+          img.parentNode.removeChild(img);
         }
       });
+      
+      // Processar os iframes remanescentes
+      Array.from(contentRef.current.querySelectorAll('iframe'))
+        .filter(iframe => (iframe as HTMLIFrameElement).src && 
+                          (iframe as HTMLIFrameElement).src.includes('youtube.com'))
+        .forEach(iframe => {
+          // Verificar se já está dentro de um wrapper
+          if (!iframe.parentElement?.classList.contains('video-container')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-wrapper';
+            
+            const container = document.createElement('div');
+            container.className = 'video-container';
+            
+            const parent = iframe.parentNode;
+            if (parent) {
+              parent.insertBefore(wrapper, iframe);
+              wrapper.appendChild(container);
+              container.appendChild(iframe);
+            }
+            
+            iframe.classList.add('video-secondary-iframe');
+          }
+        });
     }
   }, [content, mainContainerRef]);
 
