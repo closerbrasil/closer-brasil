@@ -26,6 +26,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -36,11 +37,15 @@ import { Pencil, Trash2, Loader2, PlusCircle } from "lucide-react";
 import type { Categoria, InsertCategoria } from "@shared/schema";
 import { insertCategoriaSchema } from "@shared/schema";
 import AdminLayout from "@/layouts/AdminLayout";
+import { Badge } from "@/components/ui/badge";
 
 // Estender o schema para adicionar validações específicas
 const categoriaSchema = insertCategoriaSchema.extend({
   nome: z.string().min(3, "O nome precisa ter pelo menos 3 caracteres"),
   descricao: z.string().min(10, "A descrição precisa ter pelo menos 10 caracteres"),
+  cor: z.string().regex(/^#([A-Fa-f0-9]{6})$/, {
+    message: "A cor deve ser um valor hexadecimal válido (ex: #3b82f6)"
+  }),
 });
 
 type FormValues = z.infer<typeof categoriaSchema>;
@@ -59,6 +64,7 @@ export default function CategoriesPage() {
       nome: "",
       slug: "",
       descricao: "",
+      cor: "#3b82f6", // Azul por padrão
     },
   });
 
@@ -153,6 +159,7 @@ export default function CategoriesPage() {
       nome: "",
       slug: "",
       descricao: "",
+      cor: "#3b82f6", // Azul padrão
     });
     setSelectedCategory(null);
     setIsDialogOpen(true);
@@ -163,6 +170,7 @@ export default function CategoriesPage() {
       nome: categoria.nome,
       slug: categoria.slug,
       descricao: categoria.descricao || "",
+      cor: categoria.cor || "#3b82f6",
     });
     setSelectedCategory(categoria);
     setIsDialogOpen(true);
@@ -221,6 +229,7 @@ export default function CategoriesPage() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Slug</TableHead>
                   <TableHead>Descrição</TableHead>
+                  <TableHead>Cor</TableHead>
                   <TableHead className="w-[120px]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -232,6 +241,17 @@ export default function CategoriesPage() {
                       <TableCell>{categoria.slug}</TableCell>
                       <TableCell className="max-w-xs truncate">
                         {categoria.descricao}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-6 h-6 rounded-md"
+                            style={{ backgroundColor: categoria.cor || "#3b82f6" }}
+                          ></div>
+                          <span className="text-sm text-gray-500 font-mono">
+                            {categoria.cor || "#3b82f6"}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
@@ -258,7 +278,7 @@ export default function CategoriesPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-6 text-gray-500">
+                    <TableCell colSpan={5} className="text-center py-6 text-gray-500">
                       Nenhuma categoria encontrada
                     </TableCell>
                   </TableRow>
@@ -331,6 +351,43 @@ export default function CategoriesPage() {
                       <FormControl>
                         <Input placeholder="Descrição da categoria" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Cor */}
+                <FormField
+                  control={form.control}
+                  name="cor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cor</FormLabel>
+                      <div className="flex items-center gap-3">
+                        <FormControl>
+                          <Input 
+                            type="color" 
+                            placeholder="#3b82f6" 
+                            {...field} 
+                            className="w-16 h-10 p-1 cursor-pointer"
+                          />
+                        </FormControl>
+                        <Input 
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="flex-1"
+                          placeholder="#3b82f6"
+                        />
+                        <div 
+                          className="h-10 w-24 rounded-md flex items-center justify-center text-white text-sm font-medium"
+                          style={{ backgroundColor: field.value || "#3b82f6" }}
+                        >
+                          Preview
+                        </div>
+                      </div>
+                      <FormDescription>
+                        Escolha uma cor para a etiqueta da categoria.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
