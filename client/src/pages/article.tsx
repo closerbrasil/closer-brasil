@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TagList } from "@/components/TagList";
 import { Comments } from "@/components/Comments";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, Share2, Facebook, Send } from "lucide-react";
+import { Calendar, Clock, Share2, Facebook, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FaWhatsapp, FaFacebookF, FaTwitter } from "react-icons/fa";
 
@@ -155,8 +155,16 @@ export default function ArticlePage() {
             )}
           </div>
           
-          {/* Data e tempo de leitura na mesma linha */}
+          {/* Autor, data e tempo de leitura na mesma linha */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+            {autor && (
+              <div className="flex items-center">
+                <User className="h-4 w-4 mr-1" />
+                <Link href={`/autor/${autor.slug}`} className="hover:underline">
+                  {autor.nome}
+                </Link>
+              </div>
+            )}
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-1" />
               <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
