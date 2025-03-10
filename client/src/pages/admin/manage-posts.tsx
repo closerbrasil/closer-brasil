@@ -164,37 +164,30 @@ export default function ManagePostsPage() {
                           {new Date(noticia.publicadoEm).toLocaleDateString("pt-BR")}
                         </TableCell>
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                                <span className="sr-only">Menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem asChild>
-                                <Link href={`/noticia/${noticia.slug}`} className="flex items-center cursor-pointer">
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  Visualizar
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <Link href={`/admin/edit-post/${noticia.id}`} className="flex items-center cursor-pointer">
-                                  <FileEdit className="mr-2 h-4 w-4" />
-                                  Editar
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="text-red-600 focus:text-red-600 flex items-center cursor-pointer"
-                                onClick={() => handleDeleteClick(noticia.id)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Excluir
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="flex space-x-2">
+                            <Button variant="ghost" size="icon" asChild title="Visualizar">
+                              <Link href={`/noticia/${noticia.slug}`}>
+                                <Eye className="h-4 w-4" />
+                                <span className="sr-only">Visualizar</span>
+                              </Link>
+                            </Button>
+                            <Button variant="ghost" size="icon" asChild title="Editar">
+                              <Link href={`/admin/edit-post/${noticia.id}`}>
+                                <FileEdit className="h-4 w-4" />
+                                <span className="sr-only">Editar</span>
+                              </Link>
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleDeleteClick(noticia.id)}
+                              className="text-red-600 hover:text-red-800"
+                              title="Excluir"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Excluir</span>
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -216,35 +209,6 @@ export default function ManagePostsPage() {
                   <div key={noticia.id} className="bg-white rounded-lg border p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium truncate flex-1">{noticia.titulo}</h3>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">Menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/noticia/${noticia.slug}`} className="flex items-center cursor-pointer">
-                              <Eye className="mr-2 h-4 w-4" />
-                              Visualizar
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/admin/edit-post/${noticia.id}`} className="flex items-center cursor-pointer">
-                              <FileEdit className="mr-2 h-4 w-4" />
-                              Editar
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-red-600 focus:text-red-600 flex items-center cursor-pointer"
-                            onClick={() => handleDeleteClick(noticia.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                     <div className="text-sm text-gray-500 space-y-1">
                       <p>Data: {new Date(noticia.publicadoEm).toLocaleDateString("pt-BR")}</p>
@@ -260,6 +224,15 @@ export default function ManagePostsPage() {
                             <FileEdit className="h-3 w-3 mr-1" />
                             Editar
                           </Link>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 px-2 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={() => handleDeleteClick(noticia.id)}
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Excluir
                         </Button>
                       </div>
                     </div>
