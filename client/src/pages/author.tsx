@@ -19,14 +19,16 @@ export default function AuthorPage() {
   });
 
   const { data: noticiasResponse, isLoading: isLoadingNoticias } = useQuery<{ noticias: Noticia[]; total: number }>({
-    queryKey: [`/api/autores/${autor?.id}/noticias`],
-    enabled: !!autor?.id
+    queryKey: [`/api/autores/${autor?.slug}/noticias`],
+    enabled: !!autor?.slug
   });
 
   // Preparar dados para JSON-LD
   const generateAuthorJsonLd = (autor: Autor) => {
     const domain = getSiteDomain();
-    return {
+    
+    // Schema.org Person para o autor
+    const authorPerson = {
       "@context": "https://schema.org",
       "@type": "Person",
       "name": autor.nome,
@@ -42,6 +44,32 @@ export default function AuthorPage() {
         autor.websiteUrl || undefined
       ].filter(Boolean)
     };
+    
+    // Adicionar listagem de artigos como schema.org do tipo ProfilePage
+    // conforme recomendações do Google para integração autor-conteúdo
+    if (noticiasResponse && noticiasResponse.noticias.length > 0) {
+      const articleSchema = {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        "headline": `Artigos de ${autor.nome}`,
+        "description": `Confira todos os artigos escritos por ${autor.nome}${autor.cargo ? `, ${autor.cargo}` : ''}.`,
+        "mainEntity": {
+          "@type": "Person",
+          "name": autor.nome,
+          "url": `${domain}/autor/${autor.slug}`
+        },
+        "about": {
+          "@type": "Person",
+          "name": autor.nome
+        }
+      };
+      
+      // Retornar um array com ambos os esquemas
+      return [authorPerson, articleSchema];
+    }
+    
+    // Se não houver artigos, retornar apenas o schema da pessoa
+    return authorPerson;
   };
 
   // Renderizar esqueletos de carregamento
