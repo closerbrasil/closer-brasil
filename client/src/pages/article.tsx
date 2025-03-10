@@ -150,28 +150,8 @@ export default function ArticlePage() {
             )}
           </div>
           
-          {/* Autor, data e tempo de leitura na mesma linha */}
+          {/* Data e tempo de leitura na mesma linha */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-            {autor && (
-              <div className="flex items-center">
-                <div className="h-5 w-5 mr-2 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
-                  {autor.avatarUrl ? (
-                    <img 
-                      src={autor.avatarUrl} 
-                      alt={autor.nome} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[8px] font-bold">
-                      {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
-                    </div>
-                  )}
-                </div>
-                <Link href={`/autor/${autor.slug}`} className="hover:underline">
-                  {autor.nome}
-                </Link>
-              </div>
-            )}
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-1" />
               <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
@@ -195,9 +175,6 @@ export default function ArticlePage() {
           {noticia.resumo}
         </p>
 
-        {/* Tags */}
-        {tagsData.length > 0 && <TagList tags={tagsData} className="mb-6" />}
-
         {/* Imagem principal */}
         <figure className="mb-8">
           <img
@@ -212,34 +189,8 @@ export default function ArticlePage() {
           )}
         </figure>
 
-        {/* Barra de ações */}
-        <div className="flex justify-between items-center mb-8">
-          {/* Informações do autor */}
-          {autor && autor.nome && (
-            <div className="flex items-center">
-              <div className="h-10 w-10 mr-3 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
-                {autor.avatarUrl ? (
-                  <img 
-                    src={autor.avatarUrl} 
-                    alt={autor.nome} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm font-bold">
-                    {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Link href={`/autor/${autor.slug}`} className="font-medium hover:underline block text-sm">
-                  {autor.nome}
-                </Link>
-                {autor.cargo && <span className="text-xs text-gray-500">{autor.cargo}</span>}
-              </div>
-            </div>
-          )}
-
-          {/* Botões de compartilhamento */}
+        {/* Barra de ações - Botões de compartilhamento */}
+        <div className="flex justify-end mb-8">
           <div className="flex items-center gap-2">
             <Button 
               onClick={shareOnWhatsApp} 
