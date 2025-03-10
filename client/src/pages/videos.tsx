@@ -9,28 +9,7 @@ import { generateBreadcrumbLD } from "@/lib/seo";
 import { Film } from "lucide-react";
 
 export default function VideosPage() {
-  const [videoCategoriaId, setVideoCategoriaId] = useState<string | null>(null);
-
-  // Buscar todas as categorias para encontrar a categoria de vídeo
-  const { data: categorias } = useQuery<Categoria[]>({
-    queryKey: ["/api/categorias"],
-    enabled: true
-  });
-
-  // Configurar o ID da categoria de vídeo quando os dados estiverem disponíveis
-  useEffect(() => {
-    if (categorias) {
-      const videoCategoria = categorias.find(cat => 
-        cat.slug === 'video' || 
-        cat.nome.toLowerCase() === 'video' || 
-        cat.nome.toLowerCase() === 'vídeo'
-      );
-      
-      if (videoCategoria) {
-        setVideoCategoriaId(videoCategoria.id);
-      }
-    }
-  }, [categorias]);
+  // Não precisamos mais buscar a categoria de vídeo, pois agora usamos a tabela de vídeos diretamente
 
   // Buscar vídeos da API específica de vídeos
   const { data: videosData, isLoading } = useQuery<{ videos: any[]; total: number }>({
