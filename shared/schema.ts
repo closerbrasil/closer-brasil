@@ -145,6 +145,7 @@ export const noticiaRelations = relations(noticia, ({ one, many }) => ({
     fields: [noticia.id],
     references: [videos.noticiaId],
   }),
+  categorias: many(noticiasCategorias), // Adicionando relação para múltiplas categorias
 }));
 
 // Relações para vídeos
@@ -176,6 +177,19 @@ export const autoresRelations = relations(autores, ({ many }) => ({
 
 export const categoriasRelations = relations(categorias, ({ many }) => ({
   noticias: many(noticia),
+  noticiasMultiplas: many(noticiasCategorias), // Adicionando relação para múltiplas notícias
+}));
+
+// Relações para a tabela de junção notícias-categorias
+export const noticiasCategoriasRelations = relations(noticiasCategorias, ({ one }) => ({
+  noticia: one(noticia, {
+    fields: [noticiasCategorias.noticiaId],
+    references: [noticia.id],
+  }),
+  categoria: one(categorias, {
+    fields: [noticiasCategorias.categoriaId],
+    references: [categorias.id],
+  }),
 }));
 
 export const comentariosRelations = relations(comentarios, ({ one }) => ({
@@ -239,6 +253,9 @@ export const insertVideoSchema = createInsertSchema(videos).omit({
   duracao: z.number().optional(),
 });
 
+// Schema para a relação entre notícias e categorias
+export const insertNoticiaCategoriaSchema = createInsertSchema(noticiasCategorias);
+
 // Tipos
 export type Autor = typeof autores.$inferSelect;
 export type InsertAutor = z.infer<typeof insertAutorSchema>;
@@ -260,3 +277,6 @@ export type InsertImagem = z.infer<typeof insertImagemSchema>;
 
 export type Video = typeof videos.$inferSelect;
 export type InsertVideo = z.infer<typeof insertVideoSchema>;
+
+export type NoticiaCategoria = typeof noticiasCategorias.$inferSelect;
+export type InsertNoticiaCategoria = z.infer<typeof insertNoticiaCategoriaSchema>;

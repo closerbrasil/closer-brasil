@@ -45,6 +45,7 @@ const createPostSchema = insertNoticiaSchema
     resumo: z.string().min(10, "O resumo precisa ter pelo menos 10 caracteres"),
     conteudo: z.string().min(50, "O conteúdo precisa ter pelo menos 50 caracteres"),
     imageUrl: z.string().url("URL da imagem inválida"),
+    categoriasIds: z.array(z.string()).optional(), // Array de IDs de categorias adicionais
   });
 
 type FormValues = z.infer<typeof createPostSchema>;
@@ -86,6 +87,7 @@ export default function CreatePostPage() {
       imageUrl: "",
       autorId: "",
       categoriaId: "",
+      categoriasIds: [],
       status: "publicado",
       visibilidade: "publico",
       schemaType: "Article",
@@ -434,20 +436,20 @@ export default function CreatePostPage() {
 
                   {/* Metadados */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Categoria */}
+                    {/* Categoria Principal */}
                     <FormField
                       control={form.control}
                       name="categoriaId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Categoria</FormLabel>
+                          <FormLabel>Categoria Principal</FormLabel>
                           <Select 
                             onValueChange={field.onChange} 
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecione uma categoria" />
+                                <SelectValue placeholder="Selecione uma categoria principal" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -458,6 +460,75 @@ export default function CreatePostPage() {
                               ))}
                             </SelectContent>
                           </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* Categorias Adicionais - Permitir múltiplas */}
+                    <FormField
+                      control={form.control}
+                      name="categoriasIds"
+                      render={({ field }) => (
+                        <FormItem className="col-span-2">
+                          <FormLabel>Categorias Adicionais</FormLabel>
+                          <div className="space-y-2">
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {field.value?.map((categoriaId) => {
+                                const categoria = categorias?.find(c => c.id === categoriaId);
+                                return categoria ? (
+                                  <Badge key={categoria.id} className="mr-1 mb-1 flex items-center gap-1">
+                                    {categoria.nome}
+                                    <X
+                                      className="h-3 w-3 cursor-pointer"
+                                      onClick={() => {
+                                        field.onChange(field.value?.filter(id => id !== categoriaId));
+                                      }}
+                                    />
+                                  </Badge>
+                                ) : null;
+                              })}
+                            </div>
+                            
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex items-center gap-2 h-8"
+                                  type="button"
+                                >
+                                  <PlusCircle className="h-3.5 w-3.5" />
+                                  Adicionar categorias
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="p-0" align="start">
+                                <Command>
+                                  <CommandInput placeholder="Buscar categoria..." />
+                                  <CommandEmpty>Nenhuma categoria encontrada.</CommandEmpty>
+                                  <CommandGroup>
+                                    {categorias
+                                      ?.filter(c => !field.value?.includes(c.id) && c.id !== form.getValues("categoriaId"))
+                                      .map(categoria => (
+                                        <CommandItem
+                                          key={categoria.id}
+                                          onSelect={() => {
+                                            const currentValue = field.value || [];
+                                            field.onChange([...currentValue, categoria.id]);
+                                          }}
+                                          className="flex items-center gap-2"
+                                        >
+                                          {categoria.nome}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <p className="text-sm text-muted-foreground">
+                              Selecione múltiplas categorias para classificar seu artigo (ex: vídeo + esportes)
+                            </p>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
