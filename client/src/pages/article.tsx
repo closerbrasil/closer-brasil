@@ -282,74 +282,24 @@ export default function ArticlePage() {
           {noticia.resumo}
         </p>
 
-        {/* Imagem principal com destaque especial para artigos de vídeo */}
-        <figure className="mb-8 relative">
-          {/* Exibição normal da imagem */}
-          <img
-            src={noticia.imageUrl}
-            alt={noticia.titulo}
-            className="w-full max-h-[500px] object-cover rounded-lg"
-          />
-          
-          {/* Overlay especial para artigos de vídeo com ícone de play e indicadores */}
-          {isVideoArticle && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-lg"></div>
-              
-              {/* Ícone de Play central grande (clicável para rolar até o vídeo) */}
-              <div 
-                className="relative z-10 transform transition-transform hover:scale-110 cursor-pointer"
-                onClick={() => {
-                  // Rolar até o primeiro vídeo em destaque
-                  const videoElement = document.querySelector('.youtube-featured-video .article-youtube-wrapper');
-                  if (videoElement) {
-                    videoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  } else {
-                    // Se não encontrar o vídeo em destaque, tenta encontrar qualquer vídeo no conteúdo
-                    const contentVideo = document.querySelector('.article-youtube-wrapper');
-                    if (contentVideo) {
-                      contentVideo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }
-                }}
-              >
-                <div className="bg-white/90 rounded-full p-8 shadow-xl">
-                  <Play className="h-16 w-16 text-primary fill-primary" />
-                </div>
-              </div>
-              
-              {/* Badge de vídeo no canto superior */}
-              {categoria && (
-                <div className="absolute top-4 left-4 z-20">
-                  <Link href={`/categoria/${categoria.slug}`}>
-                    <div 
-                      className="bg-primary text-white rounded-md px-4 py-2 text-sm font-medium shadow-md hover:opacity-90 transition-opacity flex items-center gap-2"
-                      style={{ backgroundColor: categoria.cor || '#3b82f6' }}
-                    >
-                      <Play className="h-4 w-4 fill-white" />
-                      {categoria.nome}
-                    </div>
-                  </Link>
-                </div>
-              )}
-              
-              {/* Duração do vídeo */}
-              <div className="absolute bottom-4 right-4 z-20">
-                <div className="bg-black/70 text-white rounded-md px-3 py-1 text-sm flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  {noticia.tempoLeitura || "5 min"}
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Crédito da imagem */}
-          {noticia.imagemCredito && (
-            <figcaption className="text-sm text-gray-500 mt-2 italic text-right">
-              Crédito: {noticia.imagemCredito}
-            </figcaption>
-          )}
-        </figure>
+        {/* Exibir imagem de capa apenas para artigos sem vídeo */}
+        {!isVideoArticle && (
+          <figure className="mb-8 relative">
+            {/* Exibição normal da imagem */}
+            <img
+              src={noticia.imageUrl}
+              alt={noticia.titulo}
+              className="w-full max-h-[500px] object-cover rounded-lg"
+            />
+            
+            {/* Crédito da imagem */}
+            {noticia.imagemCredito && (
+              <figcaption className="text-sm text-gray-500 mt-2 italic text-right">
+                Crédito: {noticia.imagemCredito}
+              </figcaption>
+            )}
+          </figure>
+        )}
 
         {/* Barra de ações - Botões de compartilhamento */}
         <div className="flex justify-end mb-8">
@@ -385,11 +335,25 @@ export default function ArticlePage() {
         <div className="mb-12">
           {/* Para artigos de vídeo, destacar o primeiro iFrame do YouTube antes do conteúdo se existir */}
           {isVideoArticle && (
-            <div className="youtube-featured-video mb-8">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Play className="h-5 w-5 fill-primary text-primary" />
-                Vídeo em destaque
-              </h2>
+            <div className="youtube-featured-video mb-8 mt-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Play className="h-5 w-5 fill-primary text-primary" />
+                  Vídeo em destaque
+                </h2>
+                
+                {categoria && (
+                  <Link href={`/categoria/${categoria.slug}`}>
+                    <Badge 
+                      className="px-3 py-1 text-sm font-medium flex items-center gap-1"
+                      style={{ backgroundColor: categoria.cor || '#3b82f6', color: 'white' }}
+                    >
+                      <Play className="h-3 w-3 fill-white" />
+                      {categoria.nome}
+                    </Badge>
+                  </Link>
+                )}
+              </div>
               {/* O conteúdo do artigo terá os iframes transformados pelo ArticleContent */}
             </div>
           )}

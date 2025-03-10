@@ -201,6 +201,17 @@
   border-radius: 0.5rem;
 }
 
+/* Estilo especial para vídeos em destaque na seção de artigos de vídeo */
+.youtube-featured-video .article-youtube-wrapper {
+  margin: 0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.youtube-featured-video .article-youtube-container {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 2px solid #f3f4f6;
+}
+
 /* Adicionar um visual de controles antes de carregar o vídeo */
 .article-youtube-container::before {
   content: '';
