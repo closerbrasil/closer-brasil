@@ -17,14 +17,19 @@ export function RelatedPosts({
   autorId, 
   limit = 3 
 }: RelatedPostsProps) {
-  // Buscar artigos relacionados pela mesma categoria
-  const { data: noticias, isLoading } = useQuery<{ noticias: Noticia[], total: number }>({
-    queryKey: [
-      categoriaId ? `/api/noticias/categoria/${categoriaId}` : '/api/noticias',
-      { limit }
-    ],
-    enabled: !!categoriaId || true, // Se não tiver categoria, busca as notícias gerais
+  // Buscar todas as notícias quando não temos categoria
+  const { data: todasNoticias, isLoading: isLoadingTodas } = useQuery<{ noticias: Noticia[], total: number }>({
+    queryKey: ['/api/noticias'],
+    enabled: !categoriaId, // Só carrega se não tiver categoria específica
   });
+  
+  // Buscar artigos relacionados pela mesma categoria
+  const { data: noticiasCategoria, isLoading: isLoadingCategoria } = useQuery<{ noticias: Noticia[], total: number }>({
+    queryKey: [`/api/noticias/categoria/${categoriaId}`],
+    enabled: !!categoriaId, // Só carrega se tiver categoria
+  });
+
+  const isLoading = isLoadingTodas || isLoadingCategoria;
   
   if (isLoading) {
     return (
@@ -40,7 +45,11 @@ export function RelatedPosts({
     );
   }
   
-  if (!noticias || noticias.noticias.length === 0) {
+  // Determinar qual fonte de dados usar
+  const noticias = categoriaId ? noticiasCategoria : todasNoticias;
+  
+  if (!noticias || !noticias.noticias || noticias.noticias.length === 0) {
+    console.log("Sem notícias para exibir");
     return null;
   }
   
@@ -50,6 +59,7 @@ export function RelatedPosts({
     .slice(0, limit);
     
   if (relatedPosts.length === 0) {
+    console.log("Sem posts relacionados após filtro");
     return null;
   }
 
