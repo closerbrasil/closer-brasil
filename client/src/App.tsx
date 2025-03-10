@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Home from "@/pages/home";
 import Article from "@/pages/article";
+import Video from "@/pages/video";
 import Category from "@/pages/category";
 import Tag from "@/pages/tag";
 import Author from "@/pages/author";
@@ -34,6 +35,7 @@ function SiteRouter() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/noticia/:slug" component={Article} />
+      <Route path="/video/:slug" component={Video} />
       <Route path="/categoria/:slug" component={Category} />
       <Route path="/tag/:slug" component={Tag} />
       <Route path="/autor/:slug" component={Author} />

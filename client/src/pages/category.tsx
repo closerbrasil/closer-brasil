@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import type { Noticia, Categoria } from "@shared/schema";
 import ArticleCard from "@/components/ArticleCard";
+import VideoArticleCard from "@/components/VideoArticleCard";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";

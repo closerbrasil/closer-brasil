@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-type SeoType = "website" | "article" | "profile";
+type SeoType = "website" | "article" | "profile" | "video.other";
 
 interface SEOHeadProps {
   title: string;

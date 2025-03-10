@@ -217,7 +217,7 @@ export default function VideoPage() {
       <SEOHead
         title={metaTitle}
         description={metaDescription}
-        type="video.other"
+        type="website"
         image={noticia.imageUrl}
         publishedTime={publishedDate.toISOString()}
         author={autor ? {
