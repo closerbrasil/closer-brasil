@@ -1,4 +1,4 @@
-import { Noticia, Categoria, Autor, Tag, Comentario, Imagem, Video, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, InsertComentario, InsertImagem, InsertVideo, noticia, categorias, autores, tags, noticiasTags, comentarios, imagens, videos } from "@shared/schema";
+import { Noticia, Categoria, Autor, Tag, Comentario, Imagem, Video, NoticiaCategoria, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, InsertComentario, InsertImagem, InsertVideo, InsertNoticiaCategoria, noticia, categorias, autores, tags, noticiasTags, noticiasCategorias, comentarios, imagens, videos } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
 
@@ -19,6 +19,11 @@ export interface IStorage {
   getCategoriaPorSlug(slug: string): Promise<Categoria | undefined>;
   getCategoriaPorId(id: string): Promise<Categoria | undefined>;
   criarCategoria(categoria: InsertCategoria): Promise<Categoria>;
+  
+  // Categorias Múltiplas
+  getCategoriasAdicionaisDaNoticia(noticiaId: string): Promise<Categoria[]>;
+  adicionarCategoriaNaNoticia(noticiaId: string, categoriaId: string): Promise<void>;
+  removerCategoriaDaNoticia(noticiaId: string, categoriaId: string): Promise<void>;
 
   // Autores
   getAutores(): Promise<Autor[]>;
@@ -310,6 +315,11 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(noticiasTags)
       .where(eq(noticiasTags.noticiaId, id));
+    
+    // Remover todas as associações da notícia com categorias adicionais
+    await db
+      .delete(noticiasCategorias)
+      .where(eq(noticiasCategorias.noticiaId, id));
     
     // Depois remover os comentários relacionados
     await db
@@ -642,6 +652,32 @@ export class DatabaseStorage implements IStorage {
       .update(videos)
       .set({ visualizacoes: sql`${videos.visualizacoes} + 1` })
       .where(eq(videos.id, id));
+  }
+
+  // Métodos para Categorias Múltiplas
+  async getCategoriasAdicionaisDaNoticia(noticiaId: string): Promise<Categoria[]> {
+    const result = await db
+      .select({
+        categoria: categorias,
+      })
+      .from(noticiasCategorias)
+      .innerJoin(categorias, eq(noticiasCategorias.categoriaId, categorias.id))
+      .where(eq(noticiasCategorias.noticiaId, noticiaId));
+
+    return result.map(r => r.categoria);
+  }
+
+  async adicionarCategoriaNaNoticia(noticiaId: string, categoriaId: string): Promise<void> {
+    await db
+      .insert(noticiasCategorias)
+      .values({ noticiaId, categoriaId })
+      .onConflictDoNothing();
+  }
+
+  async removerCategoriaDaNoticia(noticiaId: string, categoriaId: string): Promise<void> {
+    await db
+      .delete(noticiasCategorias)
+      .where(sql`${noticiasCategorias.noticiaId} = ${noticiaId} AND ${noticiasCategorias.categoriaId} = ${categoriaId}`);
   }
 }
 
