@@ -16,7 +16,7 @@ interface SEOHeadProps {
   };
   keywords?: string[];
   canonicalUrl?: string;
-  jsonLd?: Record<string, any>;
+  jsonLd?: Record<string, any> | Record<string, any>[];
 }
 
 export default function SEOHead({
@@ -85,12 +85,20 @@ export default function SEOHead({
         </>
       )}
 
-      {/* JSON-LD */}
-      {jsonLd && (
+      {/* JSON-LD - Suporta múltiplos objetos */}
+      {jsonLd && Array.isArray(jsonLd) ? (
+        // Se for um array de objetos JSON-LD, renderizar múltiplos scripts
+        jsonLd.map((item, index) => (
+          <script key={`json-ld-${index}`} type="application/ld+json">
+            {JSON.stringify(item)}
+          </script>
+        ))
+      ) : jsonLd ? (
+        // Se for apenas um objeto JSON-LD
         <script type="application/ld+json">
           {JSON.stringify(jsonLd)}
         </script>
-      )}
+      ) : null}
 
       {/* Additional Meta Tags */}
       <meta name="robots" content="index, follow" />

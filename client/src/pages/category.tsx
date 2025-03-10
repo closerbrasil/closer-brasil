@@ -4,6 +4,8 @@ import type { Noticia, Categoria } from "@shared/schema";
 import ArticleCard from "@/components/ArticleCard";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";
+import { generateBreadcrumbLD } from "@/lib/seo";
 
 export default function CategoryPage() {
   const [, params] = useRoute("/categoria/:slug");
@@ -37,12 +39,27 @@ export default function CategoryPage() {
     );
   }
 
+  // Preparar dados para breadcrumb
+  const breadcrumbItems: BreadcrumbItemType[] = [
+    { name: 'Início', url: '/' },
+    { name: categoria?.nome || 'Categoria' }
+  ];
+  
+  // Gerar o JSON-LD para a trilha de navegação
+  const breadcrumbLD = generateBreadcrumbLD(breadcrumbItems, window.location.href);
+
   return (
     <>
       <SEOHead
         title={categoria?.nome || "Categoria"}
         description={`Últimas notícias e artigos em ${categoria?.nome}`}
+        jsonLd={breadcrumbLD}
       />
+      
+      {/* Breadcrumb visual */}
+      <div className="mb-6">
+        <SEOBreadcrumb items={breadcrumbItems} />
+      </div>
 
       <h1 className="text-3xl font-merriweather font-bold mb-8">
         {categoria?.nome}

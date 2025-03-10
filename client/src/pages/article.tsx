@@ -123,6 +123,33 @@ export default function ArticlePage() {
   const metaTitle = noticia.metaTitulo || noticia.titulo;
   const metaDescription = noticia.metaDescricao || noticia.resumo;
 
+  // Preparar dados para breadcrumb visual e estruturado
+  const breadcrumbItems: BreadcrumbItemType[] = [
+    { name: 'Início', url: '/' },
+  ];
+
+  // Adicionar categoria se disponível
+  if (categoria) {
+    breadcrumbItems.push({
+      name: categoria.nome,
+      url: `/categoria/${categoria.slug}`,
+    });
+  }
+
+  // Adicionar título do artigo como último item
+  breadcrumbItems.push({
+    name: noticia.titulo,
+  });
+  
+  // Gerar o JSON-LD para a trilha de navegação
+  const breadcrumbLD = generateBreadcrumbLD(breadcrumbItems, window.location.href);
+
+  // Combinar os esquemas JSON-LD para artigo e breadcrumb
+  const combinedJsonLd = [
+    generateArticleLD(noticia, autor, tagsData),
+    breadcrumbLD
+  ];
+
   return (
     <>
       <SEOHead
@@ -135,12 +162,17 @@ export default function ArticlePage() {
           name: autor.nome,
           url: `/autor/${autor.slug}`
         } : undefined}
-        jsonLd={generateArticleLD(noticia, autor, tagsData)}
+        jsonLd={combinedJsonLd}
         keywords={tagsData.map(tag => tag.nome)}
         canonicalUrl={noticia.urlCanonica || undefined}
       />
 
       <article className="max-w-3xl mx-auto pt-8 px-4">
+        {/* Breadcrumb no topo da página */}
+        <div className="mb-6">
+          <SEOBreadcrumb items={breadcrumbItems} />
+        </div>
+
         {/* Categoria e informações editoriais */}
         <div className="mb-4">
           {/* Categoria */}

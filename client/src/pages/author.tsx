@@ -7,7 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { FaTwitter, FaLinkedinIn, FaGithub, FaGlobe, FaFacebookF } from "react-icons/fa";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getSiteDomain } from "@/lib/seo";
+import { getSiteDomain, generateBreadcrumbLD } from "@/lib/seo";
+import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";
 
 export default function AuthorPage() {
   const [, params] = useRoute("/autor/:slug");
