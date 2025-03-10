@@ -14,7 +14,7 @@ export default function AuthorPage() {
   const slug = params?.slug;
 
   const { data: autor, isLoading: isLoadingAutor, error: autorError } = useQuery<Autor>({
-    queryKey: [`/api/autores/slug/${slug}`],
+    queryKey: [`/api/autores/${slug}`],
     enabled: !!slug
   });
 
@@ -138,17 +138,7 @@ export default function AuthorPage() {
                   </a>
                 )}
                 
-                {autor.facebookUrl && (
-                  <a
-                    href={autor.facebookUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Facebook"
-                    className="text-gray-600 hover:text-[#1877F2] transition-colors"
-                  >
-                    <FaFacebookF size={20} />
-                  </a>
-                )}
+                {/* Facebook link não existe no esquema atual */}
                 
                 {autor.githubUrl && (
                   <a
