@@ -27,7 +27,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, X, PlusCircle, Tag as TagIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger 
+} from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { apiRequest } from "@/lib/queryClient";
 import type { Noticia, Categoria, Autor, Tag } from "@shared/schema";
 
 // Schema para o formulário de edição
@@ -57,6 +65,8 @@ export default function EditPostPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [openTagsPopover, setOpenTagsPopover] = useState(false);
 
   // Buscar o artigo para edição
   const { data: noticia, isLoading: loadingNoticia } = useQuery<Noticia>({
@@ -89,9 +99,14 @@ export default function EditPostPage() {
   });
 
   // Buscar tags associadas à notícia
-  const { data: tags } = useQuery<Tag[]>({
+  const { data: noticiaTags } = useQuery<Tag[]>({
     queryKey: [`/api/noticias/${postId}/tags`],
     enabled: !!postId,
+  });
+  
+  // Buscar todas as tags disponíveis
+  const { data: allTags, isLoading: loadingTags } = useQuery<Tag[]>({
+    queryKey: ["/api/tags"],
   });
 
   // Inicializar o formulário
@@ -244,11 +259,118 @@ export default function EditPostPage() {
   // Submeter o formulário
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
-    updateMutation.mutate(values);
+    try {
+      await updateMutation.mutateAsync(values);
+      await updateNoticiaTagsIfChanged();
+    } catch (error) {
+      console.error('Erro ao atualizar notícia:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Effect para adicionar as tags da notícia ao carregar
+  useEffect(() => {
+    if (noticiaTags && noticiaTags.length > 0) {
+      setSelectedTags(noticiaTags);
+    }
+  }, [noticiaTags]);
+
+  // Métodos para gerenciar as tags
+  const handleSelectTag = (tag: Tag) => {
+    // Verifica se a tag já foi selecionada
+    if (!selectedTags.some((t) => t.id === tag.id)) {
+      setSelectedTags([...selectedTags, tag]);
+      setOpenTagsPopover(false);
+    }
+  };
+
+  const handleRemoveTag = (tag: Tag) => {
+    setSelectedTags(selectedTags.filter((t) => t.id !== tag.id));
+  };
+
+  // Mutation para adicionar tag a uma notícia
+  const addTagMutation = useMutation({
+    mutationFn: async ({ tagId }: { tagId: string }) => {
+      return apiRequest('POST', `/api/noticias/${postId}/tags`, { tagId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/noticias/${postId}/tags`] });
+    },
+    onError: (error) => {
+      console.error('Erro ao adicionar tag:', error);
+      toast({
+        title: 'Erro ao adicionar tag',
+        description: 'Não foi possível adicionar a tag à notícia',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Mutation para remover tag de uma notícia
+  const removeTagMutation = useMutation({
+    mutationFn: async ({ tagId }: { tagId: string }) => {
+      return apiRequest('DELETE', `/api/noticias/${postId}/tags/${tagId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/noticias/${postId}/tags`] });
+    },
+    onError: (error) => {
+      console.error('Erro ao remover tag:', error);
+      toast({
+        title: 'Erro ao remover tag',
+        description: 'Não foi possível remover a tag da notícia',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Gerenciar tags após atualização da notícia
+  const updateNoticiaTagsIfChanged = async () => {
+    if (!noticiaTags) return;
+    
+    // Obter IDs das tags atuais da notícia
+    const existingTagIds = noticiaTags.map(tag => tag.id);
+    
+    // Tags para adicionar (estão em selectedTags mas não em existingTagIds)
+    const tagsToAdd = selectedTags.filter(tag => !existingTagIds.includes(tag.id));
+    
+    // Tags para remover (estão em existingTagIds mas não em selectedTags)
+    const selectedTagIds = selectedTags.map(tag => tag.id);
+    const tagsToRemove = noticiaTags.filter(tag => !selectedTagIds.includes(tag.id));
+    
+    // Adicionar novas tags
+    const addPromises = tagsToAdd.map(tag => 
+      addTagMutation.mutateAsync({ tagId: tag.id })
+    );
+    
+    // Remover tags que não estão mais selecionadas
+    const removePromises = tagsToRemove.map(tag =>
+      removeTagMutation.mutateAsync({ tagId: tag.id })
+    );
+    
+    try {
+      // Executa todas as operações em paralelo
+      await Promise.all([...addPromises, ...removePromises]);
+      
+      if (tagsToAdd.length > 0 || tagsToRemove.length > 0) {
+        toast({
+          title: 'Tags atualizadas',
+          description: 'As tags da notícia foram atualizadas com sucesso',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar tags:', error);
+      toast({
+        title: 'Erro ao atualizar tags',
+        description: 'Ocorreu um erro ao atualizar as tags da notícia',
+        variant: 'destructive',
+      });
+    }
   };
 
   // Verificar se está carregando dados iniciais
-  const isLoading = loadingNoticia || loadingCategorias || loadingAutores;
+  const isLoading = loadingNoticia || loadingCategorias || loadingAutores || loadingTags;
 
   if (isLoading) {
     return (
@@ -559,6 +681,75 @@ export default function EditPostPage() {
                     </FormItem>
                   )}
                 />
+                
+                {/* Tags */}
+                <div className="col-span-1 sm:col-span-2">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <FormLabel>Tags</FormLabel>
+                      <Popover open={openTagsPopover} onOpenChange={setOpenTagsPopover}>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 flex items-center gap-1"
+                          >
+                            <PlusCircle className="h-3.5 w-3.5" />
+                            <span>Adicionar Tag</span>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0" side="right" align="start">
+                          <Command>
+                            <CommandInput placeholder="Buscar tag..." />
+                            <CommandEmpty>Nenhuma tag encontrada</CommandEmpty>
+                            <CommandGroup className="max-h-60 overflow-auto">
+                              {allTags?.map((tag) => (
+                                <CommandItem
+                                  key={tag.id}
+                                  onSelect={() => handleSelectTag(tag)}
+                                  className="flex items-center"
+                                >
+                                  <TagIcon className="mr-2 h-4 w-4" />
+                                  <span>{tag.nome}</span>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 min-h-9 p-2 border rounded-md">
+                      {selectedTags.length === 0 && (
+                        <div className="text-muted-foreground text-sm flex items-center h-6">
+                          Nenhuma tag selecionada
+                        </div>
+                      )}
+                      
+                      {selectedTags.map((tag) => (
+                        <Badge 
+                          key={tag.id} 
+                          variant="secondary"
+                          className="flex items-center gap-1 px-3 py-1.5"
+                        >
+                          <TagIcon className="h-3 w-3" />
+                          <span>{tag.nome}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-4 w-4 p-0 ml-1"
+                            onClick={() => handleRemoveTag(tag)}
+                          >
+                            <X className="h-3 w-3" />
+                            <span className="sr-only">Remover tag</span>
+                          </Button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
