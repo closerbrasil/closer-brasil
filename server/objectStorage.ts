@@ -1,4 +1,7 @@
 import { Client } from '@replit/object-storage';
+import https from 'https';
+import http from 'http';
+import { URL } from 'url';
 
 // Configurar o cliente do Object Storage
 const client = new Client();
@@ -397,4 +400,104 @@ export function getPublicUrl(key: string): string {
   const cleanKey = key.startsWith('/') ? key.substring(1) : key;
   
   return `${baseUrl}/api/object-storage/${cleanKey}`;
+}
+
+/**
+ * Função para baixar uma imagem a partir de uma URL e salvar no Object Storage
+ * @param url URL da imagem a ser baixada
+ * @returns Promessa com o resultado do upload
+ */
+export async function downloadAndSaveImage(url: string): Promise<UploadResult> {
+  console.log("Baixando imagem da URL:", url);
+  
+  // Evitar processamento se não for URL
+  if (!url.startsWith('http')) {
+    throw new Error('URL inválida');
+  }
+  
+  return new Promise((resolve, reject) => {
+    try {
+      const urlObj = new URL(url);
+      const protocol = urlObj.protocol === 'https:' ? https : http;
+      
+      // Adicionar headers para evitar bloqueios (como user-agent)
+      const options = {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
+          'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        }
+      };
+      
+      const request = protocol.get(url, options, (response) => {
+        // Verificar status code da resposta
+        if (response.statusCode !== 200) {
+          return reject(new Error(`Erro ao baixar imagem: ${response.statusCode} ${response.statusMessage}`));
+        }
+        
+        // Determinar o tipo de conteúdo
+        const contentType = response.headers['content-type'] || 'image/jpeg';
+        
+        // Verificar se é uma imagem
+        if (!contentType.startsWith('image/')) {
+          return reject(new Error(`Tipo de conteúdo não suportado: ${contentType}`));
+        }
+        
+        // Obter o nome do arquivo da URL ou gerar um nome baseado na extensão
+        const urlPath = urlObj.pathname;
+        let filename = urlPath.split('/').pop() || 'imagem';
+        
+        // Garantir que o nome do arquivo tenha uma extensão adequada
+        if (!filename.includes('.')) {
+          const ext = contentType.split('/')[1].replace('jpeg', 'jpg');
+          filename = `${filename}.${ext}`;
+        }
+        
+        // Chunking para coletar os dados
+        const chunks: Buffer[] = [];
+        
+        response.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+        
+        response.on('end', async () => {
+          try {
+            // Concatenar todos os chunks em um buffer
+            const buffer = Buffer.concat(chunks);
+            
+            if (buffer.length === 0) {
+              return reject(new Error('Buffer de imagem vazio após download'));
+            }
+            
+            console.log(`Imagem baixada com sucesso: ${buffer.length} bytes`);
+            
+            // Fazer upload para o Object Storage
+            const result = await uploadFile(buffer, filename, contentType);
+            resolve(result);
+          } catch (error) {
+            console.error('Erro ao processar a imagem baixada:', error);
+            reject(error);
+          }
+        });
+      });
+      
+      request.on('error', (error) => {
+        console.error('Erro na requisição HTTP:', error);
+        reject(error);
+      });
+      
+      // Definir timeout para a requisição
+      request.setTimeout(15000, () => {
+        request.destroy();
+        reject(new Error('Timeout ao baixar a imagem'));
+      });
+      
+    } catch (error) {
+      console.error('Erro ao processar URL:', error);
+      reject(error);
+    }
+  });
 }

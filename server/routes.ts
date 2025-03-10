@@ -7,7 +7,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { uploadFile, getFile } from "./objectStorage";
+import { uploadFile, getFile, downloadAndSaveImage } from "./objectStorage";
 
 // Configurar o multer para armazenar temporariamente os arquivos
 const upload = multer({
@@ -660,6 +660,72 @@ Chave: ${result.key}
     } catch (error) {
       console.error("Erro ao buscar notícias por tag:", error);
       res.status(500).json({ message: "Erro ao obter notícias pela tag" });
+    }
+  });
+
+  // Endpoint para baixar imagens externas e armazená-las no Object Storage
+  app.post("/api/download-image", async (req, res) => {
+    try {
+      const { imageUrl } = req.body;
+      
+      if (!imageUrl || typeof imageUrl !== 'string') {
+        return res.status(400).json({ message: "URL da imagem é obrigatória" });
+      }
+      
+      // Verificar se a URL é válida
+      if (!imageUrl.startsWith('http')) {
+        return res.status(400).json({ message: "URL inválida. Deve começar com http:// ou https://" });
+      }
+      
+      // URL de imagens da DALL-E e outras externas
+      if (imageUrl.includes('oaidalleapiprodscus.blob.core.windows.net') || 
+          imageUrl.includes('openai.com') ||
+          imageUrl.includes('images.unsplash.com') ||
+          imageUrl.includes('googleapis.com')) {
+        
+        // Fazer o download e salvar no Object Storage
+        console.log("Baixando imagem de URL externa:", imageUrl);
+        
+        const result = await downloadAndSaveImage(imageUrl);
+        console.log("Imagem salva com sucesso:", result);
+        
+        // Retornar a nova URL da imagem
+        return res.json({ 
+          originalUrl: imageUrl,
+          imageUrl: result.url,
+          key: result.key,
+          success: true
+        });
+      }
+      
+      // Se a URL já for interna, retornar ela mesma
+      if (imageUrl.includes(process.env.SITE_DOMAIN) || 
+          imageUrl.includes('localhost') || 
+          imageUrl.includes('.repl.co')) {
+        return res.json({
+          originalUrl: imageUrl,
+          imageUrl: imageUrl,
+          message: "URL já é interna, nenhuma conversão necessária",
+          success: true
+        });
+      }
+      
+      // Para outras URLs externas, baixar e salvar normalmente
+      const result = await downloadAndSaveImage(imageUrl);
+      
+      res.json({
+        originalUrl: imageUrl,
+        imageUrl: result.url,
+        key: result.key,
+        success: true
+      });
+    } catch (error) {
+      console.error("Erro ao baixar imagem:", error);
+      res.status(500).json({ 
+        message: "Erro ao processar a imagem", 
+        error: error.message,
+        success: false 
+      });
     }
   });
 
