@@ -192,45 +192,30 @@ export default function ArticlePage() {
         {/* Barra de ações - Botões de compartilhamento */}
         <div className="flex justify-end mb-8">
           <div className="flex items-center gap-2">
-            <Button 
+            <button 
               onClick={shareOnWhatsApp} 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white border-[#25D366] hover:border-[#128C7E]"
+              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-2 rounded-md"
               title="Compartilhar no WhatsApp"
             >
-              <FaWhatsapp className="h-4 w-4" />
-              <span className="hidden sm:inline">WhatsApp</span>
-            </Button>
-            <Button 
+              <FaWhatsapp className="h-5 w-5" />
+              <span>WhatsApp</span>
+            </button>
+            <button 
               onClick={shareOnFacebook} 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2 bg-[#1877F2] hover:bg-[#166FE5] text-white border-[#1877F2] hover:border-[#166FE5]"
+              className="flex items-center gap-2 bg-[#1877F2] hover:bg-[#166FE5] text-white px-4 py-2 rounded-md"
               title="Compartilhar no Facebook"
             >
-              <FaFacebookF className="h-4 w-4" />
-              <span className="hidden sm:inline">Facebook</span>
-            </Button>
-            <Button 
+              <FaFacebookF className="h-5 w-5" />
+              <span>Facebook</span>
+            </button>
+            <button 
               onClick={shareOnX} 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2 bg-[#000000] hover:bg-[#333333] text-white border-[#000000] hover:border-[#333333]"
+              className="flex items-center gap-2 bg-[#000000] hover:bg-[#333333] text-white px-4 py-2 rounded-md"
               title="Compartilhar no X"
             >
-              <FaTwitter className="h-4 w-4" />
-              <span className="hidden sm:inline">X</span>
-            </Button>
-            <Button 
-              onClick={shareNative} 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2 md:hidden"
-              title="Compartilhar"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
+              <FaTwitter className="h-5 w-5" />
+              <span>X</span>
+            </button>
           </div>
         </div>
 
