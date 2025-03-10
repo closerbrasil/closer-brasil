@@ -11,7 +11,7 @@ import { TagList } from "@/components/TagList";
 import { Comments } from "@/components/Comments";
 import { RelatedPosts } from "@/components/RelatedPosts";
 import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";
-import { Calendar, Clock, Play, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, Play, ArrowLeft, Eye, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FaWhatsapp, FaFacebookF, FaTwitter } from "react-icons/fa";
@@ -121,8 +121,25 @@ export default function VideoPage() {
     enabled: !!slug
   });
   
+  // Interface para os dados de vídeo
+  interface VideoData {
+    id: string;
+    noticiaId: string;
+    videoId: string;
+    plataforma: string;
+    titulo?: string;
+    descricao?: string;
+    thumbnailUrl?: string;
+    embedUrl?: string;
+    duracao?: number;
+    visualizacoes?: number;
+    curtidas?: number;
+    dataCriacao: string;
+    dataAtualizacao: string;
+  }
+
   // Buscar os dados do vídeo quando a notícia estiver disponível
-  const { data: videoData, isLoading: isVideoLoading } = useQuery({
+  const { data: videoData, isLoading: isVideoLoading } = useQuery<VideoData>({
     queryKey: [`/api/noticias/${noticia?.id}/video`],
     enabled: !!noticia?.id
   });
@@ -335,6 +352,30 @@ export default function VideoPage() {
           {/* O iframe do vídeo será injetado aqui pelo VideoContent */}
         </div>
 
+        {/* Informações de visualizações e estatísticas, se disponíveis */}
+        {videoData && (
+          <div className="flex flex-wrap items-center gap-3 mb-4 text-gray-600 text-sm">
+            {videoData.visualizacoes !== undefined && (
+              <div className="flex items-center gap-1">
+                <Eye className="h-4 w-4" />
+                <span>{videoData.visualizacoes} visualizações</span>
+              </div>
+            )}
+            {videoData.curtidas !== undefined && (
+              <div className="flex items-center gap-1">
+                <ThumbsUp className="h-4 w-4" />
+                <span>{videoData.curtidas} curtidas</span>
+              </div>
+            )}
+            {videoData.duracao !== undefined && (
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>{Math.floor(videoData.duracao / 60)}min {videoData.duracao % 60}s</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Barra de ações - Botões de compartilhamento otimizados para mobile */}
         <div className="flex flex-wrap justify-center sm:justify-start mb-6 sm:mb-8 gap-3">
           <button 
@@ -365,7 +406,7 @@ export default function VideoPage() {
 
         {/* Conteúdo de descrição */}
         <div className="mb-12 video-description">
-          <VideoContent content={noticia.conteudo} mainContainerRef={videoRef} />
+          <VideoContent content={noticia.conteudo} mainContainerRef={videoRef} videoData={videoData} />
         </div>
 
         {/* Bio do autor ao final - otimizada para mobile */}
