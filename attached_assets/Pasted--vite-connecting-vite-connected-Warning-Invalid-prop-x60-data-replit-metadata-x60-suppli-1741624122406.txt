@@ -1,0 +1,31 @@
+[vite] connecting...
+[vite] connected.
+Warning: Invalid prop &#x60;data-replit-metadata&#x60; supplied to &#x60;React.Fragment&#x60;. React.Fragment can only have &#x60;key&#x60; and &#x60;children&#x60; props.
+    at SEOBreadcrumb (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/components/Breadcrumb.tsx:28:33)
+    at div
+    at article
+    at ArticlePage (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/pages/article.tsx:32:22)
+    at Route (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=285b4eff:191:16)
+    at Switch (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=285b4eff:247:17)
+    at SiteRouter
+    at main
+    at div
+    at QueryClientProvider (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=285b4eff:2805:3)
+    at _a (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=285b4eff:624:5)
+    at App (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/App.tsx?v=UpGBLWdmdBPyYxVihX3PO:157:22)
+at SEOBreadcrumb (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/components/Breadcrumb.tsx:28:33)
+at div
+at article
+at ArticlePage (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/pages/article.tsx:32:22)
+at Route (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=285b4eff:191:16)
+at Switch (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=285b4eff:247:17)
+at SiteRouter
+at main
+at div
+at QueryClientProvider (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=285b4eff:2805:3)
+at _a (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=285b4eff:624:5)
+at App (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/src/App.tsx?v=UpGBLWdmdBPyYxVihX3PO:157:22)
+at t.value (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://76a38428-1fde-4183-a16c-de4c033d93a0-00-27zm49qhmfw11.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

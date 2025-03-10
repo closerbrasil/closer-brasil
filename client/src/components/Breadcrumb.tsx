@@ -43,8 +43,9 @@ export function SEOBreadcrumb({ items, className = '', showHomeIcon = true }: SE
           const isFirstItem = index === 0;
           const showHomeForThis = isFirstItem && showHomeIcon && item.name.toLowerCase().includes('iníc');
           
+          // Usando div com classe personalizada para substituir o React.Fragment e evitar erros com data-replit-metadata
           return (
-            <React.Fragment key={`breadcrumb-item-${index}`}>
+            <div key={`breadcrumb-item-${index}`} className="contents">
               {/* Adicionar separador antes dos itens (exceto o primeiro) */}
               {!isFirstItem && <BreadcrumbSeparator />}
               
@@ -63,7 +64,7 @@ export function SEOBreadcrumb({ items, className = '', showHomeIcon = true }: SE
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-            </React.Fragment>
+            </div>
           );
         })}
       </BreadcrumbList>
