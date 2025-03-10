@@ -1,4 +1,4 @@
-import { Noticia, Categoria, Autor, Tag, Comentario, Imagem, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, InsertComentario, InsertImagem, noticia, categorias, autores, tags, noticiasTags, comentarios, imagens } from "@shared/schema";
+import { Noticia, Categoria, Autor, Tag, Comentario, Imagem, Video, InsertNoticia, InsertCategoria, InsertAutor, InsertTag, InsertComentario, InsertImagem, InsertVideo, noticia, categorias, autores, tags, noticiasTags, comentarios, imagens, videos } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
 
@@ -47,6 +47,15 @@ export interface IStorage {
   // Imagens
   salvarImagem(imagem: InsertImagem): Promise<Imagem>;
   getImagemPorId(id: string): Promise<Imagem | undefined>;
+
+  // Vídeos
+  getVideoPorNoticiaId(noticiaId: string): Promise<Video | undefined>;
+  getVideos(page: number, limit: number): Promise<{ videos: Video[]; total: number }>;
+  getVideosDestaque(limit: number): Promise<Video[]>;
+  criarVideo(video: InsertVideo): Promise<Video>;
+  atualizarVideo(id: string, video: Partial<InsertVideo>): Promise<Video>;
+  removerVideo(id: string): Promise<void>;
+  incrementarVisualizacao(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -568,6 +577,71 @@ export class DatabaseStorage implements IStorage {
       .from(imagens)
       .where(eq(imagens.id, id));
     return result;
+  }
+
+  // Vídeos
+  async getVideoPorNoticiaId(noticiaId: string): Promise<Video | undefined> {
+    const [result] = await db
+      .select()
+      .from(videos)
+      .where(eq(videos.noticiaId, noticiaId));
+    return result;
+  }
+
+  async getVideos(page: number, limit: number): Promise<{ videos: Video[]; total: number }> {
+    const offset = (page - 1) * limit;
+    const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(videos);
+    const total = Number(countResult?.count || 0);
+
+    const videosResult = await db
+      .select()
+      .from(videos)
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(videos.criadoEm));
+
+    return {
+      videos: videosResult,
+      total
+    };
+  }
+
+  async getVideosDestaque(limit: number): Promise<Video[]> {
+    return await db
+      .select()
+      .from(videos)
+      .orderBy(desc(videos.visualizacoes))
+      .limit(limit);
+  }
+
+  async criarVideo(video: InsertVideo): Promise<Video> {
+    const [result] = await db
+      .insert(videos)
+      .values(video)
+      .returning();
+    return result;
+  }
+
+  async atualizarVideo(id: string, video: Partial<InsertVideo>): Promise<Video> {
+    const [result] = await db
+      .update(videos)
+      .set({ ...video, atualizadoEm: new Date() })
+      .where(eq(videos.id, id))
+      .returning();
+    return result;
+  }
+
+  async removerVideo(id: string): Promise<void> {
+    await db
+      .delete(videos)
+      .where(eq(videos.id, id));
+  }
+
+  async incrementarVisualizacao(id: string): Promise<void> {
+    await db
+      .update(videos)
+      .set({ visualizacoes: sql`${videos.visualizacoes} + 1` })
+      .where(eq(videos.id, id));
   }
 }
 
