@@ -1,7 +1,7 @@
 import type { Noticia, Autor } from "@shared/schema";
 
 // Obter o domínio do site a partir de variáveis de ambiente ou usar um valor padrão
-function getSiteDomain(): string {
+export function getSiteDomain(): string {
   // Ordem de prioridade:
   // 1. VITE_SITE_DOMAIN (para produção)
   // 2. Window.location.origin (para desenvolvimento)
@@ -46,6 +46,19 @@ export function generateArticleLD(article: Noticia, autor?: Autor) {
   const imageUrl = article.imageUrl.startsWith('http') 
     ? article.imageUrl 
     : `${domain}${article.imageUrl}`;
+
+  // Prepara imagens no formato recomendado pelo Google (múltiplas dimensões quando disponíveis)
+  const images = [imageUrl];
+  
+  // Define autor conforme Schema.org
+  const authorData = autor ? 
+    {
+      "@type": "Person",
+      "name": autor.nome,
+      "url": `${domain}/autor/${autor.slug}`,
+      ...(autor.cargo && { "jobTitle": autor.cargo }),
+      ...(autor.bio && { "description": autor.bio })
+    } : undefined;
   
   // Estrutura JSON-LD completa para um artigo de notícias
   return {
@@ -53,16 +66,11 @@ export function generateArticleLD(article: Noticia, autor?: Autor) {
     "@type": article.schemaType || "NewsArticle",
     "headline": headline,
     "description": description,
-    "image": [imageUrl],
+    "image": images,
     "datePublished": article.publicadoEm,
     "dateModified": article.atualizadoEm,
-    "author": autor ? {
-      "@type": "Person",
-      "name": autor.nome,
-      "url": `${domain}/autor/${autor.slug}`,
-      "jobTitle": autor.cargo || "Jornalista",
-      "description": autor.bio || undefined
-    } : undefined,
+    // Usando formato de array para author conforme recomendado pelo Google
+    "author": authorData ? [authorData] : undefined,
     "publisher": {
       "@type": "Organization",
       "name": "Closer Brasil",
