@@ -179,17 +179,8 @@ export default function ArticlePage() {
           <SEOBreadcrumb items={breadcrumbItems} />
         </div>
 
-        {/* Categoria e informações editoriais */}
+        {/* Informações editoriais */}
         <div className="mb-4">
-          {/* Categoria */}
-          <div className="mb-2">
-            {categoria && (
-              <Link href={`/categoria/${categoria.slug}`} className="bg-primary/10 text-primary px-3 py-1 rounded-full font-medium hover:bg-primary/20">
-                {categoria.nome}
-              </Link>
-            )}
-          </div>
-          
           {/* Data e tempo de leitura na mesma linha */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center">

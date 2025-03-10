@@ -1,10 +1,11 @@
 import { Link } from "wouter";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import type { Noticia, Autor } from "@shared/schema";
+import type { Noticia, Autor, Categoria } from "@shared/schema";
 import { TagList } from "./TagList";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 // Definir interface para Tag compatível com o que vem da API
 interface TagData {
@@ -39,6 +40,12 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     queryKey: ["/api/autores", article.autorId],
     enabled: !!article.autorId
   });
+  
+  // Buscar categoria do artigo
+  const { data: categoria } = useQuery<Categoria>({
+    queryKey: [`/api/categorias/${article.categoriaId}`],
+    enabled: !!article.categoriaId
+  });
 
   return (
     <article className="group relative">
@@ -51,6 +58,17 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             loading="lazy"
           />
         </Link>
+        
+        {/* Exibir categoria como badge no canto do card */}
+        {categoria && (
+          <div className="absolute bottom-2 left-2">
+            <Link href={`/categoria/${categoria.slug}`}>
+              <Badge variant="secondary" className="bg-primary/90 text-white hover:bg-primary cursor-pointer">
+                {categoria.nome}
+              </Badge>
+            </Link>
+          </div>
+        )}
       </div>
       <div className="mt-4">
         <Link href={`/noticia/${article.slug}`}>
