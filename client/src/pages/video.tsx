@@ -20,28 +20,46 @@ import { getSiteDomain } from "@/lib/seo";
 /**
  * Função para gerar JSON-LD para VideoObject conforme schema.org
  */
-function generateVideoLD(video: Noticia, autor?: Autor, tags?: Array<{nome: string}>) {
-  // Extrair o ID do vídeo do conteúdo, se possível
-  const youtubeIdMatch = video.conteudo.match(/youtube\.com\/embed\/([^"&?/\s]+)/);
-  const youtubeId = youtubeIdMatch ? youtubeIdMatch[1] : null;
+function generateVideoLD(noticia: Noticia, videoData?: any, autor?: Autor, tags?: Array<{nome: string}>) {
+  // Usar dados específicos do vídeo se disponíveis, ou extrair do conteúdo da notícia
+  let videoId;
+  let plataforma;
+  let embedUrl;
+  let duracao;
+  
+  if (videoData) {
+    // Usar dados da API de vídeos
+    videoId = videoData.videoId;
+    plataforma = videoData.plataforma;
+    embedUrl = videoData.embedUrl || (videoData.plataforma === 'youtube' ? 
+      `https://www.youtube.com/embed/${videoData.videoId}` : undefined);
+    duracao = videoData.duracao ? `PT${Math.floor(videoData.duracao / 60)}M${videoData.duracao % 60}S` : undefined;
+  } else {
+    // Extrair de forma tradicional do conteúdo
+    const youtubeIdMatch = noticia.conteudo.match(/youtube\.com\/embed\/([^"&?/\s]+)/);
+    videoId = youtubeIdMatch ? youtubeIdMatch[1] : null;
+    plataforma = 'youtube';
+    embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : undefined;
+    duracao = noticia.tempoLeitura ? `PT${noticia.tempoLeitura.replace(/[^0-9]/g, '')}M` : "PT5M";
+  }
   
   // Base URL do site
   const siteDomain = getSiteDomain();
-  const urlVideo = `${siteDomain}/video/${video.slug}`;
+  const urlVideo = `${siteDomain}/video/${noticia.slug}`;
   
   // Formato de data ISO para publicação
-  const publishDate = new Date(video.publicadoEm).toISOString();
+  const publishDate = new Date(noticia.publicadoEm).toISOString();
   
   const videoLD: any = {
     "@context": "https://schema.org",
     "@type": "VideoObject",
-    "name": video.titulo,
-    "description": video.resumo,
-    "thumbnailUrl": video.imageUrl,
+    "name": noticia.titulo,
+    "description": noticia.resumo,
+    "thumbnailUrl": noticia.imageUrl,
     "uploadDate": publishDate,
-    "duration": video.tempoLeitura ? `PT${video.tempoLeitura.replace(/[^0-9]/g, '')}M` : "PT5M",
+    "duration": duracao,
     "contentUrl": urlVideo,
-    "embedUrl": youtubeId ? `https://www.youtube.com/embed/${youtubeId}` : undefined,
+    "embedUrl": embedUrl,
     "author": autor ? {
       "@type": "Person",
       "name": autor.nome,
@@ -56,7 +74,12 @@ function generateVideoLD(video: Noticia, autor?: Autor, tags?: Array<{nome: stri
         "width": "600",
         "height": "60"
       }
-    }
+    },
+    "interactionStatistic": videoData?.visualizacoes ? {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/WatchAction",
+      "userInteractionCount": videoData.visualizacoes
+    } : undefined
   };
 
   // Adicionar keywords se as tags estiverem disponíveis
@@ -92,10 +115,20 @@ export default function VideoPage() {
   const slug = params?.slug;
   const videoRef = useRef<HTMLDivElement>(null);
   
-  const { data: noticia, isLoading } = useQuery<Noticia>({
+  // Buscar a notícia pelo slug
+  const { data: noticia, isLoading: isNoticiaLoading } = useQuery<Noticia>({
     queryKey: [`/api/noticias/${slug}`],
     enabled: !!slug
   });
+  
+  // Buscar os dados do vídeo quando a notícia estiver disponível
+  const { data: videoData, isLoading: isVideoLoading } = useQuery({
+    queryKey: [`/api/noticias/${noticia?.id}/video`],
+    enabled: !!noticia?.id
+  });
+  
+  // Combinando carregamentos
+  const isLoading = isNoticiaLoading || isVideoLoading;
 
   // Buscar dados do autor quando tivermos o ID do autor da notícia
   const { data: autores } = useQuery<Autor[]>({
@@ -207,7 +240,7 @@ export default function VideoPage() {
   
   // Gerar o JSON-LD para o vídeo e a trilha de navegação
   const breadcrumbLD = generateBreadcrumbLD(breadcrumbItems, window.location.href);
-  const videoLD = generateVideoLD(noticia, autor, tagsData);
+  const videoLD = generateVideoLD(noticia, videoData, autor, tagsData);
 
   // Combinar os esquemas JSON-LD
   const combinedJsonLd = [videoLD, breadcrumbLD];

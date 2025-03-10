@@ -32,19 +32,25 @@ export default function VideosPage() {
     }
   }, [categorias]);
 
-  // Buscar todas as notícias
-  const { data, isLoading } = useQuery<{ noticias: Noticia[]; total: number }>({
-    queryKey: ["/api/noticias"],
+  // Buscar vídeos da API específica de vídeos
+  const { data: videosData, isLoading } = useQuery<{ videos: any[]; total: number }>({
+    queryKey: ["/api/videos"],
     enabled: true
   });
 
-  // Filtrar apenas vídeos do conjunto de dados
-  const videos = data?.noticias?.filter(noticia => 
-    // Se temos uma categoria de vídeo identificada, verificar por ela
-    (videoCategoriaId && noticia.categoriaId === videoCategoriaId) ||
-    // Ou verificar se há um iframe de YouTube no conteúdo
-    noticia.conteudo.includes('youtube.com/embed/')
-  ) || [];
+  // Buscar informações completas das notícias para cada vídeo
+  const { data: noticiasData } = useQuery<{ noticias: Noticia[]; total: number }>({
+    queryKey: ["/api/noticias"],
+    enabled: !!videosData?.videos && videosData.videos.length > 0
+  });
+
+  // Combinar dados de vídeos com notícias para apresentação completa
+  const videos = videosData?.videos?.map(video => {
+    // Encontrar a notícia correspondente para cada vídeo
+    const noticia = noticiasData?.noticias?.find(n => n.id === video.noticiaId);
+    // Se a notícia for encontrada, retornar a combinação
+    return noticia ? ({...noticia, videoData: video}) : undefined;
+  }).filter((video): video is Noticia & {videoData: any} => video !== undefined) || [];
 
   // Preparar dados para breadcrumb
   const breadcrumbItems: BreadcrumbItemType[] = [
