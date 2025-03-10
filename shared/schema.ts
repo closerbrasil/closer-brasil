@@ -27,6 +27,8 @@ export const categorias = pgTable("categorias", {
   slug: varchar("slug", { length: 50 }).notNull().unique(),
   descricao: text("descricao"),
   imageUrl: text("image_url"),
+  // Novo campo para armazenar a cor da categoria
+  cor: varchar("cor", { length: 20 }).default("#3b82f6").notNull(), // Cor azul como padrão
   criadoEm: timestamp("criado_em").defaultNow().notNull(),
   atualizadoEm: timestamp("atualizado_em").defaultNow().notNull(),
 });

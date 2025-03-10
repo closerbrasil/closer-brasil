@@ -72,14 +72,18 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         {categoria ? (
           <div className="absolute top-3 left-3">
             <Link href={`/categoria/${categoria.slug}`}>
-              <Badge variant="secondary" className="bg-primary text-white hover:bg-primary/90 cursor-pointer font-medium text-sm shadow-md px-3 py-1">
+              <Badge 
+                variant="secondary" 
+                className="text-white hover:opacity-90 cursor-pointer font-medium text-sm shadow-md px-3 py-1 transition-opacity"
+                style={{ backgroundColor: categoria.cor || '#3b82f6' }}
+              >
                 {categoria.nome}
               </Badge>
             </Link>
           </div>
         ) : article.categoriaId ? (
           <div className="absolute top-3 left-3">
-            <Badge variant="secondary" className="bg-primary text-white hover:bg-primary/90 cursor-pointer font-medium text-sm shadow-md px-3 py-1">
+            <Badge variant="secondary" className="bg-primary text-white hover:opacity-90 cursor-pointer font-medium text-sm shadow-md px-3 py-1">
               Categoria
             </Badge>
           </div>
