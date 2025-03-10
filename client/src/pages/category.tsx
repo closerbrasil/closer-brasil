@@ -68,9 +68,19 @@ export default function CategoryPage() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {noticiasData?.noticias?.map((noticia) => (
-            <ArticleCard key={noticia.id} article={noticia} />
-          )) || (
+          {noticiasData?.noticias?.map((noticia) => {
+            // Verificar se é um vídeo com base na categoria ou conteúdo
+            const isVideo = categoria?.slug === 'video' || 
+                            categoria?.nome?.toLowerCase() === 'video' || 
+                            categoria?.nome?.toLowerCase() === 'vídeo' ||
+                            noticia.conteudo.includes('youtube.com/embed/');
+            
+            return isVideo ? (
+              <VideoArticleCard key={noticia.id} article={noticia} />
+            ) : (
+              <ArticleCard key={noticia.id} article={noticia} />
+            );
+          }) || (
             <p className="text-gray-600">Nenhuma notícia encontrada nesta categoria.</p>
           )}
         </div>

@@ -11,8 +11,16 @@ interface TagData {
   descricao?: string;
 }
 
+interface ExtendedNoticia extends Noticia {
+  categoriaNome?: string;
+  categoriaSlug?: string;
+  categoriaCor?: string;
+  autorNome?: string;
+  autorSlug?: string;
+}
+
 interface VideoArticleCardProps {
-  article: Noticia;
+  article: Noticia | ExtendedNoticia;
 }
 
 export default function VideoArticleCard({ article }: VideoArticleCardProps) {
@@ -52,9 +60,9 @@ export default function VideoArticleCard({ article }: VideoArticleCardProps) {
         )}
         
         {/* Badge da categoria */}
-        {article.categoriaNome && (
-          <Link href={`/categoria/${article.categoriaSlug}`}>
-            <Badge className="absolute top-3 left-3 bg-primary text-white px-2.5 py-1 flex items-center gap-1" style={{ backgroundColor: article.categoriaCor || undefined }}>
+        {('categoriaNome' in article && article.categoriaNome) && (
+          <Link href={`/categoria/${'categoriaSlug' in article ? article.categoriaSlug : ''}`}>
+            <Badge className="absolute top-3 left-3 bg-primary text-white px-2.5 py-1 flex items-center gap-1" style={{ backgroundColor: 'categoriaCor' in article ? article.categoriaCor : undefined }}>
               <Play className="h-3 w-3 fill-white mr-1" />
               {article.categoriaNome}
             </Badge>
@@ -89,8 +97,8 @@ export default function VideoArticleCard({ article }: VideoArticleCardProps) {
             <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
           </div>
           
-          {article.autorNome && (
-            <Link href={`/autor/${article.autorSlug}`} className="hover:underline flex items-center">
+          {('autorNome' in article && article.autorNome) && (
+            <Link href={`/autor/${'autorSlug' in article ? article.autorSlug : ''}`} className="hover:underline flex items-center">
               <span>por </span>
               <span className="font-medium ml-1">{article.autorNome}</span>
             </Link>

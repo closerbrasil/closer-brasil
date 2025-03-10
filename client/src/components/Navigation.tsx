@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Categoria } from "@shared/schema";
-import { Menu } from "lucide-react";
+import { Menu, Film } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -20,6 +20,16 @@ export default function Navigation() {
 
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-8">
+            {/* Link destacado para a seção de vídeos */}
+            <Link 
+              href="/videos"
+              className="flex items-center text-primary font-medium hover:text-primary/80 transition-colors"
+            >
+              <Film className="h-4 w-4 mr-1" />
+              Vídeos
+            </Link>
+            
+            {/* Links para categorias */}
             {categorias?.map((categoria) => (
               <Link 
                 key={categoria.id} 
