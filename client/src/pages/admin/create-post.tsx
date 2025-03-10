@@ -163,6 +163,7 @@ export default function CreatePostPage() {
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
+      // Enviar dados com categorias adicionais
       const response = await fetch("/api/noticias", {
         method: "POST",
         headers: {

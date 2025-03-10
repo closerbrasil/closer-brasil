@@ -496,16 +496,35 @@ Chave: ${result.key}
         return res.status(404).json({ message: "Notícia não encontrada" });
       }
 
-      // Validar dados de atualização
-      const atualizacao = req.body;
+      // Extrair as categorias adicionais antes da validação
+      const { categoriasIds, ...dadosAtualizacao } = req.body;
       
       // Verificar se há atualização de imagem externa
-      if (atualizacao.imageUrl && typeof atualizacao.imageUrl === 'string') {
-        atualizacao.imageUrl = await processExternalImageUrl(atualizacao.imageUrl);
+      if (dadosAtualizacao.imageUrl && typeof dadosAtualizacao.imageUrl === 'string') {
+        dadosAtualizacao.imageUrl = await processExternalImageUrl(dadosAtualizacao.imageUrl);
       }
       
       // Atualizar a notícia
-      const noticiaAtualizada = await storage.atualizarNoticia(id, atualizacao);
+      const noticiaAtualizada = await storage.atualizarNoticia(id, dadosAtualizacao);
+      
+      // Processar categorias adicionais, se houver
+      if (categoriasIds && Array.isArray(categoriasIds)) {
+        // Primeiro, remover todas as categorias existentes
+        const categoriasExistentes = await storage.getCategoriasAdicionaisDaNoticia(id);
+        const promisesRemocao = categoriasExistentes.map(cat => 
+          storage.removerCategoriaDaNoticia(id, cat.id)
+        );
+        await Promise.all(promisesRemocao);
+        
+        // Depois, adicionar as novas categorias
+        if (categoriasIds.length > 0) {
+          const promisesAdicao = categoriasIds.map((categoriaId: string) => 
+            storage.adicionarCategoriaNaNoticia(id, categoriaId)
+          );
+          await Promise.all(promisesAdicao);
+        }
+      }
+      
       res.json(noticiaAtualizada);
     } catch (error) {
       console.error("Erro ao atualizar notícia:", error);
@@ -539,6 +558,18 @@ Chave: ${result.key}
     const noticias = await storage.getNoticiasPorCategoria(req.params.slug, page, limit);
     res.json(noticias);
   });
+  
+  // Obter categorias adicionais de uma notícia
+  app.get("/api/noticias/:id/categorias", async (req, res) => {
+    try {
+      const noticiaId = req.params.id;
+      const categorias = await storage.getCategoriasAdicionaisDaNoticia(noticiaId);
+      res.json(categorias);
+    } catch (error) {
+      console.error("Erro ao buscar categorias da notícia:", error);
+      res.status(500).json({ message: "Erro ao buscar categorias da notícia" });
+    }
+  });
 
   // Função auxiliar para processar URLs de imagens externas
   async function processExternalImageUrl(imageUrl: string): Promise<string> {
@@ -568,8 +599,11 @@ Chave: ${result.key}
 
   app.post("/api/noticias", async (req, res) => {
     try {
+      // Extrair as categorias adicionais antes da validação
+      const { categoriasIds, ...noticiaRawData } = req.body;
+      
       // Validar os dados com o schema
-      const noticiaData = insertNoticiaSchema.parse(req.body);
+      const noticiaData = insertNoticiaSchema.parse(noticiaRawData);
       
       // Processar a URL da imagem se for externa
       if (noticiaData.imageUrl) {
@@ -578,6 +612,17 @@ Chave: ${result.key}
       
       // Criar a notícia com a URL da imagem já processada
       const created = await storage.criarNoticia(noticiaData);
+      
+      // Processar categorias adicionais, se houver
+      if (categoriasIds && Array.isArray(categoriasIds) && categoriasIds.length > 0) {
+        // Adicionar cada categoria à notícia
+        const promises = categoriasIds.map((categoriaId: string) => 
+          storage.adicionarCategoriaNaNoticia(created.id, categoriaId)
+        );
+        
+        await Promise.all(promises);
+      }
+      
       res.status(201).json(created);
     } catch (error) {
       if (error instanceof z.ZodError) {
