@@ -11,7 +11,7 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
-  const { data: tags } = useQuery<any[]>({
+  const { data: tags } = useQuery({
     queryKey: ["/api/noticias", article.id, "tags"],
     enabled: !!article.id
   });
@@ -58,7 +58,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             há {formatDistanceToNow(new Date(article.publicadoEm), { locale: ptBR })}
           </div>
         </div>
-        {tags && Array.isArray(tags) && <TagList tags={tags} className="mt-3" />}
+        {tags && Array.isArray(tags) && <TagList tags={tags as any} className="mt-3" />}
       </div>
     </article>
   );
