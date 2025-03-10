@@ -33,7 +33,7 @@ export default function ArticlePage() {
 
   // Buscar dados da categoria
   const { data: categoria } = useQuery<Categoria>({
-    queryKey: [`/api/categorias`, noticia?.categoriaId],
+    queryKey: [`/api/categorias/${noticia?.categoriaId}`],
     enabled: !!noticia?.categoriaId
   });
 

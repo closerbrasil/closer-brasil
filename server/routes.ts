@@ -382,6 +382,28 @@ Chave: ${result.key}
     const categorias = await storage.getCategorias();
     res.json(categorias);
   });
+  
+  app.get("/api/categorias/:identificador", async (req, res) => {
+    const identificador = req.params.identificador;
+    
+    // Verifica se o identificador é um UUID (formato de ID)
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identificador);
+    
+    let categoria;
+    if (isUUID) {
+      // Se for UUID, busca por ID
+      categoria = await storage.getCategoriaPorId(identificador);
+    } else {
+      // Senão, busca por slug
+      categoria = await storage.getCategoriaPorSlug(identificador);
+    }
+    
+    if (!categoria) {
+      res.status(404).json({ message: "Categoria não encontrada" });
+      return;
+    }
+    res.json(categoria);
+  });
 
   app.post("/api/categorias", async (req, res) => {
     try {
