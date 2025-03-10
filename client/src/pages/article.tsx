@@ -177,7 +177,7 @@ export default function ArticlePage() {
 
       <article className="max-w-3xl mx-auto pt-8 px-4">
         {/* Breadcrumb no topo da página */}
-        <div className="mb-6">
+        <div className="mb-10">
           <SEOBreadcrumb items={breadcrumbItems} />
         </div>
 
