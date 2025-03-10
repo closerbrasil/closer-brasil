@@ -35,8 +35,8 @@ export default function ArticlePage() {
     enabled: !!noticia?.categoriaId
   });
 
-  const { data: tagsResponse } = useQuery<unknown>({
-    queryKey: ["/api/noticias", noticia?.id, "tags"],
+  const { data: tags } = useQuery<TagData[]>({
+    queryKey: [`/api/noticias/${noticia?.id}/tags`],
     enabled: !!noticia?.id
   });
   
@@ -48,16 +48,8 @@ export default function ArticlePage() {
     descricao?: string;
   }
   
-  // Verificar e converter os dados de tag para o formato esperado
-  const tags: TagData[] = tagsResponse && Array.isArray(tagsResponse) 
-    ? tagsResponse.filter((tag): tag is TagData => 
-        tag !== null && 
-        typeof tag === 'object' && 
-        'id' in tag && 
-        'nome' in tag && 
-        'slug' in tag
-      )
-    : [];
+  // Usar os dados de tags recebidos da API
+  const tagsData = tags || [];
 
   // Função para compartilhar o artigo no WhatsApp
   const shareOnWhatsApp = () => {
@@ -142,7 +134,7 @@ export default function ArticlePage() {
           url: `/autor/${autor.slug}`
         } : undefined}
         jsonLd={generateArticleLD(noticia, autor)}
-        keywords={tags.map(tag => tag.nome)}
+        keywords={tagsData.map(tag => tag.nome)}
         canonicalUrl={noticia.urlCanonica || undefined}
       />
 
