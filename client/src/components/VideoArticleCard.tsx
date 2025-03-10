@@ -39,13 +39,26 @@ export default function VideoArticleCard({ article, videoData: propVideoData }: 
   // Usar o ID do vídeo da API de vídeos ou extrair do conteúdo como fallback
   const videoId = videoData?.videoId || 
     (article.conteudo.match(/youtube\.com\/embed\/([^"&?/\s]+)/) || [])[1] || null;
-    
-  // Formatar visualizações de forma segura para evitar erros de TypeScript
-  const formatVisualizacoes = (count: number | null | undefined): string => {
-    if (typeof count === 'number' && count > 0) {
-      return count.toLocaleString('pt-BR');
-    }
-    return '0';
+  
+  // Extrair dados seguros do vídeo para evitar erros de TypeScript
+  const videoInfo = {
+    thumbnailUrl: videoData?.thumbnailUrl || undefined,
+    titulo: videoData?.titulo || undefined,
+    visualizacoes: typeof videoData?.visualizacoes === 'number' ? videoData.visualizacoes : 0,
+    duracao: typeof videoData?.duracao === 'number' ? videoData.duracao : 0
+  };
+
+  // Formatador de números para visualizações
+  const formatNumber = (num: number): string => {
+    return num > 0 ? num.toLocaleString('pt-BR') : '0';
+  };
+  
+  // Formatador de tempo para duração
+  const formatDuration = (seconds: number): string => {
+    if (seconds <= 0) return '';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -53,11 +66,11 @@ export default function VideoArticleCard({ article, videoData: propVideoData }: 
       {/* Miniatura do vídeo com marcação de reprodução */}
       <div className="relative aspect-video bg-gray-200 overflow-hidden">
         {/* Usar thumbnail do vídeo, se disponível, ou a imagem do artigo */}
-        {videoData?.thumbnailUrl || article.imageUrl ? (
+        {videoInfo.thumbnailUrl || article.imageUrl ? (
           <>
             <img 
-              src={videoData?.thumbnailUrl || article.imageUrl} 
-              alt={videoData?.titulo || article.titulo} 
+              src={videoInfo.thumbnailUrl || article.imageUrl} 
+              alt={videoInfo.titulo || article.titulo} 
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -67,10 +80,10 @@ export default function VideoArticleCard({ article, videoData: propVideoData }: 
             </div>
             
             {/* Exibir contador de visualizações se disponível */}
-            {videoData?.visualizacoes && videoData.visualizacoes > 0 && (
+            {videoInfo.visualizacoes > 0 && (
               <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs rounded px-2 py-1 flex items-center">
                 <Eye className="h-3 w-3 mr-1" />
-                {formatVisualizacoes(videoData.visualizacoes)}
+                {formatNumber(videoInfo.visualizacoes)}
               </div>
             )}
           </>
@@ -107,13 +120,11 @@ export default function VideoArticleCard({ article, videoData: propVideoData }: 
         {/* Metadados do vídeo */}
         <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
           {/* Usar duração do vídeo se disponível, ou tempo de leitura do artigo como fallback */}
-          {(videoData?.duracao || article.tempoLeitura) && (
+          {(videoInfo.duracao > 0 || article.tempoLeitura) && (
             <div className="flex items-center">
               <Clock className="h-3 w-3 mr-1" />
-              {videoData?.duracao ? (
-                <span>
-                  {Math.floor(videoData.duracao / 60)}:{(videoData.duracao % 60).toString().padStart(2, '0')}
-                </span>
+              {videoInfo.duracao > 0 ? (
+                <span>{formatDuration(videoInfo.duracao)}</span>
               ) : (
                 <span>{article.tempoLeitura}</span>
               )}
@@ -126,10 +137,10 @@ export default function VideoArticleCard({ article, videoData: propVideoData }: 
           </div>
           
           {/* Exibir visualizações aqui também como texto */}
-          {videoData?.visualizacoes && videoData.visualizacoes > 0 && (
+          {videoInfo.visualizacoes > 0 && (
             <div className="flex items-center">
               <Eye className="h-3 w-3 mr-1" />
-              <span>{formatVisualizacoes(videoData.visualizacoes)} visualizações</span>
+              <span>{formatNumber(videoInfo.visualizacoes)} visualizações</span>
             </div>
           )}
           
