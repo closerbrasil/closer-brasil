@@ -35,15 +35,6 @@ export default function ArticlePage() {
     enabled: !!noticia?.categoriaId
   });
 
-  interface TagsResponse {
-    data: TagData[];
-  }
-  
-  const { data: tags } = useQuery<TagsResponse>({
-    queryKey: [`/api/noticias/${noticia?.id}/tags`],
-    enabled: !!noticia?.id
-  });
-  
   // Interface para Tag compatível com a interface do ArticleCard
   interface TagData {
     id: string;
@@ -52,8 +43,13 @@ export default function ArticlePage() {
     descricao?: string;
   }
   
+  const { data: tags } = useQuery<TagData[]>({
+    queryKey: [`/api/noticias/${noticia?.id}/tags`],
+    enabled: !!noticia?.id
+  });
+  
   // Processar os dados de tags recebidos da API
-  const tagsData: TagData[] = tags?.data ? tags.data : [];
+  const tagsData: TagData[] = tags || [];
 
   // Função para compartilhar o artigo no WhatsApp
   const shareOnWhatsApp = () => {
