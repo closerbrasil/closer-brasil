@@ -598,7 +598,7 @@ export class DatabaseStorage implements IStorage {
       .from(videos)
       .limit(limit)
       .offset(offset)
-      .orderBy(desc(videos.criadoEm));
+      .orderBy(desc(videos.dataCriacao));
 
     return {
       videos: videosResult,
@@ -625,7 +625,7 @@ export class DatabaseStorage implements IStorage {
   async atualizarVideo(id: string, video: Partial<InsertVideo>): Promise<Video> {
     const [result] = await db
       .update(videos)
-      .set({ ...video, atualizadoEm: new Date() })
+      .set({ ...video, dataAtualizacao: new Date() })
       .where(eq(videos.id, id))
       .returning();
     return result;

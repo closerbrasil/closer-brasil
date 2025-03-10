@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";  // Adicionado import do express
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema, insertImagemSchema, insertTagSchema, InsertTag, InsertNoticia } from "@shared/schema";
+import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema, insertImagemSchema, insertTagSchema, insertVideoSchema, InsertTag, InsertNoticia, InsertVideo } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -792,6 +792,123 @@ Chave: ${result.key}
         error: errorMessage,
         success: false 
       });
+    }
+  });
+
+  // Rotas para vídeos
+  // Listar todos os vídeos com paginação
+  app.get("/api/videos", async (req, res) => {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const result = await storage.getVideos(page, limit);
+      res.json(result);
+    } catch (error) {
+      console.error("Erro ao buscar vídeos:", error);
+      res.status(500).json({ message: "Erro ao buscar vídeos" });
+    }
+  });
+
+  // Obter vídeos em destaque
+  app.get("/api/videos/destaque", async (req, res) => {
+    try {
+      const limit = Number(req.query.limit) || 5;
+      const videos = await storage.getVideosDestaque(limit);
+      res.json(videos);
+    } catch (error) {
+      console.error("Erro ao buscar vídeos em destaque:", error);
+      res.status(500).json({ message: "Erro ao buscar vídeos em destaque" });
+    }
+  });
+
+  // Obter vídeo específico por ID
+  app.get("/api/videos/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const video = await storage.getVideoPorNoticiaId(id);
+      
+      if (!video) {
+        return res.status(404).json({ message: "Vídeo não encontrado" });
+      }
+      
+      res.json(video);
+    } catch (error) {
+      console.error("Erro ao buscar vídeo:", error);
+      res.status(500).json({ message: "Erro ao buscar vídeo" });
+    }
+  });
+
+  // Obter vídeo relacionado a uma notícia
+  app.get("/api/noticias/:noticiaId/video", async (req, res) => {
+    try {
+      const noticiaId = req.params.noticiaId;
+      const video = await storage.getVideoPorNoticiaId(noticiaId);
+      
+      if (!video) {
+        return res.status(404).json({ message: "Vídeo não encontrado para esta notícia" });
+      }
+      
+      res.json(video);
+    } catch (error) {
+      console.error("Erro ao buscar vídeo da notícia:", error);
+      res.status(500).json({ message: "Erro ao buscar vídeo da notícia" });
+    }
+  });
+
+  // Criar novo vídeo
+  app.post("/api/videos", async (req, res) => {
+    try {
+      const videoData = insertVideoSchema.parse(req.body);
+      const created = await storage.criarVideo(videoData);
+      res.status(201).json(created);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Dados do vídeo inválidos", errors: error.errors });
+        return;
+      }
+      console.error("Erro ao criar vídeo:", error);
+      res.status(500).json({ message: "Erro ao criar vídeo" });
+    }
+  });
+
+  // Atualizar vídeo existente
+  app.put("/api/videos/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const videoData = insertVideoSchema.partial().parse(req.body);
+      const updated = await storage.atualizarVideo(id, videoData);
+      res.json(updated);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Dados do vídeo inválidos", errors: error.errors });
+        return;
+      }
+      console.error("Erro ao atualizar vídeo:", error);
+      res.status(500).json({ message: "Erro ao atualizar vídeo" });
+    }
+  });
+
+  // Deletar vídeo
+  app.delete("/api/videos/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      await storage.removerVideo(id);
+      res.status(204).end();
+    } catch (error) {
+      console.error("Erro ao remover vídeo:", error);
+      res.status(500).json({ message: "Erro ao remover vídeo" });
+    }
+  });
+
+  // Incrementar contagem de visualizações
+  app.post("/api/videos/:id/visualizacao", async (req, res) => {
+    try {
+      const id = req.params.id;
+      await storage.incrementarVisualizacao(id);
+      res.status(200).json({ message: "Visualização registrada com sucesso" });
+    } catch (error) {
+      console.error("Erro ao registrar visualização:", error);
+      res.status(500).json({ message: "Erro ao registrar visualização" });
     }
   });
 
