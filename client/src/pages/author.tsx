@@ -116,6 +116,22 @@ export default function AuthorPage() {
     );
   }
 
+  // Preparar breadcrumb para a página de autor
+  const breadcrumbItems: BreadcrumbItemType[] = [
+    { name: 'Início', url: '/' },
+    { name: 'Autores', url: '/autores' },
+    { name: autor.nome }
+  ];
+
+  // Gerar JSON-LD para breadcrumb
+  const breadcrumbLD = generateBreadcrumbLD(breadcrumbItems, window.location.href);
+  
+  // Combinar JSON-LD do autor com breadcrumb
+  const authorLd = generateAuthorJsonLd(autor);
+  const combinedJsonLd = Array.isArray(authorLd) 
+    ? [...authorLd, breadcrumbLD] 
+    : [authorLd, breadcrumbLD];
+
   return (
     <>
       <SEOHead
@@ -124,10 +140,15 @@ export default function AuthorPage() {
         type="profile"
         image={autor.avatarUrl}
         url={`${getSiteDomain()}/autor/${autor.slug}`}
-        jsonLd={generateAuthorJsonLd(autor)}
+        jsonLd={combinedJsonLd}
       />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <SEOBreadcrumb items={breadcrumbItems} />
+        </div>
+
         {/* Perfil do Autor */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-row items-start gap-6">

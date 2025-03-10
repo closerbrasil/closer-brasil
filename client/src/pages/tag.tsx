@@ -5,7 +5,8 @@ import ArticleCard from "@/components/ArticleCard";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Newspaper, Hash, TrendingUp } from "lucide-react";
-import { getSiteDomain } from "@/lib/seo";
+import { getSiteDomain, generateBreadcrumbLD } from "@/lib/seo";
+import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";
 
 export default function TagPage() {
   const [, params] = useRoute("/tag/:slug");
@@ -47,6 +48,17 @@ export default function TagPage() {
   }
 
   // Gerar JSON-LD para a página da tag
+  // Preparar breadcrumb para a página de tag
+  const breadcrumbItems: BreadcrumbItemType[] = [
+    { name: 'Início', url: '/' },
+    { name: 'Tags', url: '/tags' },
+    { name: tag?.nome || 'Tag' }
+  ];
+  
+  // Gerar o JSON-LD para a trilha de navegação
+  const breadcrumbLD = generateBreadcrumbLD(breadcrumbItems, window.location.href);
+
+  // Gerar JSON-LD para a página da tag
   const tagJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -55,7 +67,7 @@ export default function TagPage() {
     "url": `${getSiteDomain()}/tag/${slug}`,
     "mainEntity": {
       "@type": "ItemList",
-      "itemListElement": noticiasData?.noticias.map((noticia, index) => ({
+      "itemListElement": noticiasData?.noticias?.map((noticia, index) => ({
         "@type": "ListItem",
         "position": index + 1,
         "url": `${getSiteDomain()}/noticia/${noticia.slug}`,
@@ -65,6 +77,9 @@ export default function TagPage() {
     "keywords": [tag?.nome],
     "inLanguage": "pt-BR"
   };
+  
+  // Combinar os diferentes JSON-LD
+  const combinedJsonLd = [tagJsonLd, breadcrumbLD];
 
   const totalNoticias = noticiasData?.total || 0;
 
@@ -75,10 +90,15 @@ export default function TagPage() {
         description={tag?.descricao || `Confira os últimos artigos e notícias relacionados a ${tag?.nome}. Temos ${totalNoticias} publicações sobre este tema.`}
         type="website"
         keywords={[tag?.nome || "", "notícias", "artigos", "Brasil"]}
-        jsonLd={tagJsonLd}
+        jsonLd={combinedJsonLd}
       />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <SEOBreadcrumb items={breadcrumbItems} />
+        </div>
+        
         {/* Cabeçalho da página */}
         <div className="mb-10 border-b pb-6">
           <div className="flex items-center mb-2">
@@ -99,7 +119,7 @@ export default function TagPage() {
         </div>
 
         {/* Lista de artigos */}
-        {noticiasData?.noticias?.length > 0 ? (
+        {noticiasData?.noticias && noticiasData.noticias.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {noticiasData.noticias.map((noticia) => (
               <ArticleCard key={noticia.id} article={noticia} />
