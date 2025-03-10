@@ -35,7 +35,11 @@ export default function ArticlePage() {
     enabled: !!noticia?.categoriaId
   });
 
-  const { data: tags } = useQuery<TagData[]>({
+  interface TagsResponse {
+    data: TagData[];
+  }
+  
+  const { data: tags } = useQuery<TagsResponse>({
     queryKey: [`/api/noticias/${noticia?.id}/tags`],
     enabled: !!noticia?.id
   });
@@ -48,8 +52,8 @@ export default function ArticlePage() {
     descricao?: string;
   }
   
-  // Usar os dados de tags recebidos da API
-  const tagsData = tags || [];
+  // Processar os dados de tags recebidos da API
+  const tagsData: TagData[] = tags?.data ? tags.data : [];
 
   // Função para compartilhar o artigo no WhatsApp
   const shareOnWhatsApp = () => {
@@ -196,7 +200,7 @@ export default function ArticlePage() {
         </p>
 
         {/* Tags */}
-        {tags.length > 0 && <TagList tags={tags} className="mb-6" />}
+        {tagsData.length > 0 && <TagList tags={tagsData} className="mb-6" />}
 
         {/* Imagem principal */}
         <figure className="mb-8">
@@ -314,6 +318,14 @@ export default function ArticlePage() {
               </div>
             </div>
             <p className="text-gray-700">{autor.bio}</p>
+          </div>
+        )}
+
+        {/* Card de Tags */}
+        {tagsData.length > 0 && (
+          <div className="bg-gray-50 p-6 rounded-lg mb-12">
+            <h3 className="text-lg font-bold mb-4">Tags relacionadas</h3>
+            <TagList tags={tagsData} className="text-base" />
           </div>
         )}
 
