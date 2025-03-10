@@ -1,4 +1,4 @@
-import type { Noticia, Autor } from "@shared/schema";
+import type { Noticia, Autor, Categoria } from "@shared/schema";
 
 // Obter o domínio do site a partir de variáveis de ambiente ou usar um valor padrão
 export function getSiteDomain(): string {
@@ -24,6 +24,42 @@ export function cleanHtmlForDescription(html: string, maxLength = 160): string {
   return text.length > maxLength 
     ? text.substring(0, maxLength - 3) + '...'
     : text;
+}
+
+// Gera marcação BreadcrumbList para SEO conforme diretrizes Schema.org e Google
+export function generateBreadcrumbLD(
+  items: Array<{name: string; url?: string; position?: number}>, 
+  currentUrl: string
+): Record<string, any> {
+  const domain = getSiteDomain();
+  
+  // Assegurar que cada item tenha uma posição
+  const breadcrumbItems = items.map((item, index) => {
+    const position = item.position || index + 1;
+    const url = item.url ? (item.url.startsWith('http') ? item.url : `${domain}${item.url}`) : undefined;
+    
+    // Para o último item (página atual), não incluímos a propriedade "item" conforme recomendado
+    if (position === items.length) {
+      return {
+        "@type": "ListItem",
+        "position": position,
+        "name": item.name
+      };
+    }
+    
+    return {
+      "@type": "ListItem",
+      "position": position,
+      "name": item.name,
+      "item": url
+    };
+  });
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbItems
+  };
 }
 
 export function generateArticleLD(article: Noticia, autor?: Autor, tags?: Array<{nome: string}>) {

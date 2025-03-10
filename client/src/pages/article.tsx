@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
 import type { Noticia, Autor, Categoria } from "@shared/schema";
-import { generateArticleLD } from "@/lib/seo";
+import { generateArticleLD, generateBreadcrumbLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TagList } from "@/components/TagList";
 import { Comments } from "@/components/Comments";
 import { RelatedPosts } from "@/components/RelatedPosts";
+import { SEOBreadcrumb, BreadcrumbItemType } from "@/components/Breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Clock, Share2, Facebook, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
