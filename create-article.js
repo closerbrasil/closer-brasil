@@ -1,6 +1,54 @@
 import fetch from 'node-fetch';
 
-// Definindo o conteúdo HTML bem formatado para o novo artigo
+/**
+ * Função para revisar e formatar corretamente o conteúdo HTML do artigo
+ * para garantir compatibilidade com o componente ArticleContent
+ * @param {string} content - Conteúdo HTML original
+ * @returns {string} - Conteúdo HTML formatado corretamente
+ */
+function formatarConteudoArtigo(content) {
+  // Verifica se o conteúdo já está envolto na div com classe prose
+  if (!content.trim().startsWith('<div class="prose')) {
+    // Envolve o conteúdo com a div prose
+    return `<div class="prose max-w-none">${content}</div>`;
+  }
+  return content;
+}
+
+/**
+ * Função para verificar e corrigir problemas comuns de formatação HTML
+ * @param {string} content - Conteúdo HTML para verificar
+ * @returns {string} - Conteúdo HTML corrigido
+ */
+function corrigirProblemasFormatacao(content) {
+  let corrigido = content;
+  
+  // Corrigir espaçamento extra entre tags que pode causar problemas no Tailwind Typography
+  corrigido = corrigido.replace(/>\s+</g, '><');
+  
+  // Garantir que listas estejam formatadas corretamente
+  corrigido = corrigido.replace(/<ul>\s*<\/ul>/g, '');
+  corrigido = corrigido.replace(/<ol>\s*<\/ol>/g, '');
+  
+  // Garantir que todas as tags estejam fechadas corretamente
+  const tagsParaVerificar = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'span', 'ul', 'ol', 'li', 'blockquote', 'a'];
+  
+  tagsParaVerificar.forEach(tag => {
+    const tagAbertaRegex = new RegExp(`<${tag}[^>]*>`, 'g');
+    const tagFechadaRegex = new RegExp(`</${tag}>`, 'g');
+    
+    const tagAbertaMatch = corrigido.match(tagAbertaRegex);
+    const tagFechadaMatch = corrigido.match(tagFechadaRegex);
+    
+    if (tagAbertaMatch && tagFechadaMatch && tagAbertaMatch.length > tagFechadaMatch.length) {
+      console.warn(`Aviso: Tag <${tag}> não foi fechada corretamente no artigo.`);
+    }
+  });
+  
+  return corrigido;
+}
+
+// Definindo o conteúdo HTML do novo artigo
 const articleContent = `
 <h2>Inteligência Artificial na Educação: Transformando o Aprendizado</h2>
 
@@ -72,12 +120,30 @@ const articleContent = `
 <p>À medida que estas tecnologias continuam a evoluir, será fundamental encontrar o equilíbrio certo entre inovação tecnológica e valores educacionais tradicionais, garantindo que a tecnologia sirva como uma ferramenta para aprimorar — e não substituir — a experiência humana na educação.</p>
 `;
 
+// Preparar os dados do artigo
+function prepararArtigo(conteudo, dados) {
+  // Formatar o conteúdo HTML
+  const conteudoCorrigido = corrigirProblemasFormatacao(conteudo);
+  const conteudoFormatado = formatarConteudoArtigo(conteudoCorrigido);
+  
+  // Retornar o artigo com o conteúdo formatado
+  return {
+    ...dados,
+    conteudo: conteudoFormatado
+  };
+}
+
+// Função para gerar um slug único com timestamp
+function gerarSlugUnico(baseSlug) {
+  const timestamp = Date.now();
+  return `${baseSlug}-${timestamp}`;
+}
+
 // Dados do novo artigo
-const novoArtigo = {
+const dadosArtigo = {
   titulo: "Inteligência Artificial na Educação: Transformando o Aprendizado",
   resumo: "Descubra como a inteligência artificial está revolucionando o setor educacional com personalização de conteúdo, assistentes virtuais e análise preditiva. Conheça os benefícios e desafios desta transformação tecnológica.",
-  conteudo: articleContent,
-  slug: "inteligencia-artificial-na-educacao",
+  slug: gerarSlugUnico("inteligencia-artificial-na-educacao"),
   categoriaId: "f442c9ed-c6e4-4e87-918c-391df1bdb0dc", // ID da categoria Tecnologia
   autorId: "21b9a7d2-c8c6-40f5-b776-1a7327349a7a", // ID do autor João Silva
   imageUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1332&auto=format&fit=crop",
@@ -89,9 +155,18 @@ const novoArtigo = {
   metaDescricao: "Artigo sobre como a inteligência artificial está revolucionando a educação através de personalização, assistentes virtuais e análise preditiva de dados."
 };
 
+// Preparar o artigo com o conteúdo formatado
+const novoArtigo = prepararArtigo(articleContent, dadosArtigo);
+
 // Função para criar o artigo
 async function criarArtigo() {
   try {
+    console.log('Iniciando publicação do artigo...');
+    console.log('Revisando e formatando o conteúdo...');
+    
+    // O conteúdo já foi formatado na variável novoArtigo
+    
+    console.log('Enviando requisição para API...');
     const response = await fetch('http://localhost:5000/api/noticias', {
       method: 'POST',
       headers: {
@@ -100,12 +175,32 @@ async function criarArtigo() {
       body: JSON.stringify(novoArtigo),
     });
     
+    if (!response.ok) {
+      throw new Error(`Erro na resposta da API: ${response.status} ${response.statusText}`);
+    }
+    
     const data = await response.json();
-    console.log('Artigo criado com sucesso:', data);
+    console.log('Artigo criado com sucesso!');
+    console.log(`Título: ${data.titulo}`);
+    console.log(`ID: ${data.id}`);
+    console.log(`URL: /noticia/${data.slug}`);
+    
+    return data;
   } catch (error) {
     console.error('Erro ao criar artigo:', error);
+    throw error;
+  }
+}
+
+// Função principal que executa todo o processo
+async function publicarArtigo() {
+  try {
+    const resultado = await criarArtigo();
+    console.log(`Artigo "${resultado.titulo}" publicado com sucesso!`);
+  } catch (error) {
+    console.error('Falha ao publicar o artigo:', error.message);
   }
 }
 
 // Executar a função
-criarArtigo();
+publicarArtigo();
