@@ -6,6 +6,7 @@ import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TagList } from "@/components/TagList";
 import { Comments } from "@/components/Comments";
+import { RelatedPosts } from "@/components/RelatedPosts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Clock, Share2, Facebook, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -260,6 +261,15 @@ export default function ArticlePage() {
             <TagList tags={tagsData} className="text-base" />
           </div>
         )}
+
+        {/* Seção de posts relacionados */}
+        <div className="mb-8">
+          <RelatedPosts 
+            noticiaId={noticia.id} 
+            categoriaId={noticia.categoriaId} 
+            autorId={noticia.autorId}
+          />
+        </div>
 
         {/* Seção de comentários */}
         <div className="mt-12 pt-8 border-t">
