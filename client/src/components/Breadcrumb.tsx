@@ -54,8 +54,9 @@ export function SEOBreadcrumb({ items, className = '', showHomeIcon = true }: SE
         {items.map((item, index) => {
           const isLastItem = index === items.length - 1;
           
+          // Renderizar cada item diretamente em vez de usar Fragment
           return (
-            <React.Fragment key={item.name + index}>
+            <div key={`breadcrumb-group-${index}`} className="inline-flex items-center">
               <BreadcrumbItem>
                 {isLastItem || !item.url ? (
                   <BreadcrumbPage>{item.name}</BreadcrumbPage>
@@ -67,7 +68,7 @@ export function SEOBreadcrumb({ items, className = '', showHomeIcon = true }: SE
               </BreadcrumbItem>
               
               {!isLastItem && <BreadcrumbSeparator />}
-            </React.Fragment>
+            </div>
           );
         })}
       </BreadcrumbList>

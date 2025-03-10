@@ -74,7 +74,7 @@ export default function TagPage() {
         "name": noticia.titulo
       })) || []
     },
-    "keywords": [tag?.nome],
+    "keywords": [tag?.nome || ""],
     "inLanguage": "pt-BR"
   };
   

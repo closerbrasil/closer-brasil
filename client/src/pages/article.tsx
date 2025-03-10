@@ -135,6 +135,12 @@ export default function ArticlePage() {
       url: `/categoria/${categoria.slug}`,
     });
   }
+  
+  // Opcional: adicionar "Artigos" como nível intermediário
+  // breadcrumbItems.push({
+  //   name: 'Artigos',
+  //   url: '/artigos',
+  // });
 
   // Adicionar título do artigo como último item
   breadcrumbItems.push({
