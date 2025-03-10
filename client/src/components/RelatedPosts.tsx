@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar } from "lucide-react";
-import type { Noticia } from "@shared/schema";
+import type { Noticia, Categoria } from "@shared/schema";
 
 interface RelatedPostsProps {
   noticiaId: string;
@@ -17,16 +17,22 @@ export function RelatedPosts({
   autorId, 
   limit = 3 
 }: RelatedPostsProps) {
+  // Obter dados da categoria para a URL
+  const { data: categoria } = useQuery<Categoria>({
+    queryKey: [`/api/categorias`, categoriaId],
+    enabled: !!categoriaId,
+  });
+  
   // Buscar todas as notícias quando não temos categoria
   const { data: todasNoticias, isLoading: isLoadingTodas } = useQuery<{ noticias: Noticia[], total: number }>({
     queryKey: ['/api/noticias'],
     enabled: !categoriaId, // Só carrega se não tiver categoria específica
   });
   
-  // Buscar artigos relacionados pela mesma categoria
+  // Buscar artigos relacionados pela mesma categoria (precisamos do slug da categoria)
   const { data: noticiasCategoria, isLoading: isLoadingCategoria } = useQuery<{ noticias: Noticia[], total: number }>({
-    queryKey: [`/api/noticias/categoria/${categoriaId}`],
-    enabled: !!categoriaId, // Só carrega se tiver categoria
+    queryKey: [`/api/categorias/${categoria?.slug}/noticias`],
+    enabled: !!categoria?.slug, // Só carrega quando temos o slug da categoria
   });
 
   const isLoading = isLoadingTodas || isLoadingCategoria;
@@ -46,10 +52,9 @@ export function RelatedPosts({
   }
   
   // Determinar qual fonte de dados usar
-  const noticias = categoriaId ? noticiasCategoria : todasNoticias;
+  const noticias = categoria?.slug ? noticiasCategoria : todasNoticias;
   
   if (!noticias || !noticias.noticias || noticias.noticias.length === 0) {
-    console.log("Sem notícias para exibir");
     return null;
   }
   
@@ -59,7 +64,6 @@ export function RelatedPosts({
     .slice(0, limit);
     
   if (relatedPosts.length === 0) {
-    console.log("Sem posts relacionados após filtro");
     return null;
   }
 
@@ -70,10 +74,8 @@ export function RelatedPosts({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {relatedPosts.map((post) => (
           <div key={post.id} className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-            <div 
-              className="cursor-pointer" 
-              onClick={() => window.location.href = `/noticia/${post.slug}`}
-            >
+            <Link href={`/noticia/${post.slug}`}>
+              <div className="cursor-pointer">
               <div className="relative h-40 overflow-hidden">
                 <img 
                   src={post.imageUrl} 
@@ -96,6 +98,7 @@ export function RelatedPosts({
                 </p>
               </div>
             </div>
+            </Link>
           </div>
         ))}
       </div>
