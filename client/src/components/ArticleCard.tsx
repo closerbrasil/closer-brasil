@@ -6,15 +6,34 @@ import { TagList } from "./TagList";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+// Definir interface para Tag compatível com o que vem da API
+interface TagData {
+  id: string;
+  nome: string;
+  slug: string;
+  descricao?: string;
+}
+
 interface ArticleCardProps {
   article: Noticia;
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
-  const { data: tags } = useQuery({
+  const { data: tagsData } = useQuery<unknown>({
     queryKey: ["/api/noticias", article.id, "tags"],
     enabled: !!article.id
   });
+  
+  // Verificar e converter os dados de tag para o formato esperado
+  const tags: TagData[] = tagsData && Array.isArray(tagsData) 
+    ? tagsData.filter((tag): tag is TagData => 
+        tag !== null && 
+        typeof tag === 'object' && 
+        'id' in tag && 
+        'nome' in tag && 
+        'slug' in tag
+      )
+    : [];
 
   const { data: autor } = useQuery<Autor>({
     queryKey: ["/api/autores", article.autorId],
