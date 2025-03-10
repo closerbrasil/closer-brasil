@@ -36,11 +36,6 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       )
     : [];
 
-  const { data: autor } = useQuery<Autor>({
-    queryKey: ["/api/autores", article.autorId],
-    enabled: !!article.autorId
-  });
-  
   // Buscar categoria do artigo
   const { data: categoria } = useQuery<Categoria>({
     queryKey: [`/api/categorias/${article.categoriaId}`],
@@ -53,8 +48,9 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     enabled: true
   });
   
-  // Encontrar o autor correto pelo ID
-  const autorData = autor || (autores && autores.find(a => a.id === article.autorId));
+  // Encontrar o autor correto pelo ID usando apenas a lista completa de autores
+  // Isso evita fazer requisições individuais que podem falhar
+  const autorData = autores?.find(a => a.id === article.autorId);
 
   return (
     <article className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100">
