@@ -2,7 +2,6 @@ import { Link } from "wouter";
 import { Clock, Calendar, Play } from "lucide-react";
 import type { Noticia } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
-import { BookmarkButton } from "@/components/BookmarkButton";
 
 interface TagData {
   id: string;
@@ -104,16 +103,6 @@ export default function VideoArticleCard({ article }: VideoArticleCardProps) {
             </Link>
           )}
         </div>
-      </div>
-      
-      {/* Bookmark button */}
-      <div className="absolute top-3 right-3">
-        <BookmarkButton 
-          articleId={article.id} 
-          articleTitle={article.titulo}
-          size="sm"
-          className="bg-white/80 hover:bg-white text-gray-700"
-        />
       </div>
     </article>
   );
