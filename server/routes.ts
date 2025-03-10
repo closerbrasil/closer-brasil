@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";  // Adicionado import do express
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema, insertImagemSchema, insertTagSchema, InsertTag } from "@shared/schema";
+import { insertNoticiaSchema, insertCategoriaSchema, insertAutorSchema, insertComentarioSchema, insertImagemSchema, insertTagSchema, InsertTag, InsertNoticia } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -477,6 +477,11 @@ Chave: ${result.key}
       // Validar dados de atualização
       const atualizacao = req.body;
       
+      // Verificar se há atualização de imagem externa
+      if (atualizacao.imageUrl && typeof atualizacao.imageUrl === 'string') {
+        atualizacao.imageUrl = await processExternalImageUrl(atualizacao.imageUrl);
+      }
+      
       // Atualizar a notícia
       const noticiaAtualizada = await storage.atualizarNoticia(id, atualizacao);
       res.json(noticiaAtualizada);
@@ -513,17 +518,52 @@ Chave: ${result.key}
     res.json(noticias);
   });
 
+  // Função auxiliar para processar URLs de imagens externas
+  async function processExternalImageUrl(imageUrl: string): Promise<string> {
+    // Se a URL for externa e precisar ser baixada
+    if (imageUrl &&
+        (imageUrl.includes('oaidalleapiprodscus.blob.core.windows.net') || 
+         imageUrl.includes('openai.com') ||
+         imageUrl.includes('images.unsplash.com') ||
+         imageUrl.includes('googleapis.com'))) {
+      
+      try {
+        console.log("Processando URL de imagem externa:", imageUrl);
+        // Baixar a imagem para nosso Object Storage
+        const result = await downloadAndSaveImage(imageUrl);
+        console.log("Imagem processada e armazenada:", result.url);
+        return result.url;
+      } catch (err) {
+        console.error("Erro ao processar imagem externa:", err);
+        // Se falhar, manter a URL original
+        return imageUrl;
+      }
+    }
+    
+    // Se não for uma URL externa que precisamos processar, retornar a mesma URL
+    return imageUrl;
+  }
+
   app.post("/api/noticias", async (req, res) => {
     try {
-      const noticia = insertNoticiaSchema.parse(req.body);
-      const created = await storage.criarNoticia(noticia);
+      // Validar os dados com o schema
+      const noticiaData = insertNoticiaSchema.parse(req.body);
+      
+      // Processar a URL da imagem se for externa
+      if (noticiaData.imageUrl) {
+        noticiaData.imageUrl = await processExternalImageUrl(noticiaData.imageUrl);
+      }
+      
+      // Criar a notícia com a URL da imagem já processada
+      const created = await storage.criarNoticia(noticiaData);
       res.status(201).json(created);
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Dados da notícia inválidos", errors: error.errors });
         return;
       }
-      throw error;
+      console.error("Erro ao criar notícia:", error);
+      res.status(500).json({ message: "Erro ao criar notícia" });
     }
   });
 
@@ -699,7 +739,7 @@ Chave: ${result.key}
       }
       
       // Se a URL já for interna, retornar ela mesma
-      if (imageUrl.includes(process.env.SITE_DOMAIN) || 
+      if ((process.env.SITE_DOMAIN && imageUrl.includes(process.env.SITE_DOMAIN)) || 
           imageUrl.includes('localhost') || 
           imageUrl.includes('.repl.co')) {
         return res.json({
@@ -721,9 +761,13 @@ Chave: ${result.key}
       });
     } catch (error) {
       console.error("Erro ao baixar imagem:", error);
+      let errorMessage = "Erro ao processar a imagem";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       res.status(500).json({ 
         message: "Erro ao processar a imagem", 
-        error: error.message,
+        error: errorMessage,
         success: false 
       });
     }
