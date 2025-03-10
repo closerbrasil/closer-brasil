@@ -35,40 +35,35 @@ export function SEOBreadcrumb({ items, className = '', showHomeIcon = true }: SE
   return (
     <Breadcrumb className={className}>
       <BreadcrumbList>
-        {/* Início (opcional) */}
-        {showHomeIcon && (
-          <>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/">
-                  <HomeIcon className="h-4 w-4 mr-1" />
-                  <span className="sr-only">Página Inicial</span>
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-          </>
-        )}
-        
-        {/* Items do breadcrumb */}
+        {/* Items do breadcrumb começando pelo Início (home) se solicitado */}
         {items.map((item, index) => {
           const isLastItem = index === items.length - 1;
           
-          // Renderizar cada item diretamente em vez de usar Fragment
+          // Se for o primeiro item e showHomeIcon for true, mostrar ícone home
+          const isFirstItem = index === 0;
+          const showHomeForThis = isFirstItem && showHomeIcon && item.name.toLowerCase().includes('iníc');
+          
           return (
-            <div key={`breadcrumb-group-${index}`} className="inline-flex items-center">
+            <React.Fragment key={`breadcrumb-item-${index}`}>
+              {/* Adicionar separador antes dos itens (exceto o primeiro) */}
+              {!isFirstItem && <BreadcrumbSeparator />}
+              
               <BreadcrumbItem>
                 {isLastItem || !item.url ? (
                   <BreadcrumbPage>{item.name}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link href={item.url}>{item.name}</Link>
+                    <Link href={item.url}>
+                      {showHomeForThis ? (
+                        <HomeIcon className="h-4 w-4" />
+                      ) : (
+                        item.name
+                      )}
+                    </Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-              
-              {!isLastItem && <BreadcrumbSeparator />}
-            </div>
+            </React.Fragment>
           );
         })}
       </BreadcrumbList>
