@@ -25,6 +25,10 @@ export default function ArticlePage() {
     queryKey: [`/api/autores`, noticia?.autorId],
     enabled: !!noticia?.autorId
   });
+  
+  // Log para debug do autor ID e resultado da busca
+  console.log("AutorId da notícia:", noticia?.autorId);
+  console.log("Autor encontrado:", autor);
 
   // Buscar dados da categoria
   const { data: categoria } = useQuery<Categoria>({
