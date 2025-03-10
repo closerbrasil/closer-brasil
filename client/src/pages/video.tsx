@@ -292,11 +292,9 @@ export default function VideoPage() {
           {noticia.resumo}
         </p>
 
-        {/* Vídeo em destaque */}
-        <div className="youtube-featured-video mb-8" ref={videoRef}>
-          <div className="aspect-video article-youtube-wrapper">
-            {/* O conteúdo do vídeo será injetado aqui pelo ArticleContent */}
-          </div>
+        {/* Vídeo em destaque - Container direto sem wrappers extras */}
+        <div className="video-main-container mb-8" ref={videoRef}>
+          {/* O iframe do vídeo será injetado aqui pelo VideoContent */}
         </div>
 
         {/* Barra de ações - Botões de compartilhamento */}

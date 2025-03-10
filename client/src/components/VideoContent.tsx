@@ -17,6 +17,10 @@ export function VideoContent({ content, mainContainerRef }: VideoContentProps) {
       
       // Verificar se existem iframes de YouTube e se temos um container de referência para o vídeo principal
       if (youtubeIframes.length > 0 && mainContainerRef?.current) {
+        // Criar um container para vídeo que garante o formato adequado
+        const videoContainer = document.createElement('div');
+        videoContainer.className = 'video-main-container';
+        
         // Copiar o primeiro iframe para a seção de destaque
         const firstYoutubeIframe = youtubeIframes[0].cloneNode(true) as HTMLIFrameElement;
         
@@ -26,13 +30,22 @@ export function VideoContent({ content, mainContainerRef }: VideoContentProps) {
         // Adicionar classes ao iframe
         firstYoutubeIframe.classList.add('video-main-iframe');
         
-        // Adicionar o iframe ao container principal
-        mainContainerRef.current.appendChild(firstYoutubeIframe);
+        // Adicionar o container e depois o iframe ao container principal
+        mainContainerRef.current.appendChild(videoContainer);
+        videoContainer.appendChild(firstYoutubeIframe);
         
         // Remover o primeiro iframe do conteúdo para evitar duplicidade
         if (youtubeIframes[0].parentNode) {
           youtubeIframes[0].parentNode.removeChild(youtubeIframes[0]);
         }
+        
+        // Remover quaisquer imagens que possam estar presentes no container
+        const imgElements = contentRef.current.querySelectorAll('img');
+        imgElements.forEach(img => {
+          if (img.parentNode) {
+            img.parentNode.removeChild(img);
+          }
+        });
       }
       
       // Formatar os demais iframes do YouTube no conteúdo (se houver mais de um)
