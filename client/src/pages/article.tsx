@@ -3,6 +3,7 @@ import { useRoute, Link } from "wouter";
 import type { Noticia, Autor, Categoria } from "@shared/schema";
 import { generateArticleLD, generateBreadcrumbLD } from "@/lib/seo";
 import SEOHead from "@/components/SEOHead";
+import "../styles/article.css";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TagList } from "@/components/TagList";
 import { Comments } from "@/components/Comments";
@@ -252,7 +253,7 @@ export default function ArticlePage() {
 
         {/* Conteúdo principal */}
         <div
-          className="prose prose-lg max-w-none mb-12 prose-headings:mb-2 prose-img:rounded-lg prose-a:text-primary"
+          className="prose prose-lg max-w-none mb-12 prose-headings:font-bold prose-headings:mt-6 prose-headings:mb-4 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:my-4 prose-p:leading-relaxed prose-img:rounded-lg prose-a:text-primary prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-ul:my-4 prose-ol:my-4 prose-li:ml-4 prose-li:my-2"
           dangerouslySetInnerHTML={{ __html: noticia.conteudo }}
         />
 

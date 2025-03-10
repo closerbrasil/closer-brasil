@@ -1,46 +1,153 @@
-/* Estilos personalizados para artigos */
+/* Estilos específicos para artigos */
 
-/* Reduzir o espaçamento entre itens de listas - regra mais específica para ter maior prioridade */
-.prose ul li,
-.prose ol li,
-.prose-lg ul li,
-.prose-lg ol li {
-  margin-top: 0 !important;
-  margin-bottom: 0.25em !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+/* Estilização refinada para cabeçalhos */
+.prose h1 {
+  font-size: 2.25rem;
+  line-height: 1.2;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #1a202c;
 }
 
-/* Remover o espaçamento entre itens de lista adjacentes */
-.prose li + li,
-.prose-lg li + li {
-  margin-top: 0 !important;
+.prose h2 {
+  font-size: 1.75rem;
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #1a202c;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.5rem;
 }
 
-/* Ajustar espaçamento de listas aninhadas */
-.prose ul > li > ul,
-.prose ol > li > ol,
-.prose ul > li > ol,
-.prose ol > li > ul,
-.prose-lg ul > li > ul,
-.prose-lg ol > li > ol,
-.prose-lg ul > li > ol,
-.prose-lg ol > li > ul {
-  margin-top: 0.25em !important;
-  margin-bottom: 0.25em !important;
+.prose h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #1a202c;
 }
 
-/* Espaçamento geral de blocos de listas */
-.prose ul,
-.prose ol,
-.prose-lg ul,
-.prose-lg ol {
-  margin-top: 0.75em !important;
-  margin-bottom: 0.75em !important;
+.prose h4 {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #1a202c;
 }
 
-/* Espaços nos marcadores de lista e texto */
-.prose li::marker,
-.prose-lg li::marker {
-  margin-right: 0.5em !important;
+/* Parágrafos */
+.prose p {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+}
+
+/* Listas */
+.prose ul, .prose ol {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.25rem;
+}
+
+.prose li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.prose ul > li {
+  list-style-type: disc;
+}
+
+.prose ol > li {
+  list-style-type: decimal;
+}
+
+/* Estilização de citações/blockquotes */
+.prose blockquote {
+  font-style: italic;
+  border-left: 4px solid #e2e8f0;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  color: #4a5568;
+}
+
+/* Blocos de código */
+.prose pre {
+  background-color: #f7fafc;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.prose code {
+  background-color: #edf2f7;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  font-family: monospace;
+  font-size: 0.875em;
+}
+
+/* Tabelas */
+.prose table {
+  width: 100%;
+  table-layout: auto;
+  text-align: left;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-collapse: collapse;
+}
+
+.prose table th {
+  background-color: #f7fafc;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.prose table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Imagens */
+.prose img {
+  margin: 2rem auto;
+  border-radius: 0.375rem;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Figcaption */
+.prose figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #718096;
+  margin-top: -1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Links */
+.prose a {
+  color: #3182ce;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.prose a:hover {
+  text-decoration: underline;
+}
+
+/* Linhas horizontais */
+.prose hr {
+  border: 0;
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 3rem 0;
 }
