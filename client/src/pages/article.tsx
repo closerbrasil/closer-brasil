@@ -133,7 +133,7 @@ export default function ArticlePage() {
           name: autor.nome,
           url: `/autor/${autor.slug}`
         } : undefined}
-        jsonLd={generateArticleLD(noticia, autor)}
+        jsonLd={generateArticleLD(noticia, autor, tagsData)}
         keywords={tagsData.map(tag => tag.nome)}
         canonicalUrl={noticia.urlCanonica || undefined}
       />

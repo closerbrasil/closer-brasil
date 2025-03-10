@@ -26,7 +26,7 @@ export function cleanHtmlForDescription(html: string, maxLength = 160): string {
     : text;
 }
 
-export function generateArticleLD(article: Noticia, autor?: Autor) {
+export function generateArticleLD(article: Noticia, autor?: Autor, tags?: Array<{nome: string}>) {
   const domain = getSiteDomain();
   const articleUrl = `${domain}/noticia/${article.slug}`;
   const logoUrl = `${domain}/logo.png`;
@@ -60,6 +60,11 @@ export function generateArticleLD(article: Noticia, autor?: Autor) {
       ...(autor.bio && { "description": autor.bio })
     } : undefined;
   
+  // Prepara keywords a partir das tags se disponíveis
+  const keywords = tags && tags.length > 0 
+    ? tags.map(tag => tag.nome).join(', ')
+    : undefined;
+  
   // Estrutura JSON-LD completa para um artigo de notícias
   return {
     "@context": "https://schema.org",
@@ -90,6 +95,7 @@ export function generateArticleLD(article: Noticia, autor?: Autor) {
       Math.round(cleanHtmlForDescription(article.conteudo).split(/\s+/).length) : 
       undefined,
     "articleSection": article.categoriaId || undefined,
-    "timeRequired": article.tempoLeitura || "PT5M"
+    "timeRequired": article.tempoLeitura || "PT5M",
+    ...(keywords && { "keywords": keywords })
   };
 }
