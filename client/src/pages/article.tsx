@@ -21,14 +21,13 @@ export default function ArticlePage() {
   });
 
   // Buscar dados do autor quando tivermos o ID do autor da notícia
-  const { data: autor } = useQuery<Autor>({
-    queryKey: [`/api/autores`, noticia?.autorId],
+  const { data: autores } = useQuery<Autor[]>({
+    queryKey: [`/api/autores`],
     enabled: !!noticia?.autorId
   });
   
-  // Log para debug do autor ID e resultado da busca
-  console.log("AutorId da notícia:", noticia?.autorId);
-  console.log("Autor encontrado:", autor);
+  // Encontramos o autor específico da notícia pelo ID
+  const autor = autores?.find(a => a.id === noticia?.autorId);
 
   // Buscar dados da categoria
   const { data: categoria } = useQuery<Categoria>({
