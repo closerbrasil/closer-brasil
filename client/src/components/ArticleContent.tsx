@@ -14,10 +14,37 @@ export function ArticleContent({ content }: ArticleContentProps) {
       // Encontrar todos os iframes do YouTube no conteúdo
       const youtubeIframes = contentRef.current.querySelectorAll('iframe[src*="youtube.com"]');
       
-      // Aplicar classes e wrappers aos iframes do YouTube
+      // Verificar se existem iframes de YouTube
+      if (youtubeIframes.length > 0) {
+        // Preencher a seção de vídeo em destaque se existir
+        const featuredVideoSection = document.querySelector('.youtube-featured-video');
+        
+        if (featuredVideoSection) {
+          // Copiar o primeiro iframe para a seção de destaque
+          const firstYoutubeIframe = youtubeIframes[0].cloneNode(true) as HTMLIFrameElement;
+          
+          // Criar wrapper para manter proporção adequada
+          const featuredWrapper = document.createElement('div');
+          featuredWrapper.className = 'article-youtube-wrapper';
+          
+          // Criar container interno para o iframe
+          const featuredContainer = document.createElement('div');
+          featuredContainer.className = 'article-youtube-container';
+          
+          // Adicionar classes ao iframe
+          firstYoutubeIframe.classList.add('article-youtube-iframe');
+          
+          // Montar a estrutura
+          featuredWrapper.appendChild(featuredContainer);
+          featuredContainer.appendChild(firstYoutubeIframe);
+          featuredVideoSection.appendChild(featuredWrapper);
+        }
+      }
+      
+      // Aplicar classes e wrappers aos iframes do YouTube no conteúdo original
       youtubeIframes.forEach(iframe => {
         // Verificar se já está dentro de um wrapper
-        if (!iframe.parentElement?.classList.contains('article-youtube-wrapper')) {
+        if (!iframe.parentElement?.classList.contains('article-youtube-container')) {
           // Criar wrapper para manter proporção adequada
           const wrapper = document.createElement('div');
           wrapper.className = 'article-youtube-wrapper';

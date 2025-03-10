@@ -252,10 +252,16 @@ export default function ArticlePage() {
               <Button 
                 className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2"
                 onClick={() => {
-                  // Rolar até o primeiro vídeo do YouTube na página
-                  const videoElement = document.querySelector('.article-youtube-wrapper');
+                  // Rolar até o primeiro vídeo em destaque
+                  const videoElement = document.querySelector('.youtube-featured-video .article-youtube-wrapper');
                   if (videoElement) {
                     videoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  } else {
+                    // Se não encontrar o vídeo em destaque, tenta encontrar qualquer vídeo no conteúdo
+                    const contentVideo = document.querySelector('.article-youtube-wrapper');
+                    if (contentVideo) {
+                      contentVideo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                   }
                 }}
               >
@@ -290,8 +296,23 @@ export default function ArticlePage() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-lg"></div>
               
-              {/* Ícone de Play central grande */}
-              <div className="relative z-10 transform transition-transform hover:scale-110 cursor-pointer">
+              {/* Ícone de Play central grande (clicável para rolar até o vídeo) */}
+              <div 
+                className="relative z-10 transform transition-transform hover:scale-110 cursor-pointer"
+                onClick={() => {
+                  // Rolar até o primeiro vídeo em destaque
+                  const videoElement = document.querySelector('.youtube-featured-video .article-youtube-wrapper');
+                  if (videoElement) {
+                    videoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  } else {
+                    // Se não encontrar o vídeo em destaque, tenta encontrar qualquer vídeo no conteúdo
+                    const contentVideo = document.querySelector('.article-youtube-wrapper');
+                    if (contentVideo) {
+                      contentVideo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }
+                }}
+              >
                 <div className="bg-white/90 rounded-full p-8 shadow-xl">
                   <Play className="h-16 w-16 text-primary fill-primary" />
                 </div>
@@ -362,6 +383,17 @@ export default function ArticlePage() {
 
         {/* Conteúdo principal */}
         <div className="mb-12">
+          {/* Para artigos de vídeo, destacar o primeiro iFrame do YouTube antes do conteúdo se existir */}
+          {isVideoArticle && (
+            <div className="youtube-featured-video mb-8">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Play className="h-5 w-5 fill-primary text-primary" />
+                Vídeo em destaque
+              </h2>
+              {/* O conteúdo do artigo terá os iframes transformados pelo ArticleContent */}
+            </div>
+          )}
+          
           {/* Vamos usar nosso novo componente para renderizar o conteúdo formatado */}
           <ArticleContent content={noticia.conteudo} />
         </div>
