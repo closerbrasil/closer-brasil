@@ -53,6 +53,16 @@ export default function Navigation() {
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
+            {/* Link para vídeos no menu móvel */}
+            <Link 
+              href="/videos"
+              className="flex items-center py-2 text-primary font-medium"
+            >
+              <Film className="h-4 w-4 mr-2" />
+              Vídeos
+            </Link>
+            
+            {/* Categorias no menu móvel */}
             {categorias?.map((categoria) => (
               <Link 
                 key={categoria.id} 
