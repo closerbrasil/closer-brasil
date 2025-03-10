@@ -1,13 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Noticia } from "@shared/schema";
+import type { Noticia, Categoria } from "@shared/schema";
 import ArticleCard from "@/components/ArticleCard";
+import VideoArticleCard from "@/components/VideoArticleCard";
 import SEOHead from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Hero } from "@/components/layout/Hero";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 export default function Home() {
+  // Estado para armazenar a categoria de vídeo
+  const [videoCategoria, setVideoCategoria] = useState<Categoria | null>(null);
+
   // Buscar notícias destacadas
   const { data: destaqueData, isLoading: isLoadingDestaque } = useQuery<{ noticias: Noticia[] }>({
     queryKey: ["/api/noticias/destaque"],
@@ -25,6 +29,24 @@ export default function Home() {
     queryKey: ["/api/noticias"],
     enabled: true
   });
+
+  // Buscar todas as categorias
+  const { data: categorias } = useQuery<Categoria[]>({
+    queryKey: ["/api/categorias"],
+    enabled: true
+  });
+
+  // Encontrar a categoria de vídeo
+  useEffect(() => {
+    if (categorias) {
+      const videoCat = categorias.find(cat => 
+        cat.slug === 'video' || cat.nome.toLowerCase() === 'vídeo' || cat.nome.toLowerCase() === 'video'
+      );
+      if (videoCat) {
+        setVideoCategoria(videoCat);
+      }
+    }
+  }, [categorias]);
 
   // Filtra as notícias para evitar duplicações com as notícias destacadas e trending
   const noticiasUnicas = useMemo(() => {
@@ -73,9 +95,17 @@ export default function Home() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                {noticiasUnicas.map((noticia) => (
-                  <ArticleCard key={noticia.id} article={noticia} />
-                ))}
+                {noticiasUnicas.map((noticia) => {
+                  // Verificar se é um artigo da categoria vídeo
+                  const isVideoArticle = videoCategoria && noticia.categoriaId === videoCategoria.id;
+                  
+                  // Renderizar o card apropriado com base na categoria
+                  return isVideoArticle ? (
+                    <VideoArticleCard key={noticia.id} article={noticia} />
+                  ) : (
+                    <ArticleCard key={noticia.id} article={noticia} />
+                  );
+                })}
               </div>
             )}
           </main>
