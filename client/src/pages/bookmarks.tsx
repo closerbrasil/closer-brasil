@@ -3,6 +3,7 @@ import { useBookmarks } from "@/hooks/use-bookmarks";
 import ArticleCard from "@/components/ArticleCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import SEOHead from "@/components/SEOHead";
+import { SEOBreadcrumb } from "@/components/Breadcrumb";
 import { Bookmark } from "lucide-react";
 import type { Noticia } from "@shared/schema";
 
