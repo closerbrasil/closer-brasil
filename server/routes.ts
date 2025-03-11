@@ -7,7 +7,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { uploadFile, getFile, downloadAndSaveImage } from "./objectStorage";
+import { uploadFile, getFile, downloadAndSaveImage } from "./blobStorage";
 
 // Configurar o multer para armazenar temporariamente os arquivos
 const upload = multer({
@@ -30,82 +30,22 @@ export async function registerRoutes(app: Express) {
   app.get("/api/config/domain", (_req, res) => {
     const siteDomain = process.env.SITE_DOMAIN || "Não configurado";
     
-    // Tratamento seguro para a variável REPLIT_DOMAINS
-    let replDomains = null;
-    try {
-      if (process.env.REPLIT_DOMAINS) {
-        if (process.env.REPLIT_DOMAINS.startsWith('[') && process.env.REPLIT_DOMAINS.endsWith(']')) {
-          // Provavelmente é um array JSON válido
-          replDomains = JSON.parse(process.env.REPLIT_DOMAINS);
-        } else {
-          // Provavelmente é uma string simples, não um JSON
-          replDomains = process.env.REPLIT_DOMAINS;
-        }
-      }
-    } catch (error) {
-      console.error("Erro ao analisar REPLIT_DOMAINS:", error);
-      replDomains = process.env.REPLIT_DOMAINS; // Usar o valor bruto se falhar
-    }
-    
-    const replId = process.env.REPL_ID || "Não disponível";
-    const replSlug = process.env.REPL_SLUG || "Não disponível";
-    const replOwner = process.env.REPL_OWNER || "Não disponível";
-    
     // Determinar o domínio que está sendo usado atualmente
     function getBaseUrl(): string {
-      let baseUrl: string;
-      
-      // Verificar primeiro se existe uma variável de ambiente configurada para o domínio
+      // Verificar se existe uma variável de ambiente configurada para o domínio
       if (process.env.SITE_DOMAIN) {
         // Remover qualquer barra no final da URL para evitar dupla barra
-        baseUrl = process.env.SITE_DOMAIN.replace(/\/+$/, '');
-      }
-      // No ambiente Replit, usar o domínio do Replit no formato correto
-      else if (process.env.REPL_ID) {
-        // Use a variável de ambiente REPLIT_DOMAINS se estiver disponível
-        if (process.env.REPLIT_DOMAINS) {
-          try {
-            const domains = JSON.parse(process.env.REPLIT_DOMAINS);
-            if (domains && domains.length > 0) {
-              baseUrl = `https://${domains[0]}`;
-            } else {
-              baseUrl = `https://closerbrasil.com`;
-            }
-          } catch (error) {
-            console.error("Erro ao analisar REPLIT_DOMAINS:", error);
-            // Se a variável existe mas não pode ser analisada, usar como string direta
-            if (typeof process.env.REPLIT_DOMAINS === 'string' && process.env.REPLIT_DOMAINS.startsWith('http')) {
-              baseUrl = process.env.REPLIT_DOMAINS;
-            } else {
-              baseUrl = `https://closerbrasil.com`;
-            }
-          }
-        } else {
-          // Fallback para closerbrasil.com como solicitado
-          baseUrl = `https://closerbrasil.com`;
-        }
-      } 
-      // Fallback para o formato antigo ou desenvolvimento local
-      else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-        baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-      }
-      // Em desenvolvimento local, usar localhost
-      else {
-        baseUrl = 'http://localhost:5000';
+        return process.env.SITE_DOMAIN.replace(/\/+$/, '');
       }
       
-      return baseUrl;
+      // Em desenvolvimento local, usar localhost
+      const port = process.env.PORT || 3000;
+      return `http://localhost:${port}`;
     }
     
     res.json({
       configuredDomain: siteDomain,
       activeBaseUrl: getBaseUrl(),
-      replitInfo: {
-        domains: replDomains,
-        id: replId,
-        slug: replSlug,
-        owner: replOwner
-      },
       environment: process.env.NODE_ENV || "development"
     });
   });
@@ -240,6 +180,31 @@ Chave: ${result.key}
       });
     }
   });
+
+  // Rota de teste para o Vercel Blob Storage (adicionar próximo às outras rotas de API)
+  app.get("/api/test-blob", async (_req, res) => {
+    try {
+      // Criar um buffer de teste
+      const buffer = Buffer.from("Teste de upload para o Vercel Blob");
+      
+      // Fazer upload do buffer
+      const result = await uploadFile(buffer, "test.txt", "text/plain");
+      
+      res.json({
+        success: true,
+        message: "Upload para o Vercel Blob Storage realizado com sucesso",
+        result
+      });
+    } catch (error) {
+      console.error("Erro ao testar o Vercel Blob Storage:", error);
+      res.status(500).json({
+        success: false,
+        message: "Erro ao testar o Vercel Blob Storage",
+        error: error instanceof Error ? error.message : 'Erro desconhecido'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // Endpoint para upload de imagem usando Object Storage

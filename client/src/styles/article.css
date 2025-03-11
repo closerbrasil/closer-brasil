@@ -44,6 +44,7 @@
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
   line-height: 1.8;
+  font-weight: normal;
 }
 
 /* Listas */
@@ -57,6 +58,7 @@
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   line-height: 1.6;
+  font-weight: normal;
 }
 
 .prose ul > li {
@@ -75,6 +77,7 @@
   margin-left: 0;
   margin-right: 0;
   color: #4a5568;
+  font-weight: normal;
 }
 
 /* Blocos de código */
@@ -92,6 +95,7 @@
   padding: 0.125rem 0.25rem;
   font-family: monospace;
   font-size: 0.875em;
+  font-weight: normal;
 }
 
 /* Tabelas */
@@ -114,6 +118,7 @@
 .prose table td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #e2e8f0;
+  font-weight: normal;
 }
 
 /* Imagens */
@@ -131,6 +136,26 @@
   color: #718096;
   margin-top: -1.5rem;
   margin-bottom: 2rem;
+}
+
+/* Estilo para figcaption sobreposto à imagem */
+figure.has-overlay-credit {
+  position: relative;
+}
+
+figure.has-overlay-credit figcaption {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  margin: 0;
+  text-align: right;
+  border-top-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  font-size: 0.75rem;
+  max-width: 100%;
 }
 
 /* Links */

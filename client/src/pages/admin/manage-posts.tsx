@@ -165,26 +165,25 @@ export default function ManagePostsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="ghost" size="icon" asChild title="Visualizar">
-                              <Link href={`/noticia/${noticia.slug}`}>
-                                <Eye className="h-4 w-4" />
+                            <Button variant="link" size="icon" asChild title="Visualizar">
+                              <Link href={`/article/${noticia.slug}`} target="_blank">
+                                <Eye className="h-4 w-4 text-black" />
                                 <span className="sr-only">Visualizar</span>
                               </Link>
                             </Button>
-                            <Button variant="ghost" size="icon" asChild title="Editar">
+                            <Button variant="link" size="icon" asChild title="Editar">
                               <Link href={`/admin/edit-post/${noticia.id}`}>
-                                <FileEdit className="h-4 w-4" />
+                                <FileEdit className="h-4 w-4 text-black" />
                                 <span className="sr-only">Editar</span>
                               </Link>
                             </Button>
                             <Button 
-                              variant="ghost" 
+                              variant="link" 
                               size="icon" 
                               onClick={() => handleDeleteClick(noticia.id)}
-                              className="text-red-600 hover:text-red-800"
                               title="Excluir"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4 text-red-500" />
                               <span className="sr-only">Excluir</span>
                             </Button>
                           </div>
@@ -214,14 +213,14 @@ export default function ManagePostsPage() {
                       <p>Data: {new Date(noticia.publicadoEm).toLocaleDateString("pt-BR")}</p>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" asChild className="h-8 px-2 text-xs">
-                          <Link href={`/noticia/${noticia.slug}`}>
-                            <Eye className="h-3 w-3 mr-1" />
+                          <Link href={`/article/${noticia.slug}`} target="_blank">
+                            <Eye className="h-3 w-3 mr-1 text-black" />
                             Ver
                           </Link>
                         </Button>
                         <Button variant="outline" size="sm" asChild className="h-8 px-2 text-xs">
                           <Link href={`/admin/edit-post/${noticia.id}`}>
-                            <FileEdit className="h-3 w-3 mr-1" />
+                            <FileEdit className="h-3 w-3 mr-1 text-black" />
                             Editar
                           </Link>
                         </Button>
@@ -231,7 +230,7 @@ export default function ManagePostsPage() {
                           className="h-8 px-2 text-xs text-red-600 border-red-200 hover:bg-red-50"
                           onClick={() => handleDeleteClick(noticia.id)}
                         >
-                          <Trash2 className="h-3 w-3 mr-1" />
+                          <Trash2 className="h-3 w-3 mr-1 text-red-600" />
                           Excluir
                         </Button>
                       </div>

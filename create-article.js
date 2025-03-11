@@ -23,6 +23,10 @@ function formatarConteudoArtigo(content) {
 function corrigirProblemasFormatacao(content) {
   let corrigido = content;
   
+  // Remover tags de negrito (strong e b)
+  corrigido = corrigido.replace(/<\/?strong[^>]*>/g, '');
+  corrigido = corrigido.replace(/<\/?b[^>]*>/g, '');
+  
   // Corrigir espaçamento extra entre tags que pode causar problemas no Tailwind Typography
   corrigido = corrigido.replace(/>\s+</g, '><');
   

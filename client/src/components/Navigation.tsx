@@ -1,14 +1,26 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Categoria } from "@shared/schema";
-import { Menu, Film } from "lucide-react";
-import { useState } from "react";
+import { Film } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: categorias } = useQuery<Categoria[]>({
     queryKey: ["/api/categorias"],
   });
+
+  // Prevenir scroll quando o menu mobile está aberto
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -43,35 +55,51 @@ export default function Navigation() {
 
           {/* Mobile menu button */}
           <button 
-            className="md:hidden"
+            className="md:hidden p-2 focus:outline-none"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
           >
-            <Menu className="h-6 w-6" />
+            {isMenuOpen ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 12H21" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 6H21" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 18H21" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
           </button>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu - fixo na tela quando aberto */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100">
-            {/* Link para vídeos no menu móvel */}
-            <Link 
-              href="/videos"
-              className="flex items-center py-2 text-primary font-medium"
-            >
-              <Film className="h-4 w-4 mr-2" />
-              Vídeos
-            </Link>
-            
-            {/* Categorias no menu móvel */}
-            {categorias?.map((categoria) => (
+          <div className="fixed inset-0 top-16 bg-black z-40 overflow-y-auto pt-4 px-4">
+            <div className="container mx-auto">
+              {/* Link para vídeos no menu móvel */}
               <Link 
-                key={categoria.id} 
-                href={`/categoria/${categoria.slug}`}
-                className="block py-2 text-gray-600 hover:text-black transition-colors"
+                href="/videos"
+                className="flex items-center py-3 text-white font-medium border-b border-gray-800"
+                onClick={() => setIsMenuOpen(false)}
               >
-                {categoria.nome}
+                <Film className="h-5 w-5 mr-2" />
+                Vídeos
               </Link>
-            ))}
+              
+              {/* Categorias no menu móvel */}
+              {categorias?.map((categoria) => (
+                <Link 
+                  key={categoria.id} 
+                  href={`/categoria/${categoria.slug}`}
+                  className="block py-3 text-white hover:text-gray-300 transition-colors border-b border-gray-800"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {categoria.nome}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>

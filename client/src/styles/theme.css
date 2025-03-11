@@ -1,0 +1,657 @@
+/* Tema preto e branco de alto contraste */
+:root {
+  /* Base */
+  --background: 0 0% 100%;  /* Branco puro */
+  --foreground: 0 0% 0%;    /* Preto puro */
+  
+  /* Cartões e sobreposições */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  
+  /* Botões e interações */
+  --primary: 0 0% 0%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 0%;
+  
+  /* Interface de usuário */
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 0 0% 90%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84% 40%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Bordas e elementos de formulário */
+  --border: 0 0% 85%;
+  --input: 0 0% 85%;
+  --ring: 0 0% 0%;
+  
+  /* Gráficos */
+  --chart-1: 240 80% 50%;
+  --chart-2: 0 80% 50%;
+  --chart-3: 120 80% 50%;
+  --chart-4: 60 80% 50%;
+  --chart-5: 300 80% 50%;
+  
+  /* Barra lateral */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 0 0% 0%;
+  --sidebar-primary: 0 0% 0%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 90%;
+  --sidebar-accent-foreground: 0 0% 0%;
+  --sidebar-border: 0 0% 85%;
+  --sidebar-ring: 0 0% 0%;
+  
+  /* Outros */
+  --radius: 0.5rem;
+}
+
+/* Correções gerais para garantir visibilidade */
+body, 
+div, 
+span, 
+p, 
+h1, h2, h3, h4, h5, h6, 
+a, 
+button, 
+input, 
+select, 
+textarea, 
+label {
+  color: hsl(var(--foreground));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* Correções para elementos de interface específicos */
+.shadcn-form-label,
+.shadcn-field-label,
+.shadcn-button,
+.shadcn-form-control,
+input,
+select,
+textarea,
+button {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Corrigir inputs com fundo transparente */
+input, 
+select, 
+textarea {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+/* Forçar cores de fundo */
+.bg-card, 
+.bg-background, 
+.bg-popover {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Melhorar visibilidade de textos em componentes */
+.text-foreground {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Garantir que botões tenham texto legível */
+.bg-primary {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+button,
+.btn {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground)) !important;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+button:hover,
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* Correções para links */
+a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* Correções para tabelas */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table th, 
+table td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem;
+}
+
+table th {
+  background-color: hsl(var(--muted));
+}
+
+/* Correções específicas para a área de administração */
+/* Admin - Barra lateral */
+.admin-sidebar {
+  background-color: hsl(var(--sidebar-background));
+  color: hsl(var(--sidebar-foreground));
+  border-right: 1px solid hsl(var(--border));
+}
+
+.admin-sidebar a {
+  color: hsl(var(--sidebar-foreground));
+  text-decoration: none;
+}
+
+.admin-sidebar a:hover {
+  background-color: hsl(var(--sidebar-accent));
+}
+
+.admin-sidebar .active {
+  background-color: hsl(var(--sidebar-primary));
+  color: hsl(var(--sidebar-primary-foreground));
+}
+
+/* Admin - Formulários */
+.admin-form-control label {
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.admin-form-control input,
+.admin-form-control textarea,
+.admin-form-control select {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem;
+  width: 100%;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* Admin - Botões */
+.admin-button {
+  padding: 0.5rem 1rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground)) !important;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.admin-button-secondary {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground)) !important;
+}
+
+.admin-button-destructive {
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground)) !important;
+}
+
+/* Admin - Tabelas */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  text-align: left;
+  padding: 0.75rem 1rem;
+}
+
+.admin-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.admin-table tr:hover {
+  background-color: hsl(var(--accent));
+}
+
+/* Correções para o editor de texto */
+.tiptap {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1rem;
+  min-height: 200px;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.tiptap-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background-color: hsl(var(--muted));
+  border-radius: var(--radius);
+}
+
+.tiptap-toolbar button {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.tiptap-toolbar button.is-active {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Corrigir problemas de contraste em modais e dropdowns */
+.modal, 
+.dropdown-content {
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+}
+
+/* Garantir visibilidade nas mensagens de feedback */
+.alert,
+.notification,
+.toast {
+  border: 1px solid hsl(var(--border));
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius);
+}
+
+.alert-error,
+.notification-error {
+  background-color: hsl(var(--destructive) / 0.1);
+  border-color: hsl(var(--destructive));
+  color: hsl(var(--destructive));
+}
+
+.alert-success,
+.notification-success {
+  background-color: hsl(120 84% 40% / 0.1);
+  border-color: hsl(120 84% 40%);
+  color: hsl(120 84% 40%);
+}
+
+/* Correções para componentes específicos shadcn */
+.dialog-content, 
+.popover-content,
+.dropdown-menu-content,
+.select-content {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+/* Corrigir problema com textos em dropdowns e menus */
+.dropdown-menu-item,
+.select-item,
+.command-item {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Melhorar visibilidade de placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 1 !important;
+}
+
+/* Corrigir elementos sobrepostos (z-index) */
+.modal,
+.popover,
+.dropdown-menu,
+.select,
+.toast {
+  z-index: 50 !important;
+}
+
+/* Correções específicas para os componentes de administração */
+/* Formulários de administração */
+/* Os inputs da página de autores, categorias, etc. */
+.admin-input,
+[class*="authors"] input,
+[class*="tags"] input,
+[class*="categories"] input,
+[class*="post"] input,
+[class*="comments"] input {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+  padding: 8px !important;
+  border-radius: 4px !important;
+  width: 100% !important;
+}
+
+/* Selects e textareas */
+.admin-select,
+.admin-textarea,
+[class*="authors"] select,
+[class*="tags"] select,
+[class*="categories"] select,
+[class*="post"] select,
+[class*="comments"] select,
+[class*="authors"] textarea,
+[class*="tags"] textarea,
+[class*="categories"] textarea,
+[class*="post"] textarea,
+[class*="comments"] textarea {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+  padding: 8px !important;
+  border-radius: 4px !important;
+  width: 100% !important;
+}
+
+/* Botões de administração */
+.admin-button,
+[class*="authors"] button,
+[class*="tags"] button,
+[class*="categories"] button,
+[class*="post"] button,
+[class*="comments"] button {
+  background-color: black !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+}
+
+/* Botões secundários */
+.admin-button-secondary,
+[class*="authors"] button[class*="secondary"],
+[class*="tags"] button[class*="secondary"],
+[class*="categories"] button[class*="secondary"],
+[class*="post"] button[class*="secondary"],
+[class*="comments"] button[class*="secondary"] {
+  background-color: #e0e0e0 !important;
+  color: black !important;
+}
+
+/* Botões de cancelar ou excluir */
+.admin-button-destructive,
+[class*="authors"] button[class*="destructive"],
+[class*="tags"] button[class*="destructive"],
+[class*="categories"] button[class*="destructive"],
+[class*="post"] button[class*="destructive"],
+[class*="comments"] button[class*="destructive"] {
+  background-color: #d32f2f !important;
+  color: white !important;
+}
+
+/* Tabelas de administração */
+.admin-table,
+[class*="authors"] table,
+[class*="tags"] table,
+[class*="categories"] table,
+[class*="post"] table,
+[class*="comments"] table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border: 1px solid #ccc !important;
+}
+
+.admin-table th,
+[class*="authors"] table th,
+[class*="tags"] table th,
+[class*="categories"] table th,
+[class*="post"] table th,
+[class*="comments"] table th {
+  background-color: #f0f0f0 !important;
+  color: black !important;
+  font-weight: bold !important;
+  text-align: left !important;
+  padding: 8px !important;
+  border: 1px solid #ccc !important;
+}
+
+.admin-table td,
+[class*="authors"] table td,
+[class*="tags"] table td,
+[class*="categories"] table td,
+[class*="post"] table td,
+[class*="comments"] table td {
+  padding: 8px !important;
+  border: 1px solid #ccc !important;
+  color: black !important;
+}
+
+.admin-table tr:nth-child(even),
+[class*="authors"] table tr:nth-child(even),
+[class*="tags"] table tr:nth-child(even),
+[class*="categories"] table tr:nth-child(even),
+[class*="post"] table tr:nth-child(even),
+[class*="comments"] table tr:nth-child(even) {
+  background-color: #f9f9f9 !important;
+}
+
+/* Modais e caixas de diálogo */
+.admin-modal,
+[class*="dialog"],
+[class*="modal"] {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+  padding: 16px !important;
+}
+
+/* Overlay de modais */
+.admin-modal-overlay,
+[class*="dialog-overlay"],
+[class*="modal-overlay"] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Corrigir problemas específicos com o editor TipTap */
+.tiptap-editor {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  padding: 16px !important;
+  min-height: 200px !important;
+}
+
+.tiptap-editor-toolbar {
+  background-color: #f0f0f0 !important;
+  border-bottom: 1px solid #ccc !important;
+  padding: 8px !important;
+  display: flex !important;
+  gap: 4px !important;
+}
+
+.tiptap-editor-toolbar button {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+}
+
+.tiptap-editor-toolbar button.is-active {
+  background-color: black !important;
+  color: white !important;
+}
+
+/* Correções específicas para a página de gerenciamento de autores */
+/* Formulário de adição/edição de autor */
+[id*="autor"],
+[id*="Autor"],
+[id*="author"],
+[id*="Author"],
+[class*="autor"],
+[class*="Autor"],
+[class*="author"],
+[class*="Author"] {
+  background-color: white !important;
+  color: black !important;
+}
+
+/* Inputs e campos do formulário de autores */
+[id*="autor"] input,
+[id*="Autor"] input,
+[id*="author"] input,
+[id*="Author"] input,
+[class*="autor"] input,
+[class*="Autor"] input,
+[class*="author"] input,
+[class*="Author"] input,
+input[name="nome"],
+input[name="slug"],
+input[name="cargo"],
+input[name="email"],
+textarea[name="biografia"],
+input[name*="twitter"],
+input[name*="linkedin"] {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+  padding: 8px !important;
+  border-radius: 4px !important;
+  width: 100% !important;
+  font-size: 14px !important;
+}
+
+/* Botões da página de autores */
+[id*="autor"] button,
+[id*="Autor"] button,
+[id*="author"] button,
+[id*="Author"] button,
+[class*="autor"] button,
+[class*="Autor"] button,
+[class*="author"] button,
+[class*="Author"] button,
+button[id*="criar"],
+button[id*="Criar"],
+button[id*="create"],
+button[id*="Create"],
+button[class*="criar"],
+button[class*="Criar"],
+button[class*="create"],
+button[class*="Create"] {
+  background-color: black !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+}
+
+/* Botão de cancelar */
+button[id*="cancelar"],
+button[id*="Cancelar"],
+button[id*="cancel"],
+button[id*="Cancel"],
+button[class*="cancelar"],
+button[class*="Cancelar"],
+button[class*="cancel"],
+button[class*="Cancel"] {
+  background-color: #e0e0e0 !important;
+  color: black !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+}
+
+/* Titulo e textos explicativos */
+h1, h2, h3, h4, h5, h6,
+[id*="title"],
+[id*="Title"],
+[class*="title"],
+[class*="Title"],
+[id*="heading"],
+[id*="Heading"],
+[class*="heading"],
+[class*="Heading"] {
+  color: black !important;
+  font-weight: bold !important;
+}
+
+/* Tabela de autores */
+table,
+[id*="table"],
+[id*="Table"],
+[class*="table"],
+[class*="Table"] {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  border: 1px solid #ccc !important;
+}
+
+table th,
+[id*="table"] th,
+[id*="Table"] th,
+[class*="table"] th,
+[class*="Table"] th {
+  background-color: #f0f0f0 !important;
+  color: black !important;
+  font-weight: bold !important;
+  text-align: left !important;
+  padding: 8px !important;
+  border: 1px solid #ccc !important;
+}
+
+table td,
+[id*="table"] td,
+[id*="Table"] td,
+[class*="table"] td,
+[class*="Table"] td {
+  padding: 8px !important;
+  border: 1px solid #ccc !important;
+  color: black !important;
+}
+
+/* Itens específicos vista na tela */
+input[placeholder*="Mizael"],
+input[placeholder*="mizael"],
+input[placeholder*="jornalista"],
+input[placeholder*="Jornalista"],
+input[placeholder*="email"],
+input[placeholder*="Email"],
+input[placeholder*="twitter"],
+input[placeholder*="Twitter"],
+input[placeholder*="linkedin"],
+input[placeholder*="LinkedIn"],
+textarea[placeholder*="biografia"],
+textarea[placeholder*="Biografia"] {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+} 

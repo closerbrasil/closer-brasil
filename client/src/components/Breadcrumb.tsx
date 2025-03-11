@@ -33,8 +33,8 @@ export function SEOBreadcrumb({ items, className = '', showHomeIcon = true }: SE
   }
 
   return (
-    <Breadcrumb className={className}>
-      <BreadcrumbList>
+    <Breadcrumb className={`text-xs md:text-sm overflow-x-auto ${className}`}>
+      <BreadcrumbList className="flex-nowrap">
         {/* Items do breadcrumb começando pelo Início (home) se solicitado */}
         {items.map((item, index) => {
           const isLastItem = index === items.length - 1;
@@ -51,12 +51,12 @@ export function SEOBreadcrumb({ items, className = '', showHomeIcon = true }: SE
               
               <BreadcrumbItem>
                 {isLastItem || !item.url ? (
-                  <BreadcrumbPage>{item.name}</BreadcrumbPage>
+                  <BreadcrumbPage className="truncate max-w-[150px] md:max-w-none">{item.name}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
                     <Link href={item.url}>
                       {showHomeForThis ? (
-                        <HomeIcon className="h-4 w-4" />
+                        <HomeIcon className="h-3 w-3 md:h-4 md:w-4" />
                       ) : (
                         item.name
                       )}

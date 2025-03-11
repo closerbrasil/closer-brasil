@@ -14,6 +14,14 @@ export function ArticleContent({ content }: ArticleContentProps) {
       // Encontrar todos os iframes do YouTube no conteúdo
       const youtubeIframes = contentRef.current.querySelectorAll('iframe[src*="youtube.com"]');
       
+      // Aplicar estilo a todas as figuras com legendas
+      const figuresWithCaption = contentRef.current.querySelectorAll('figure');
+      figuresWithCaption.forEach(figure => {
+        if (figure.querySelector('figcaption')) {
+          figure.classList.add('has-overlay-credit');
+        }
+      });
+      
       // Verificar se existem iframes de YouTube
       if (youtubeIframes.length > 0) {
         // Preencher a seção de vídeo em destaque se existir
@@ -70,7 +78,7 @@ export function ArticleContent({ content }: ArticleContentProps) {
   return (
     <div 
       ref={contentRef}
-      className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:mt-6 prose-headings:mb-4
+      className="prose prose-lg max-w-none prose-headings:mt-6 prose-headings:mb-4
       prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl 
       prose-p:my-4 prose-p:leading-relaxed prose-p:text-gray-800
       prose-img:rounded-lg prose-img:my-8

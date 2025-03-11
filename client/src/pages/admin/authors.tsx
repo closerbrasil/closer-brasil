@@ -322,20 +322,19 @@ export default function AuthorsPage() {
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
-                            variant="ghost"
+                            variant="link"
                             size="icon"
                             onClick={() => handleEditClick(autor)}
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-4 w-4 text-black" />
                             <span className="sr-only">Editar</span>
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="link"
                             size="icon"
-                            className="text-red-600 hover:text-red-900"
                             onClick={() => handleDeleteClick(autor)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 text-red-500" />
                             <span className="sr-only">Excluir</span>
                           </Button>
                         </div>

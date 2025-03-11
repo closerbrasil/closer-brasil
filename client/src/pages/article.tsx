@@ -199,39 +199,67 @@ export default function ArticlePage() {
         canonicalUrl={noticia.urlCanonica || undefined}
       />
 
-      <article className="max-w-3xl mx-auto pt-8 px-4">
-        {/* Breadcrumb no topo da página */}
-        <div className="mb-10">
+      <article className="max-w-3xl mx-auto pt-4 sm:pt-6 md:pt-8 px-3 sm:px-4">
+        <div className="mb-4 sm:mb-6 md:mb-10">
           <SEOBreadcrumb items={breadcrumbItems} />
         </div>
 
-        {/* Informações editoriais */}
-        <div className="mb-4">
-          {/* Data e tempo de leitura/duração na mesma linha */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+        {/* Título principal */}
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-merriweather font-bold mb-3 sm:mb-4 md:mb-6 leading-tight">
+          {noticia.titulo}
+        </h1>
+
+        {/* Resumo do artigo */}
+        <p className="text-sm sm:text-base md:text-lg text-gray-700 mb-3 sm:mb-4 md:mb-6 font-merriweather leading-relaxed">
+          {noticia.resumo}
+        </p>
+
+        {/* Exibir imagem de capa apenas para artigos sem vídeo */}
+        {!isVideoArticle && (
+          <figure className="mb-4 relative">
+            {/* Exibição normal da imagem */}
+            <img
+              src={noticia.imageUrl}
+              alt={noticia.titulo}
+              className="w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[500px] object-cover rounded-lg"
+            />
+            
+            {/* Crédito da imagem - sobreposto */}
+            {noticia.imagemCredito && (
+              <figcaption className="absolute bottom-2 right-2 text-[10px] sm:text-xs md:text-sm text-white bg-black/60 px-2 sm:px-3 py-1 rounded-md shadow-md">
+                Crédito: {noticia.imagemCredito}
+              </figcaption>
+            )}
+          </figure>
+        )}
+        
+        {/* Informações editoriais e botões de compartilhamento */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6 md:mb-8">
+          {/* Data, tempo de leitura e categoria */}
+          <div className="flex flex-wrap items-center gap-2 md:gap-4 text-[10px] sm:text-xs md:text-sm text-gray-600">
             <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-1" />
+              <Calendar className="h-3 w-3 md:h-4 md:w-4 mr-1" />
               <time dateTime={publishedDate.toISOString()}>{formattedDate}</time>
             </div>
             
-            {/* Mostrar duração do artigo (tempo de leitura para texto, duração para vídeo) */}
+            {/* Mostrar duração do artigo */}
             {noticia.tempoLeitura && (
               <div className="flex items-center">
                 {isVideoArticle ? (
                   <>
-                    <Play className="h-4 w-4 mr-1 fill-primary text-primary" />
+                    <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 fill-primary text-primary" />
                     <span className="text-primary font-medium">{noticia.tempoLeitura}</span>
                   </>
                 ) : (
                   <>
-                    <Clock className="h-4 w-4 mr-1" />
+                    <Clock className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                     <span>{noticia.tempoLeitura}</span>
                   </>
                 )}
               </div>
             )}
             
-            {/* Badge de categoria como texto */}
+            {/* Badge de categoria */}
             {categoria && (
               <>
                 <span className="text-gray-400">•</span>
@@ -240,109 +268,76 @@ export default function ArticlePage() {
                   className="flex items-center hover:underline"
                   style={{ color: categoria.cor || 'currentColor' }}
                 >
-                  {isVideoArticle && <Play className="h-3 w-3 mr-1 fill-current" />}
-                  <span className="font-medium">{categoria.nome}</span>
+                  {isVideoArticle && <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 fill-current" />}
+                  <span className="font-medium text-[10px] sm:text-xs md:text-sm">{categoria.nome}</span>
                 </Link>
               </>
             )}
           </div>
-        </div>
-
-        {/* Título principal */}
-        <h1 className="text-4xl font-merriweather font-bold mb-6">
-          {noticia.titulo}
-        </h1>
-
-        {/* Resumo do artigo */}
-        <p className="text-lg text-gray-700 mb-6 font-merriweather leading-relaxed">
-          {noticia.resumo}
-        </p>
-
-        {/* Exibir imagem de capa apenas para artigos sem vídeo */}
-        {!isVideoArticle && (
-          <figure className="mb-8 relative">
-            {/* Exibição normal da imagem */}
-            <img
-              src={noticia.imageUrl}
-              alt={noticia.titulo}
-              className="w-full max-h-[500px] object-cover rounded-lg"
-            />
-            
-            {/* Crédito da imagem */}
-            {noticia.imagemCredito && (
-              <figcaption className="text-sm text-gray-500 mt-2 italic text-right">
-                Crédito: {noticia.imagemCredito}
-              </figcaption>
-            )}
-          </figure>
-        )}
-
-        {/* Barra de ações - Botões de compartilhamento */}
-        <div className="flex justify-end mb-8">
+          
+          {/* Botões de compartilhamento */}
           <div className="flex items-center gap-2">
             <button 
               onClick={shareOnWhatsApp} 
-              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-2 rounded-md"
+              className="flex items-center gap-1 sm:gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm"
               title="Compartilhar no WhatsApp"
             >
-              <FaWhatsapp className="h-5 w-5" />
-              <span>WhatsApp</span>
+              <FaWhatsapp className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+              <span className="hidden sm:inline">WhatsApp</span>
             </button>
             <button 
               onClick={shareOnFacebook} 
-              className="flex items-center gap-2 bg-[#1877F2] hover:bg-[#166FE5] text-white px-4 py-2 rounded-md"
+              className="flex items-center gap-1 sm:gap-2 bg-[#1877F2] hover:bg-[#166FE5] text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm"
               title="Compartilhar no Facebook"
             >
-              <FaFacebookF className="h-5 w-5" />
-              <span>Facebook</span>
+              <FaFacebookF className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+              <span className="hidden sm:inline">Facebook</span>
             </button>
             <button 
               onClick={shareOnX} 
-              className="flex items-center gap-2 bg-[#000000] hover:bg-[#333333] text-white px-4 py-2 rounded-md"
+              className="flex items-center gap-1 sm:gap-2 bg-[#000000] hover:bg-[#333333] text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm"
               title="Compartilhar no X"
             >
-              <FaTwitter className="h-5 w-5" />
-              <span>X</span>
+              <FaTwitter className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+              <span className="hidden sm:inline">X</span>
             </button>
           </div>
         </div>
 
         {/* Conteúdo principal */}
-        <div className="mb-12">
-          {/* Para artigos de vídeo, destacar o primeiro iFrame do YouTube antes do conteúdo se existir */}
+        <div className="mb-8 sm:mb-12">
+          {/* Para artigos de vídeo */}
           {isVideoArticle && (
-            <div className="youtube-featured-video mb-8 mt-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <Play className="h-5 w-5 fill-primary text-primary" />
+            <div className="youtube-featured-video mb-6 sm:mb-8 mt-3 sm:mt-4">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+                  <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-primary text-primary" />
                   Vídeo em destaque
                 </h2>
                 
                 {categoria && (
                   <Link href={`/categoria/${categoria.slug}`}>
                     <Badge 
-                      className="px-3 py-1 text-sm font-medium flex items-center gap-1"
+                      className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-medium flex items-center gap-1"
                       style={{ backgroundColor: categoria.cor || '#3b82f6', color: 'white' }}
                     >
-                      <Play className="h-3 w-3 fill-white" />
+                      <Play className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-white" />
                       {categoria.nome}
                     </Badge>
                   </Link>
                 )}
               </div>
-              {/* O conteúdo do artigo terá os iframes transformados pelo ArticleContent */}
             </div>
           )}
           
-          {/* Vamos usar nosso novo componente para renderizar o conteúdo formatado */}
           <ArticleContent content={noticia.conteudo} />
         </div>
 
-        {/* Bio do autor ao final */}
+        {/* Bio do autor */}
         {autor && autor.bio && (
-          <div className="bg-gray-50 p-6 rounded-lg mb-12">
-            <div className="flex items-center mb-4">
-              <div className="h-12 w-12 mr-4 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+          <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-8 sm:mb-12">
+            <div className="flex items-center mb-3 sm:mb-4">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 mr-3 sm:mr-4 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
                 {autor.avatarUrl ? (
                   <img 
                     src={autor.avatarUrl} 
@@ -350,32 +345,32 @@ export default function ArticlePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm font-bold">
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs sm:text-sm font-bold">
                     {autor.nome ? autor.nome.substring(0, 2).toUpperCase() : 'AU'}
                   </div>
                 )}
               </div>
               <div>
-                <Link href={`/autor/${autor.slug}`} className="font-bold text-lg hover:underline">
+                <Link href={`/autor/${autor.slug}`} className="font-bold text-base sm:text-lg hover:underline">
                   {autor.nome}
                 </Link>
-                {autor.cargo && <p className="text-sm text-gray-600">{autor.cargo}</p>}
+                {autor.cargo && <p className="text-xs sm:text-sm text-gray-600">{autor.cargo}</p>}
               </div>
             </div>
-            <p className="text-gray-700">{autor.bio}</p>
+            <p className="text-sm sm:text-base text-gray-700">{autor.bio}</p>
           </div>
         )}
 
         {/* Card de Tags */}
         {tagsData.length > 0 && (
-          <div className="bg-gray-50 p-6 rounded-lg mb-12">
-            <h3 className="text-lg font-bold mb-4">Tags relacionadas</h3>
-            <TagList tags={tagsData} className="text-base" />
+          <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-8 sm:mb-12">
+            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Tags relacionadas</h3>
+            <TagList tags={tagsData} className="text-sm sm:text-base" />
           </div>
         )}
 
         {/* Seção de posts relacionados */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <RelatedPosts 
             noticiaId={noticia.id} 
             categoriaId={noticia.categoriaId} 
@@ -384,7 +379,7 @@ export default function ArticlePage() {
         </div>
 
         {/* Seção de comentários */}
-        <div className="mt-12 pt-8 border-t">
+        <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t">
           <Comments noticiaId={noticia.id} />
         </div>
       </article>

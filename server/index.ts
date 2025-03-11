@@ -1,8 +1,9 @@
+import './env';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { db } from "./db";
-import { storage } from "./storage";
+import { storage } from "./vercelBlobStorage";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
 
@@ -78,12 +79,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  const port = process.env.PORT || 3000;
+  server.listen(port, () => {
+    log(`Servidor rodando em http://localhost:${port}`);
   });
 })();

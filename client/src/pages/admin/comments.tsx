@@ -241,38 +241,36 @@ export default function CommentsPage() {
                           <TableCell>
                             <div className="flex space-x-2">
                               <Button
-                                variant="ghost"
+                                variant="link"
                                 size="icon"
                                 onClick={() => handleViewClick(comentario)}
                               >
-                                <Eye className="h-4 w-4" />
+                                <Eye className="h-4 w-4 text-black" />
                                 <span className="sr-only">Ver</span>
                               </Button>
                               
                               {!comentario.aprovado && (
                                 <Button
-                                  variant="ghost"
+                                  variant="link"
                                   size="icon"
-                                  className="text-green-600 hover:text-green-900"
                                   onClick={() => handleApproveClick(comentario.id)}
                                   disabled={approveMutation.isPending}
                                 >
                                   {approveMutation.isPending && approveMutation.variables === comentario.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <Loader2 className="h-4 w-4 animate-spin text-green-600" />
                                   ) : (
-                                    <CheckCircle2 className="h-4 w-4" />
+                                    <CheckCircle2 className="h-4 w-4 text-green-600" />
                                   )}
                                   <span className="sr-only">Aprovar</span>
                                 </Button>
                               )}
                               
                               <Button
-                                variant="ghost"
+                                variant="link"
                                 size="icon"
-                                className="text-red-600 hover:text-red-900"
                                 onClick={() => handleDeleteClick(comentario)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4 text-red-500" />
                                 <span className="sr-only">Excluir</span>
                               </Button>
                             </div>
